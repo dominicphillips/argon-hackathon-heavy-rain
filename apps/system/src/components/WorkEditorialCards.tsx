@@ -52,8 +52,12 @@ export interface WorkEditorialCardCopy {
   proposed?: string;
   /** Plain decision words. Falls back to the owner-approved word for cluster.disposition. */
   decision?: string;
+  /** Short approved recurring need. Shown as its own paragraph when it differs from reason. */
+  need?: string;
   /** Short approved reason. Falls back to observed, then summary. Never to cluster text. */
   reason?: string;
+  /** Summary text for the collapsed details element. Falls back to labels.details. */
+  sourceLabel?: string;
   /** Verbatim approved chat excerpts rendered inside View details. */
   sourceExcerpts?: WorkEditorialSourceExcerpt[];
   illustration?: WorkEditorialIllustration;
@@ -333,7 +337,10 @@ export const WorkEditorialCards: FC<WorkEditorialCardsProps> = (props) => {
         const copy = displayCopy?.[cluster.clusterId];
         const title = copy?.title ?? cluster.shortTitle;
         // Reason comes from approved short copy only. Cluster text stays in View details.
-        const reason = copy?.reason ?? copy?.observed ?? copy?.summary;
+        const need = copy?.need || undefined;
+        const reasonRaw = copy?.reason ?? copy?.observed ?? copy?.summary;
+        const reason = reasonRaw && reasonRaw !== need ? reasonRaw : undefined;
+        const detailsSummary = copy?.sourceLabel || labels.details;
         const proposed = copy?.proposed;
         const decision = resolveDecision(cluster.disposition, labels, copy);
         const action = resolvePrimaryAction(cluster.disposition, labels, props);
@@ -401,6 +408,9 @@ export const WorkEditorialCards: FC<WorkEditorialCardsProps> = (props) => {
               ) : (
                 <h3 className="hr-work-editorial__title">{title}</h3>
               )}
+              {need ? (
+                <p className="hr-work-editorial__need">{need}</p>
+              ) : null}
               {reason ? (
                 <p className="hr-work-editorial__reason">{reason}</p>
               ) : null}
@@ -431,7 +441,7 @@ export const WorkEditorialCards: FC<WorkEditorialCardsProps> = (props) => {
                 onClick={(event) => event.stopPropagation()}
               >
                 <summary className="hr-work-editorial__details-summary">
-                  {labels.details}
+                  {detailsSummary}
                 </summary>
                 <div className="hr-work-editorial__details-body">
                   {detailLines.map((line, i) => (

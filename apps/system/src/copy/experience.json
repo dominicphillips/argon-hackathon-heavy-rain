@@ -11,7 +11,7 @@
   },
   "ingestIntro": {
     "title": "Weekly AI work excerpts",
-    "body": "Approved weekly AI work excerpts from fictional employees show recurring tasks and app proposals—not silent chat monitoring.",
-    "demoLabel": "Synthetic demo personas"
+    "body": "Approved weekly AI work shows recurring employee tasks and whether to build a new app, use an existing one, or ask for details.",
+    "demoLabel": "Synthetic demo data"
   }
 }

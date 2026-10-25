@@ -1,38 +1,38 @@
 {
   "app_augi_sable_chassis_3d": {
     "name": "Sable Studio",
-    "purpose": "Compare SABLE-A, B, and C wheelbase, track, and rocker gauge tradeoffs in an interactive 3D cutaway."
+    "purpose": "Compare three chassis designs in 3D as you adjust wheelbase, width, and wall thickness."
   },
   "app_rm_variance_workbench": {
     "name": "Rookmere Close",
-    "purpose": "Map monthly trial balances to board P&L lines, isolate FX variance, and check covenant headroom."
+    "purpose": "Map monthly trial balances to track EBITDA, currency changes, and debt covenant headroom."
   },
   "app_augi_bom_mass_ledger": {
     "name": "Sable Balance",
-    "purpose": "Adjust part masses and positions in a new 3D X-ray view to check axle load share and center of gravity."
+    "purpose": "Move and weigh vehicle parts in a 3D X-ray view to check axle load and center of gravity."
   },
   "app_augi_fastener_weld_matrix": {
     "name": "Joining Registry",
-    "purpose": "Check rivet dies, screw stackups, and epoxy bond-line thickness rules for aluminum-to-steel flanges."
+    "purpose": "Look up approved rivet sizes, alloy limits, and adhesive thickness for body joints."
   },
   "app_augi_pack_thermal_clearance": {
     "name": "Pack Clearance",
-    "purpose": "Verify 2D cross-section tolerances between 800V cell modules, cold plates, and lower shield panels."
+    "purpose": "Check 2D spacing tolerances between battery modules, cooling plates, and lower shields."
   },
   "app_rm_diligence_tracker": {
     "name": "Diligence Tracker",
-    "purpose": "Deduplicate data-room request spreadsheets, assign seller owners, and export weekly Q&A status packs."
+    "purpose": "Combine duplicate diligence questions from spreadsheets and assign an owner to each item."
   },
   "app_rm_valuation_bridge": {
     "name": "Valuation Bridge",
-    "purpose": "Decompose quarterly equity value across EBITDA growth, multiples, debt paydown, and FX for LP reports."
+    "purpose": "Break down quarterly company value changes across earnings, debt paydown, and currency."
   },
   "app_rm_expert_call_log": {
     "name": "Expert Call Log",
-    "purpose": "Check expert employer cooling-off rules, record MNPI attestations, and schedule compliance chaperones."
+    "purpose": "Check employer cooling-off rules and log compliance sign-offs before expert interviews."
   },
   "app_rm_kpi_ingest": {
     "name": "KPI Collector",
-    "purpose": "Collect six monthly headline metrics—revenue, margin, backlog, headcount, cash, and debt—from CFOs."
+    "purpose": "Collect six monthly headline numbers—revenue, margin, backlog, headcount, cash, and debt."
   }
 }

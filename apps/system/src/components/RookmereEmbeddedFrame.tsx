@@ -8,6 +8,9 @@ import {
   Status,
 } from "@heavy-rain/organization-ui";
 import type { PortfolioCompanyRow } from "../types";
+import catalogCopy from "../copy/catalog.json";
+
+const appName = catalogCopy.app_rm_variance_workbench.name;
 
 export interface RookmereEmbeddedFrameProps {
   companies: PortfolioCompanyRow[];
@@ -87,9 +90,7 @@ export const RookmereEmbeddedFrame: FC<RookmereEmbeddedFrameProps> = ({
           <span className="augi-embed-frame__divider" aria-hidden="true">
             ·
           </span>
-          <span className="augi-embed-frame__title">
-            Portfolio Variance Workbench
-          </span>
+          <span className="augi-embed-frame__title">{appName}</span>
           <Status tone="estimate" label={`v${releaseVersion} · 2026-09`} />
         </div>
         <div className="augi-embed-frame__actions">
@@ -124,7 +125,7 @@ export const RookmereEmbeddedFrame: FC<RookmereEmbeddedFrameProps> = ({
           <div className="augi-embed-frame__iframe-shell">
             <iframe
               src={externalUrl}
-              title="Rookmere Capital Portfolio Variance Workbench (http://127.0.0.1:43173)"
+              title={`Rookmere Capital ${appName}`}
               className="augi-embed-frame__iframe"
               loading="eager"
               tabIndex={isObscured ? -1 : undefined}

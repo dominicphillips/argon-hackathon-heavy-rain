@@ -8,6 +8,9 @@ import {
   Status,
 } from "@heavy-rain/organization-ui";
 import type { AugiConfigSummary } from "../types";
+import catalogCopy from "../copy/catalog.json";
+
+const appName = catalogCopy.app_augi_sable_chassis_3d.name;
 
 export interface AugiEmbeddedFrameProps {
   configs: AugiConfigSummary[];
@@ -51,9 +54,7 @@ export const AugiEmbeddedFrame: FC<AugiEmbeddedFrameProps> = ({
           <span className="augi-embed-frame__divider" aria-hidden="true">
             |
           </span>
-          <span className="augi-embed-frame__title">
-            AUGI Sable 3D Chassis Study
-          </span>
+          <span className="augi-embed-frame__title">{appName}</span>
           <Status
             tone="estimate"
             label={`Concept estimate · v${releaseVersion}`}
@@ -103,7 +104,7 @@ export const AugiEmbeddedFrame: FC<AugiEmbeddedFrameProps> = ({
           <div className="augi-embed-frame__iframe-shell">
             <iframe
               src={externalUrl}
-              title="AUGI Sable 3D Chassis Architecture Comparator (http://127.0.0.1:43171)"
+              title={`AUGI ${appName}`}
               className="augi-embed-frame__iframe"
               loading="eager"
               tabIndex={isObscured ? -1 : undefined}

@@ -25,7 +25,29 @@
         "avatarAtlasPosition": "0% 0%"
       },
       "observed": "Every wheelbase or track change meant re-pasting section JSON into chat and reading flat stiffness tables.",
-      "proposed": "Sable Studio sweeps wheelbase, track, and wall gauge across SABLE-A/B/C in an interactive 3D cutaway view."
+      "proposed": "Sable Studio sweeps wheelbase, track, and wall gauge across SABLE-A/B/C in an interactive 3D cutaway view.",
+      "need": "Engineers repeatedly test how chassis dimensions and frame options affect weight and stiffness.",
+      "reason": "Existing 2D mass tables lack 3D geometry and load checks, which Sable Studio and Sable Balance provide.",
+      "decision": "Build a new app",
+      "sourceLabel": "See source excerpts",
+      "sourceExcerpts": [
+        {
+          "excerptId": "xcp_augi_01_w41",
+          "author": "Lukas Lindner",
+          "role": "Lead Chassis & BIW Architect, AUGI Sable",
+          "date": "2026-10-07",
+          "source": "Claude Desktop",
+          "text": "Using our Bredt-Batho closed-section torsion approximation for the AUGI Sable skateboard, compare SABLE-A (modular 6082-T6 extrusion + bolt-in pack, 3040 mm wheelbase, 1690/1700 mm track, 3.2 mm wall) against SABLE-B (Cell-to-Body 82% pack shear coupling + 22MnB5 boron torque rings, 3.0 mm wall). What happens if we stretch wheelbase to 3120 mm?"
+        },
+        {
+          "excerptId": "xcp_augi_01_w42",
+          "author": "Kenji Takahashi",
+          "role": "Senior Sill Extrusion & Underbody Load-Path Engineer",
+          "date": "2026-10-14",
+          "source": "Claude Desktop",
+          "text": "Sweep the 6-chamber AA 6082-T6 rocker extrusion wall gauge from 2.2 mm to 4.5 mm in 0.2 mm steps on SABLE-B (195x135 mm section) and SABLE-C (200x135 mm section with AlSi7Mg C611 megacastings). Plot structural mass (kg) vs torsional stiffness (kN·m/deg)."
+        }
+      ]
     },
     "pat_rm_01": {
       "title": "Rookmere Close",
@@ -40,7 +62,115 @@
       },
       "observed": "Each monthly close required re-uploading HGB account mappings, FX rates, and covenant caps into fresh chats.",
       "summary": "Each monthly close required re-uploading HGB account mappings, FX rates, and covenant caps into fresh chats.",
-      "proposed": "Rookmere Close maps monthly trial balances to P&L lines, isolates FX variance, and checks covenant headroom."
+      "proposed": "Rookmere Close maps monthly trial balances to P&L lines, isolates FX variance, and checks covenant headroom.",
+      "need": "Teams manually map monthly trial balances to track EBITDA, currency moves, and debt covenants.",
+      "reason": "KPI Collector only stores six headline numbers, so Rookmere Close is needed for trial balances and FX.",
+      "decision": "Build a new app",
+      "sourceLabel": "See source excerpts",
+      "sourceExcerpts": [
+        {
+          "excerptId": "xcp_rm_01_w39",
+          "author": "Lukas Weber",
+          "role": "Principal, DACH Investments",
+          "date": "2026-09-24",
+          "source": "Claude Desktop",
+          "text": "Here is the semicolon-delimited German HGB trial balance export for Kelvion Flow Systems GmbH (accounts 4000-4999 revenue, 5000-5999 material cost). Map it to the RIG-III board P&L lines and explain why EBITDA missed budget by EUR 190k."
+        },
+        {
+          "excerptId": "xcp_rm_01_w43b",
+          "author": "Nina Kovacs",
+          "role": "Senior Fund Controller",
+          "date": "2026-10-22",
+          "source": "ChatGPT Enterprise",
+          "text": "Convert September management accounts for Varn Precision Optics AB (SEK budget 11.20, actual 11.48) and Nordic ColdChain Logistics AS (NOK budget 11.50, actual 11.79) into EUR. Separate constant-currency operational EBITDA variance from FX translation and check Nordic ColdChain's net debt (EUR 39.8m) against LTM EBITDA (EUR 11.05m) and its 3.75x covenant."
+        }
+      ]
+    },
+    "pat_rm_02": {
+      "title": "Diligence request tracker",
+      "need": "Associates merge duplicate diligence questions from advisor lists and assign seller owners.",
+      "reason": "Diligence Tracker already handles request deduplication and owner assignment for the deal team.",
+      "decision": "Use an existing app",
+      "sourceLabel": "See source excerpts",
+      "primaryAction": "Open app",
+      "sourceExcerpts": [
+        {
+          "excerptId": "xcp_rm_02_w41",
+          "author": "Henrik Lindqvist",
+          "role": "Senior Associate, Investment Team",
+          "date": "2026-10-09",
+          "source": "Claude Desktop",
+          "text": "Attached are the commercial advisor IRL (82 rows) and financial QoE advisor IRL (94 rows) for Project Alpine. Deduplicate overlapping customer-churn and backlog questions and output a clean CSV with seller owner columns."
+        },
+        {
+          "excerptId": "xcp_rm_02_w43",
+          "author": "Maya Patel",
+          "role": "Associate, Investment Team",
+          "date": "2026-10-23",
+          "source": "Claude Desktop",
+          "text": "I have 140 financial and commercial diligence questions from two advisor workstreams on the Castel Analytical Instruments add-on screen. Merge duplicates, keep the highest priority flag, and group by seller CFO vs VP Sales."
+        }
+      ]
+    },
+    "pat_rm_03": {
+      "title": "Investor side-letter checks",
+      "need": "Teams repeatedly check investor side letters for fee rules and co-investment notice windows.",
+      "reason": "Reports withheld restricted clause text, so Legal must provide a redacted sample schedule first.",
+      "decision": "Ask for more information",
+      "sourceLabel": "See source excerpts",
+      "primaryAction": "Ask for information",
+      "sourceExcerpts": [
+        {
+          "excerptId": "xcp_rm_03_w41",
+          "author": "Jonas Bergmann",
+          "role": "Investor Relations Manager",
+          "date": "2026-10-08",
+          "source": "Gemini Workspace",
+          "text": "I paraphrased 14 anonymized LP side-letter co-investment clauses from RIG-IV below. Group them by required notice business days (3 days, 5 days, 10 days) and commitment size threshold."
+        },
+        {
+          "excerptId": "xcp_rm_03_w43a",
+          "author": "Sophie Albers",
+          "role": "Director of Investor Relations",
+          "date": "2026-10-23",
+          "source": "Claude Desktop",
+          "text": "We are allocating the EUR 12m Solvay Grid Controls follow-on co-investment tranche next week. Which RIG-IV LPs require a <5 business-day ROFO notice or hold grid/defense telemetry ESG opt-out clauses?"
+        }
+      ]
+    },
+    "wf_augi_02": {
+      "title": "Mixed-material joining lookup",
+      "need": "Engineers look up rivet lengths, alloy limits, and epoxy rules for aluminum-to-steel joints.",
+      "reason": "Joining Registry already lists approved rivet combinations, alloy limits, and adhesive thickness rules.",
+      "decision": "Use an existing app",
+      "sourceLabel": "See source excerpts",
+      "primaryAction": "Open app",
+      "sourceExcerpts": [
+        {
+          "excerptId": "xcp_augi_04_w41",
+          "author": "Kenji Takahashi",
+          "role": "Senior Sill Extrusion & Underbody Load-Path Engineer",
+          "date": "2026-10-10",
+          "source": "Claude Desktop",
+          "text": "We are joining a 3.0 mm AA 6082-T6 top sill flange to a 1.8 mm 22MnB5 boron steel B-pillar torque ring on SABLE-B. Which self-piercing rivet (SPR) or flow-drill screw (FDS) stackup and structural epoxy bond-line thickness prevent galvanic corrosion and die cracking?"
+        },
+        {
+          "excerptId": "xcp_augi_04_w43",
+          "author": "Dr. Astrid Vestergaard",
+          "role": "Principal High-Pressure Die-Casting Specialist",
+          "date": "2026-10-23",
+          "source": "Gemini Workspace",
+          "text": "Check supplier heat-batch certificate spec AlSi7Mg-C611-F (0.2% proof stress >= 195 MPa, elongation A5 >= 10%) for the SABLE-C rear megacasting flange where it bonds and rivets to the 3.4 mm 6082-T6 rocker extrusion."
+        }
+      ]
+    },
+    "wf_augi_03": {
+      "title": "Rear casting porosity check",
+      "need": "Casting engineers estimate porosity risk across variable rib thicknesses in the rear casting.",
+      "reason": "Foundry thermal logs are restricted by a supplier agreement, so a cleared sample file is needed first.",
+      "decision": "Ask for more information",
+      "sourceLabel": "See source excerpts",
+      "primaryAction": "Ask for information"
     }
   }
 }

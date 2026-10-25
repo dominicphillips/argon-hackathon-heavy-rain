@@ -44,6 +44,13 @@ import workCopy from "./copy/work.json";
 import workerQuoteCopy from "./copy/worker-quotes.json";
 import catalogCopy from "./copy/catalog.json";
 import experienceCopy from "./copy/experience.json";
+import playbackCopy from "./copy/playback.json";
+import workerStatusCopy from "./copy/worker-status.json";
+import { useDemoPlayback } from "./demo/useDemoPlayback";
+import {
+  DemoPlaybackControls,
+  type DemoPlaybackCopy,
+} from "./demo/DemoPlayback";
 import {
   WorkEditorialCards,
   type WorkEditorialCardCopy,
@@ -202,6 +209,16 @@ const WORKER_QUOTE_LIMIT = 2;
 const workerQuoteMessages = workerQuoteCopy.messages as Partial<
   Record<OrganizationId, Partial<Record<WorkerRole, string>>>
 >;
+// State-specific worker text keyed by role; per-org overrides above win when present.
+const workerStatusMessages = workerStatusCopy as Partial<
+  Record<WorkerRole, { queued: string; working: string; completed: string }>
+>;
+const demoPlaybackCopy: DemoPlaybackCopy = playbackCopy;
+
+// Explicit catalog app routing. Only implemented local apps get a URL; other cards keep View details.
+const CATALOG_APP_URLS: Record<string, string> = {
+  app_augi_bom_mass_ledger: "http://127.0.0.1:43171/?app=balance",
+};
 
 export const App: FC = () => {
   // Entry screen route (/login or ?login=1); direct / opens the signed-in demo workspace
@@ -254,6 +271,10 @@ export const App: FC = () => {
     rookmere: null,
     augi: null,
   });
+  // Demo playback owns the mutation lane while playing or awaiting an accepted request.
+  // Never fed back into the playback hook's externalBusy; that would deadlock it.
+  const [demoBusy, setDemoBusy] = useState<boolean>(false);
+  const playbackLaneRef = useRef<boolean>(false);
   const [backendErrors, setBackendErrors] = useState<
     Record<OrganizationId, string | null>
   >({ rookmere: null, augi: null });
@@ -405,7 +426,18 @@ export const App: FC = () => {
 
   const activeFixture = fixtures[activeOrgId];
   const activeOrgState = orgStates[activeOrgId];
-  const activeBusy = backendBusy[activeOrgId];
+  const activeBackendBusy = backendBusy[activeOrgId];
+
+  // Current heading name: catalog display override for the hero app, falling back to the fixture title
+  const heroDisplayName = useMemo(() => {
+    const heroApp = activeFixture.catalogApps.find(
+      (app) => app.isHeroCandidate === true,
+    );
+    return (
+      (heroApp ? CATALOG_DISPLAY[heroApp.appId]?.name : undefined) ??
+      activeFixture.heroTitle
+    );
+  }, [activeFixture]);
 
   // Helper to update a specific organization's isolated state
   const updateOrgState = useCallback(
@@ -443,7 +475,8 @@ export const App: FC = () => {
       op: () => Promise<{ data: T; workspace?: OrganizationWorkspaceState }>,
       after?: (data: T) => Promise<void> | void,
     ): Promise<T | null> => {
-      if (busyRef.current[org]) return null;
+      // Manual mutations wait while demo playback owns the lane; the controller calls the client directly.
+      if (busyRef.current[org] || playbackLaneRef.current) return null;
       busyRef.current = { ...busyRef.current, [org]: key };
       setBackendBusy((prev) => ({ ...prev, [org]: key }));
       setBackendErrors((prev) => ({ ...prev, [org]: null }));
@@ -464,6 +497,34 @@ export const App: FC = () => {
     },
     [applySnapshot],
   );
+
+  // One App-level demo playback hook so Build -> Ingest navigation does not stop it.
+  // Steps stop at verified ready; release review and approval stay explicit human actions.
+  const demoPlaybackEnabled =
+    !showEntryScreen &&
+    backendConnected &&
+    backendHealth?.operatingMode === "demo_fixture_replay";
+  const playback = useDemoPlayback({
+    orgId: activeOrgId,
+    enabled: demoPlaybackEnabled,
+    externalBusy: Boolean(activeBackendBusy),
+    onWorkspace: applySnapshot,
+    onView: setActiveNav,
+    onBusyChange: setDemoBusy,
+  });
+  const playbackOwnsLane =
+    demoBusy || playback.state.playing || playback.state.busy;
+  playbackLaneRef.current = playbackOwnsLane;
+  // Combined UI busy state: backend request in flight or playback holding the lane.
+  const manualLocked = Boolean(activeBackendBusy) || playbackOwnsLane;
+  const playbackControls = backendConnected ? (
+    <DemoPlaybackControls
+      playback={playback}
+      enabled={demoPlaybackEnabled}
+      externalBusy={Boolean(activeBackendBusy)}
+      copy={demoPlaybackCopy}
+    />
+  ) : null;
 
   // Hydrate both tenants from the local backend; stay on fixtures if it is unreachable
   useEffect(() => {
@@ -1440,6 +1501,7 @@ export const App: FC = () => {
   // Select a worker from the 4-worker horizontal dock below the chamber.
   // Toggles a small quote box on the chamber canvas; the Inspector stays closed.
   function handleSelectWorkerFromDock(role: WorkerRole) {
+    setInspectorOpen(false);
     updateOrgState(activeOrgId, (prev) => ({
       ...prev,
       selectedWorker: role,
@@ -1451,6 +1513,31 @@ export const App: FC = () => {
         : [...current, role].slice(-WORKER_QUOTE_LIMIT);
       return { ...prev, [activeOrgId]: next };
     });
+  }
+
+  // Quote text: explicit per-org override, else the state variant for the worker's current tone.
+  // Paused or failed workers show their short status label instead of a completion claim.
+  function resolveWorkerMessage(
+    role: WorkerRole,
+    status: { tone: SystemStatusTone; label: string },
+  ): string {
+    const override = workerQuoteMessages[activeOrgId]?.[role];
+    if (override) return override;
+    const variants = workerStatusMessages[role];
+    switch (status.tone) {
+      case "queued":
+      case "accepted":
+        return variants?.queued ?? status.label;
+      case "running":
+      case "building":
+        return variants?.working ?? status.label;
+      case "completed":
+      case "verified":
+      case "deployed":
+        return variants?.completed ?? status.label;
+      default:
+        return status.label;
+    }
   }
 
   function handleDismissWorkerQuote(role: WorkerRole) {
@@ -1506,7 +1593,7 @@ export const App: FC = () => {
   // Determine exact System screen state copy from UX handoff table
   const systemStateCopy = useMemo(() => {
     const stage = activeOrgState.buildStage;
-    const appName = activeFixture.heroFullName;
+    const appName = heroDisplayName;
     switch (stage) {
       case "idle":
         return {
@@ -1606,6 +1693,7 @@ export const App: FC = () => {
     activeOrgState.lastActiveCheckpoint,
     activeOrgState.appReleaseStatus,
     activeFixture,
+    heroDisplayName,
   ]);
 
   const isVeiled = activeOrgState.buildStage !== "ready";
@@ -1877,7 +1965,7 @@ export const App: FC = () => {
                       type="button"
                       className="hr-status-chip"
                       title="Pausing schedule stops future Sunday 18:00 UTC cutoffs only; active sandbox builds continue unless paused separately"
-                      disabled={activeBusy === "schedule"}
+                      disabled={manualLocked}
                       onClick={() => {
                         if (backendConnected) {
                           const org = activeOrgId;
@@ -2062,6 +2150,10 @@ export const App: FC = () => {
             )}
           </div>
 
+          {activeNav !== "System" && playbackControls && (
+            <div className="hr-topbar__playback">{playbackControls}</div>
+          )}
+
           <button
             type="button"
             className={`hr-topbar__toggle${
@@ -2138,8 +2230,8 @@ export const App: FC = () => {
             >
               {backendErrors[activeOrgId] ? (
                 <Status tone="failed" label={backendErrors[activeOrgId] ?? ""} />
-              ) : activeBusy ? (
-                <Status tone="running" label={activeBusy} />
+              ) : activeBackendBusy ? (
+                <Status tone="running" label={activeBackendBusy} />
               ) : null}
             </div>
             {/* ============================================================
@@ -2158,7 +2250,7 @@ export const App: FC = () => {
                       aria-hidden="true"
                     />
                     <h1 className="hr-workbench-c__title">
-                      {activeFixture.heroTitle}
+                      {heroDisplayName}
                     </h1>
                   </div>
 
@@ -2167,6 +2259,7 @@ export const App: FC = () => {
                       tone={systemStateCopy.tone}
                       label={systemStateCopy.chamberPill}
                     />
+                    {playbackControls}
 
                     {/* Single primary contextual action */}
                     {(activeOrgState.buildStage === "stage1" ||
@@ -2174,6 +2267,7 @@ export const App: FC = () => {
                       activeOrgState.buildStage === "stage3") && (
                       <Button
                         variant="primary"
+                        disabled={manualLocked}
                         onClick={handleTogglePauseBuild}
                       >
                         Pause build
@@ -2183,6 +2277,7 @@ export const App: FC = () => {
                     {activeOrgState.buildStage === "paused" && (
                       <Button
                         variant="primary"
+                        disabled={manualLocked}
                         onClick={handleTogglePauseBuild}
                       >
                         Resume from checkpoint
@@ -2192,6 +2287,7 @@ export const App: FC = () => {
                     {activeOrgState.buildStage === "failed" && (
                       <Button
                         variant="primary"
+                        disabled={manualLocked}
                         onClick={handleRetryFromCheckpoint}
                       >
                         Retry from checkpoint
@@ -2203,6 +2299,7 @@ export const App: FC = () => {
                       activeOrgState.buildStage === "loading") && (
                       <Button
                         variant="primary"
+                        disabled={manualLocked}
                         onClick={() => handleSelectBuildStage("stage2")}
                       >
                         Start sandbox build
@@ -2213,6 +2310,7 @@ export const App: FC = () => {
                       (activeOrgState.appReleaseStatus !== "released" ? (
                         <Button
                           variant="primary"
+                          disabled={manualLocked}
                           onClick={handleApproveForRelease}
                         >
                           Approve for release
@@ -2231,7 +2329,7 @@ export const App: FC = () => {
                 {/* BAND 2: Framed Dark Build Glass / Artifact Chamber (03-system-c.png) */}
                 <section
                   className={`hr-workbench-c__chamber hr-workbench-c__chamber--${activeOrgState.buildStage}`}
-                  aria-label={`${activeFixture.heroFullName} artifact chamber`}
+                  aria-label={`${heroDisplayName} artifact chamber`}
                 >
                   {/* Always-sharp inline failure recovery banner when in failed state */}
                   {activeOrgState.buildStage === "failed" && (
@@ -2325,9 +2423,7 @@ export const App: FC = () => {
                           );
                           if (!worker) return null;
                           const st = getWorkerStatus(role);
-                          const message =
-                            workerQuoteMessages[activeOrgId]?.[role] ??
-                            worker.headline;
+                          const message = resolveWorkerMessage(role, st);
                           return (
                             <WorkerQuote
                               key={worker.id}
@@ -2410,6 +2506,16 @@ export const App: FC = () => {
                 <header className="hr-section-header">
                   <div>
                     <h1 className="hr-section-header__title">Ingest</h1>
+                    <p className="hr-ingest-intro">
+                      <strong>{experienceCopy.ingestIntro.title}.</strong>{" "}
+                      {experienceCopy.ingestIntro.body}
+                    </p>
+                  </div>
+                  <div className="hr-section-header__actions">
+                    <Status
+                      tone="queued"
+                      label={experienceCopy.ingestIntro.demoLabel}
+                    />
                   </div>
                 </header>
 
@@ -2463,6 +2569,7 @@ export const App: FC = () => {
                     workCopy.cards as Record<string, WorkEditorialCardCopy>
                   }
                   labels={workCopy.labels}
+                  reports={activeFixture.reports}
                   onOpenBuild={(clusterId) => {
                     updateOrgState(activeOrgId, (prev) => ({
                       ...prev,
@@ -2501,7 +2608,7 @@ export const App: FC = () => {
                           <Button
                             variant="secondary"
                             size="sm"
-                            disabled={activeBusy === "intake"}
+                            disabled={manualLocked}
                             onClick={handlePrepareIntakePayload}
                           >
                             {copy.backend.outgoingPayload}
@@ -2510,7 +2617,7 @@ export const App: FC = () => {
                             variant="primary"
                             size="sm"
                             disabled={
-                              !intakeDrafts[activeOrgId] || activeBusy === "intake"
+                              !intakeDrafts[activeOrgId] || manualLocked
                             }
                             onClick={handleSubmitIntakePayload}
                           >
@@ -2643,6 +2750,18 @@ export const App: FC = () => {
                       const purpose = display?.purpose ?? app.summary;
                       // Only the implemented hero app for this organization opens a live build.
                       const opensHeroApp = app.isHeroCandidate === true;
+                      // Other implemented local apps route by explicit app ID, never a blanket org URL.
+                      const explicitAppUrl = CATALOG_APP_URLS[app.appId];
+                      const opensLiveApp = opensHeroApp || Boolean(explicitAppUrl);
+                      const openLiveApp = () => {
+                        if (explicitAppUrl) {
+                          if (typeof window !== "undefined") {
+                            window.open(explicitAppUrl, "_blank", "noopener,noreferrer");
+                          }
+                          return;
+                        }
+                        handleOpenStandaloneOrgApp(activeOrgId);
+                      };
                       const selectApp = () =>
                         updateOrgState(activeOrgId, (prev) => ({
                           ...prev,
@@ -2691,14 +2810,14 @@ export const App: FC = () => {
                               {purpose}
                             </p>
 
-                            {opensHeroApp && (
+                            {opensLiveApp && (
                               <div className="hr-catalog-row__actions">
                                 <Button
                                   variant="primary"
                                   size="sm"
                                   onClick={() => {
                                     selectApp();
-                                    handleOpenStandaloneOrgApp(activeOrgId);
+                                    openLiveApp();
                                   }}
                                 >
                                   {copy.account.openOrgApp}
@@ -2714,7 +2833,7 @@ export const App: FC = () => {
                             >
                               <summary
                                 className={`hr-apps-details__summary${
-                                  opensHeroApp
+                                  opensLiveApp
                                     ? ""
                                     : " hr-apps-details__summary--primary"
                                 }`}
@@ -2872,7 +2991,9 @@ export const App: FC = () => {
 
                 <ActivityTimeline
                   events={visibleEvents}
-                  detailsLabel={workCopy.labels.details}
+                  detailsLabel={
+                    experienceCopy.activity.details || workCopy.labels.details
+                  }
                   emptyState={experienceCopy.activity.emptyState}
                   detailLabels={experienceCopy.activity.detailLabels}
                   selectedEventId={selectedEvent?.eventId}

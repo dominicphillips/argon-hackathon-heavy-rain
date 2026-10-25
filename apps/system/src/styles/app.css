@@ -2155,3 +2155,50 @@ button.hr-status-chip:active {
 .hr-chamber-quotes__item--end {
   right: 16px;
 }
+
+/* Demo playback: one shared control instance, in the Build toolbar or the top bar. */
+.hr-workbench-c__controls .hr-demo-playback {
+  margin-left: auto;
+}
+.hr-topbar__playback {
+  display: inline-flex;
+  align-items: center;
+  min-width: 0;
+  max-width: 420px;
+  margin-right: 8px;
+}
+.hr-topbar__playback .hr-demo-playback__status {
+  flex-basis: auto;
+  max-width: 220px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+@media (max-width: 1280px) {
+  .hr-demo-playback__status {
+    flex-basis: auto;
+    max-width: 200px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+}
+@media (max-width: 1024px) {
+  .hr-demo-playback__progress,
+  .hr-topbar__playback .hr-demo-playback__status {
+    display: none;
+  }
+}
+
+/* Ingest intro: compact explanation under the destination heading, cards follow directly. */
+.hr-ingest-intro {
+  margin: 6px 0 0;
+  max-width: 64ch;
+  font-size: 13px;
+  line-height: 1.45;
+  color: var(--hr-slate, #494e57);
+}
+.hr-ingest-intro strong {
+  color: var(--hr-ink, #121417);
+  font-weight: 600;
+}

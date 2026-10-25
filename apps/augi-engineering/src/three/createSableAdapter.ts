@@ -43,6 +43,11 @@ export function createSableAdapter(initial: SableSceneState): SableAdapter {
   let animatedExplosion = initial.explosionFactor;
   let animatedFlight = initial.flightFactor;
   let lastPlaying = false;
+  // Throttled playback -> UI sync (about 10 Hz, integer percent) so the readout follows the pose.
+  const SYNC_INTERVAL_SEC = 0.1;
+  let lastSyncTimeSec = -Infinity;
+  let lastSyncedPercent = -1;
+  let lastSyncedMode: TransportMode | null = null;
   const cutPlane = new THREE.Plane(new THREE.Vector3(0, 0, -1), 0);
   let adapter: SableAdapter;
 
@@ -144,6 +149,16 @@ export function createSableAdapter(initial: SableSceneState): SableAdapter {
     }
   }
 
+  function syncTransportValue(mode: TransportMode, value: number, timeSec: number) {
+    if (timeSec - lastSyncTimeSec < SYNC_INTERVAL_SEC) return;
+    const percent = Math.round(value * 100);
+    if (mode === lastSyncedMode && percent === lastSyncedPercent) return;
+    lastSyncTimeSec = timeSec;
+    lastSyncedPercent = percent;
+    lastSyncedMode = mode;
+    adapter.onTransportValue?.(mode, percent / 100);
+  }
+
   function onFrame(ctx: FrameContext): boolean {
     if (!state.playing || ctx.reducedMotion) return false;
     const t = ctx.timeSec;
@@ -155,6 +170,7 @@ export function createSableAdapter(initial: SableSceneState): SableAdapter {
       animatedExplosion = 0.5 - 0.5 * Math.cos(t * 0.9);
       pushChassis(1);
       if (body) body.group.position.y = animatedExplosion * 0.75;
+      syncTransportValue("exploded", animatedExplosion, t);
       return true;
     }
     // flight: ease toward 1 then hover
@@ -162,6 +178,7 @@ export function createSableAdapter(initial: SableSceneState): SableAdapter {
     const bob = animatedFlight >= 1 ? 0.03 * Math.sin(t * 1.7) : 0;
     applyFlight(animatedFlight);
     vehicleRoot.position.y += bob;
+    syncTransportValue("flight", animatedFlight, t);
     return true;
   }
 
