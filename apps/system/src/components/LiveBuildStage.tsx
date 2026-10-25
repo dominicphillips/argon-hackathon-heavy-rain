@@ -129,9 +129,9 @@ export const LiveBuildStage: FC<LiveBuildStageProps> = ({ orgId, orgName, enable
 
   return (
     <div className="hr-workbench-c hr-workbench-c--live">
-      <section className={`hr-workbench-c__chamber hr-workbench-c__chamber--${ready ? "ready" : veilStage}${!run || ready ? " hr-workbench-c__chamber--clear" : ""}`} aria-label={run ? run.app.name : orgName}>
+      <section className={`hr-workbench-c__chamber hr-workbench-c__chamber--${ready ? "ready" : veilStage} hr-workbench-c__chamber--clear hr-workbench-c__chamber--light`} aria-label={run ? run.app.name : orgName}>
         <div className="hr-chamber-stage">
-          <ChamberAtmosphere variant={run && !ready ? "dark" : "pale"} reducedMotion={reducedMotion} />
+          <ChamberAtmosphere variant="pale" reducedMotion={reducedMotion} />
 
           {!run && (
             <ChamberEmptyState title={liveCopy.empty.liveTitle} />
@@ -161,6 +161,14 @@ export const LiveBuildStage: FC<LiveBuildStageProps> = ({ orgId, orgName, enable
               <div className={`hr-chamber-smoke-veil hr-chamber-smoke-veil--${veilStage}`} aria-hidden="true" />
               <BuilderFeed
                 events={progress}
+                opening={{
+                  title: liveCopy.feed.handoffTitle,
+                  detail: fill(liveCopy.feed.handoffDetail, {
+                    name: run.requestedBy.name,
+                    app: run.app.name,
+                    model: run.model,
+                  }),
+                }}
                 tokensLabel={tokensLabel}
                 filesLabel={filesLabel}
                 reducedMotion={reducedMotion}

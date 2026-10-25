@@ -3,6 +3,8 @@ import type { LiveBuildProgressEvent } from "../backend/client";
 
 export interface BuilderFeedProps {
   events: LiveBuildProgressEvent[];
+  /** A fixed first card explaining the handoff to the sandbox worker. */
+  opening?: { title: string; detail: string } | null;
   tokensLabel: string | null;
   filesLabel: string | null;
   /** How many editorial bubbles stay on screen; older ones leave. */
@@ -59,12 +61,17 @@ function dedupe(events: LiveBuildProgressEvent[]): LiveBuildProgressEvent[] {
 
 export const BuilderFeed: FC<BuilderFeedProps> = ({
   events,
+  opening = null,
   tokensLabel,
   filesLabel,
   visible = 5,
   reducedMotion = false,
 }) => {
-  const editorial = dedupe(events.filter((event) => EDITORIAL_KINDS.has(event.kind))).slice(-visible);
+  const streamed = dedupe(events.filter((event) => EDITORIAL_KINDS.has(event.kind) && event.title !== "Request received"));
+  const openingEvent: LiveBuildProgressEvent | null = opening
+    ? { seq: 0, at: "", kind: "status", title: opening.title, detail: opening.detail, path: null }
+    : null;
+  const editorial = [...(openingEvent ? [openingEvent] : []), ...streamed].slice(-visible);
   const activity = [...events].reverse().find((event) => ACTIVITY_KINDS.has(event.kind)) ?? null;
   return (
     <div className={`hr-feed${reducedMotion ? " hr-feed--static" : ""}`} aria-live="polite">
@@ -82,7 +89,7 @@ export const BuilderFeed: FC<BuilderFeedProps> = ({
           return (
             <li
               key={event.seq}
-              className={`hr-bubble hr-bubble--${event.kind}${latest ? " hr-bubble--latest" : ""}`}
+              className={`hr-bubble hr-bubble--${event.kind}${latest ? " hr-bubble--latest" : ""}${event.seq === 0 ? " hr-bubble--opening" : ""}`}
             >
               <span className="hr-bubble__dot" aria-hidden="true" />
               <span className="hr-bubble__body">
@@ -103,7 +110,9 @@ export const BuilderFeed: FC<BuilderFeedProps> = ({
         <div className="hr-feed__ticker hr-tabular" key={activity.seq}>
           <span className={`hr-feed__ticker-dot hr-feed__ticker-dot--${activity.kind}`} aria-hidden="true" />
           <span>{activity.title}</span>
-          {activity.path && <span className="hr-feed__ticker-path">{activity.path}</span>}
+          {activity.path && activity.path !== activity.title && (
+            <span className="hr-feed__ticker-path">{activity.path}</span>
+          )}
         </div>
       )}
     </div>

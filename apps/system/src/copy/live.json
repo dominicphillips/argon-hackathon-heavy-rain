@@ -35,7 +35,9 @@
   "feed": {
     "label": "Builder steps as they happen",
     "tokens": "Tokens: {n}",
-    "files": "Files written: {n}"
+    "files": "Files written: {n}",
+    "handoffTitle": "Brief handed to hosted sandbox worker",
+    "handoffDetail": "The relay packaged {name}'s workflow, proposed app, and design stylesheet into one brief. It started Google's hosted Antigravity agent on {model} in a 4 vCPU, 16 GB Linux sandbox. The console follows live thought summaries, tool calls, files written, tokens, page snapshots, and the progress file."
   },
   "card": {
     "open": "Open application"

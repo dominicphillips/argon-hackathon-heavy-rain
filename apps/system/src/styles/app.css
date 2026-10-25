@@ -3418,3 +3418,222 @@ button.hr-status-chip:active {
   height: 100%;
   object-fit: cover;
 }
+
+
+/* ============================================================================
+   Light build stage: no dark box. Panel, feed, and sub-steps in ink on the page.
+   ============================================================================ */
+.hr-workbench-c__chamber--light .hr-chamber-smoke-veil {
+  display: none;
+}
+
+.hr-workbench-c__chamber--light .hr-chamber-atmosphere--pale {
+  opacity: 0.34;
+  animation: hr-smoke-pulse 7s ease-in-out infinite;
+}
+
+.hr-workbench-c__chamber--light .hr-build-panel {
+  color: var(--hr-ink);
+  background: linear-gradient(
+    90deg,
+    rgba(226, 226, 228, 0.96) 0%,
+    rgba(226, 226, 228, 0.88) 66%,
+    rgba(226, 226, 228, 0) 100%
+  );
+  animation: hr-panel-in 1000ms cubic-bezier(0.2, 0.7, 0.2, 1) both;
+}
+
+.hr-workbench-c__chamber--light .hr-build-panel__head,
+.hr-workbench-c__chamber--light .hr-build-panel__section {
+  border-color: rgba(20, 23, 28, 0.12);
+}
+
+.hr-workbench-c__chamber--light .hr-build-panel__subtitle,
+.hr-workbench-c__chamber--light .hr-build-panel__label {
+  color: var(--hr-slate);
+}
+
+.hr-workbench-c__chamber--light .hr-build-step {
+  color: var(--hr-muted);
+}
+
+.hr-workbench-c__chamber--light .hr-build-step--active,
+.hr-workbench-c__chamber--light .hr-build-step--paused {
+  color: var(--hr-ink);
+}
+
+.hr-workbench-c__chamber--light .hr-build-step--done {
+  color: var(--hr-ink);
+}
+
+.hr-workbench-c__chamber--light .hr-build-step__icon,
+.hr-workbench-c__chamber--light .hr-build-step__item-icon {
+  border-color: rgba(20, 23, 28, 0.28);
+}
+
+.hr-workbench-c__chamber--light .hr-build-step--done .hr-build-step__icon,
+.hr-workbench-c__chamber--light .hr-build-step__item--done .hr-build-step__item-icon {
+  border-color: var(--hr-mint);
+  background: var(--hr-mint);
+  color: #0b1a14;
+}
+
+.hr-workbench-c__chamber--light .hr-build-step__item {
+  color: var(--hr-muted);
+}
+
+.hr-workbench-c__chamber--light .hr-build-step__item--done,
+.hr-workbench-c__chamber--light .hr-build-step__item--active {
+  color: var(--hr-ink);
+}
+
+.hr-workbench-c__chamber--light .hr-build-panel__notice {
+  color: var(--hr-ink);
+}
+
+.hr-workbench-c__chamber--light .hr-build-panel__notice p {
+  color: var(--hr-slate);
+}
+
+.hr-workbench-c__chamber--light .hr-feed {
+  color: var(--hr-ink);
+}
+
+.hr-workbench-c__chamber--light .hr-feed__meta {
+  color: var(--hr-slate);
+}
+
+.hr-workbench-c__chamber--light .hr-bubble {
+  background: rgba(255, 255, 255, 0.72);
+  border: 1px solid #d6d9df;
+  box-shadow: 0 10px 30px rgba(18, 22, 26, 0.08);
+  opacity: 0.7;
+}
+
+.hr-workbench-c__chamber--light .hr-bubble--latest {
+  opacity: 1;
+  background: rgba(255, 255, 255, 0.95);
+  border-color: rgba(16, 185, 129, 0.45);
+}
+
+.hr-workbench-c__chamber--light .hr-bubble__title,
+.hr-workbench-c__chamber--light .hr-bubble__narration,
+.hr-workbench-c__chamber--light .hr-bubble--latest .hr-bubble__narration {
+  color: var(--hr-ink);
+}
+
+.hr-workbench-c__chamber--light .hr-bubble__detail,
+.hr-workbench-c__chamber--light .hr-bubble--latest .hr-bubble__detail {
+  color: var(--hr-slate);
+}
+
+.hr-workbench-c__chamber--light .hr-bubble__dot {
+  background: rgba(20, 23, 28, 0.35);
+}
+
+.hr-workbench-c__chamber--light .hr-bubble--thought .hr-bubble__dot {
+  background: #64748b;
+}
+
+.hr-workbench-c__chamber--light .hr-bubble--message .hr-bubble__dot {
+  background: var(--hr-mint);
+}
+
+.hr-workbench-c__chamber--light .hr-bubble--opening {
+  background: rgba(255, 255, 255, 0.9);
+  border-style: dashed;
+}
+
+.hr-workbench-c__chamber--light .hr-feed__ticker {
+  color: var(--hr-slate);
+}
+
+.hr-workbench-c__chamber--light .hr-feed__ticker-path {
+  color: #0d6848;
+}
+
+.hr-workbench-c__chamber--light .hr-chamber-wireframe,
+.hr-workbench-c__chamber--light .hr-chamber-stage > svg {
+  filter: invert(0.82) saturate(0.6);
+  opacity: 0.55;
+}
+
+.hr-workbench-c__chamber--light .hr-chamber-snapshot {
+  mix-blend-mode: multiply;
+}
+
+/* Live stage sits directly on the page: no frame, no fill, no shadow anywhere */
+.hr-workbench-c__chamber--light,
+.hr-workbench-c__chamber--light.hr-workbench-c__chamber--clear {
+  background: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
+  border-radius: 0;
+}
+
+.hr-workbench-c__chamber--light .hr-build-panel {
+  background: transparent;
+}
+
+.hr-workbench-c__chamber--light .hr-chamber-stage__artifact {
+  background: transparent;
+}
+
+
+/* Live stage blends into the page full-screen: no gutters, no max width, height = viewport minus the top bar */
+.hr-workbench-c--live {
+  gap: 0;
+}
+
+.hr-workbench-c--live .hr-workbench-c__chamber {
+  height: calc(100vh - 50px) !important;
+  min-height: 0 !important;
+  margin: -18px -32px -14px;
+  width: calc(100% + 64px);
+}
+
+@media (max-width: 1320px) {
+  .hr-workbench-c--live .hr-workbench-c__chamber {
+    margin: -18px -20px -14px;
+    width: calc(100% + 40px);
+  }
+}
+
+.hr-workbench-c--live .hr-build-panel {
+  padding: 40px 48px 32px 48px;
+  width: min(44%, 560px);
+}
+
+.hr-workbench-c--live .hr-feed,
+.hr-workbench-c--live .hr-intake {
+  left: min(44%, 560px);
+  padding: 36px 48px 32px 32px;
+}
+
+.hr-workbench-c--live .hr-chamber-atmosphere--pale {
+  -webkit-mask-image: none;
+  mask-image: none;
+}
+
+html,
+body {
+  overflow-x: hidden;
+}
+
+/* Legibility over the live snapshot: a soft page-coloured fade behind the panel, not a card */
+.hr-workbench-c--live .hr-build-panel {
+  background: linear-gradient(
+    90deg,
+    rgba(226, 226, 228, 0.94) 0%,
+    rgba(226, 226, 228, 0.86) 70%,
+    rgba(226, 226, 228, 0) 100%
+  );
+}
+
+.hr-workbench-c--live .hr-chamber-snapshot {
+  opacity: 0.5;
+}
+
+.hr-workbench-c--live .hr-chamber-snapshot.hr-chamber-stage__artifact--stage3 {
+  opacity: 0.6;
+}
