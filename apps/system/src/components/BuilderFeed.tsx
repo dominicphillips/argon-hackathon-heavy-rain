@@ -18,8 +18,18 @@ const ACTIVITY_KINDS = new Set(["tool_call", "tool_result", "file"]);
  * Thought summaries arrive as short titled paragraphs. Use the first short line
  * as the bubble title so the audience reads what the builder is reasoning about.
  */
+/** Presentation only: drop code spans and workspace paths the audience should not have to read. */
+function tidy(text: string): string {
+  return text
+    .replace(/`[^`]*`/g, "")
+    .replace(/\bworkspace\/app\/?[\w./-]*/g, "")
+    .replace(/[ \t]{2,}/g, " ")
+    .replace(/\s+([.,;:])/g, "$1")
+    .trim();
+}
+
 function splitThought(event: LiveBuildProgressEvent): { title: string; detail: string | null } {
-  const detail = event.detail?.trim() ?? "";
+  const detail = tidy(event.detail ?? "");
   if (event.kind !== "thought" || !detail) return { title: event.title, detail: event.detail };
   const [first, ...rest] = detail.split(/\n+/);
   const heading = first.replace(/^\*+|\*+$/g, "").trim();
@@ -94,7 +104,6 @@ export const BuilderFeed: FC<BuilderFeedProps> = ({
           <span className={`hr-feed__ticker-dot hr-feed__ticker-dot--${activity.kind}`} aria-hidden="true" />
           <span>{activity.title}</span>
           {activity.path && <span className="hr-feed__ticker-path">{activity.path}</span>}
-          {!activity.path && activity.detail && <span className="hr-feed__ticker-path">{activity.detail}</span>}
         </div>
       )}
     </div>

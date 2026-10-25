@@ -76,16 +76,18 @@ export const LiveBuildStage: FC<LiveBuildStageProps> = ({ orgId, orgName, enable
           : "stage2";
 
   const phaseIndex = run ? PHASES.indexOf(run.phase as Phase) : -1;
-  const written = new Set((run?.filesWritten ?? []).map((path) => path.split("/").pop() ?? path));
-  const deliverables = ["scaffold.css", "index.html", "NOTES.md", "preview.svg", "card.json"].map((file) => ({
-    key: file,
-    label: file,
-    done: written.has(file),
-  }));
+  const progressFile = run?.progress ?? null;
+  const subSteps = progressFile
+    ? [
+        ...progressFile.done.map((label, index) => ({ key: `done-${index}`, label, state: "done" as const })),
+        ...(progressFile.doing ? [{ key: "doing", label: progressFile.doing, state: "active" as const }] : []),
+        ...progressFile.next.slice(0, 3).map((label, index) => ({ key: `next-${index}`, label, state: "queued" as const })),
+      ]
+    : [];
   const rows: BuildProgressRow[] = PHASES.map((phase, index) => ({
     key: phase,
     label: liveCopy.panel.phases[phase],
-    items: phase === "building" ? deliverables : undefined,
+    items: phase === "building" ? subSteps : undefined,
     state: failed
       ? index === 0
         ? "done"
@@ -137,8 +139,24 @@ export const LiveBuildStage: FC<LiveBuildStageProps> = ({ orgId, orgName, enable
 
           {run && !ready && (
             <>
-              {(run.phase === "building" || run.phase === "checking") && (
-                <ChamberWireframe orgId={orgId} buildStage={veilStage} />
+              {run.snapshot ? (
+                <div
+                  className={`hr-chamber-stage__artifact hr-chamber-stage__artifact--${veilStage} hr-chamber-snapshot`}
+                  aria-hidden="true"
+                >
+                  <iframe
+                    key={run.snapshot.version}
+                    src={run.snapshot.indexUrl}
+                    title=""
+                    className="hr-chamber-snapshot__frame"
+                    tabIndex={-1}
+                    sandbox="allow-scripts"
+                  />
+                </div>
+              ) : (
+                (run.phase === "building" || run.phase === "checking") && (
+                  <ChamberWireframe orgId={orgId} buildStage={veilStage} />
+                )
               )}
               <div className={`hr-chamber-smoke-veil hr-chamber-smoke-veil--${veilStage}`} aria-hidden="true" />
               <BuilderFeed

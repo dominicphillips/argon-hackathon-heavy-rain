@@ -813,6 +813,10 @@ export interface LiveBuildRun {
   errorReason: string | null;
   usage: { totalTokens: number; totalThoughtTokens: number; totalOutputTokens: number };
   filesWritten: string[];
+  /** The builder's own step list, read from its progress file while it works. */
+  progress?: { step: number; of: number; doing: string; done: string[]; next: string[]; updatedAt: string } | null;
+  /** The in-progress page, snapshotted and served while the build runs. */
+  snapshot?: { indexUrl: string; updatedAt: string; version: number } | null;
 }
 
 export interface LiveBuildProgressEvent {

@@ -5,7 +5,7 @@ export type BuildProgressRowState = "done" | "active" | "paused" | "queued";
 export interface BuildProgressSubItem {
   key: string;
   label: string;
-  done: boolean;
+  state: "done" | "active" | "queued";
 }
 
 export interface BuildProgressRow {
@@ -80,10 +80,16 @@ export const BuildProgressPanel: FC<BuildProgressPanelProps> = ({
                 {row.items.map((item, index) => (
                   <li
                     key={item.key}
-                    className={`hr-build-step__item${item.done ? " hr-build-step__item--done" : ""}`}
+                    className={`hr-build-step__item hr-build-step__item--${item.state}`}
                     style={{ animationDelay: `${index * 90}ms` }}
                   >
-                    <span className="hr-build-step__item-dot" aria-hidden="true" />
+                    <span className="hr-build-step__item-icon" aria-hidden="true">
+                      {item.state === "done" && (
+                        <svg viewBox="0 0 16 16" focusable="false">
+                          <path d="M3.5 8.5l3 3 6-6" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" />
+                        </svg>
+                      )}
+                    </span>
                     {item.label}
                   </li>
                 ))}

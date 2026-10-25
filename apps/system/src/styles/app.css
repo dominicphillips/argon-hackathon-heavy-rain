@@ -3328,3 +3328,76 @@ button.hr-status-chip:active {
   background: var(--hr-mint);
   border-color: var(--hr-mint);
 }
+
+
+/* Sub-steps use the same icon language as the rows, at a smaller size */
+.hr-build-step__item {
+  font-family: var(--hr-font-sans);
+  font-size: 14px;
+  color: rgba(243, 245, 247, 0.5);
+}
+
+.hr-build-step__item-icon {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  border: 2px solid rgba(243, 245, 247, 0.32);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  position: relative;
+}
+
+.hr-build-step__item-icon svg {
+  width: 11px;
+  height: 11px;
+}
+
+.hr-build-step__item--done {
+  color: rgba(243, 245, 247, 0.86);
+}
+
+.hr-build-step__item--done .hr-build-step__item-icon {
+  border-color: var(--hr-mint);
+  background: var(--hr-mint);
+  color: #0b1a14;
+}
+
+.hr-build-step__item--active {
+  color: #f3f5f7;
+}
+
+.hr-build-step__item--active .hr-build-step__item-icon {
+  border-color: var(--hr-mint);
+}
+
+.hr-build-step__item--active .hr-build-step__item-icon::after {
+  content: "";
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--hr-mint);
+  animation: hr-core-pulse 2.4s ease-in-out infinite;
+}
+
+
+/* The page being built, snapshotted every few seconds, shown through the mist */
+.hr-chamber-snapshot {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  transition: filter 1400ms ease, opacity 1400ms ease;
+}
+
+.hr-chamber-snapshot__frame {
+  width: 100%;
+  height: 100%;
+  border: 0;
+  background: #f3f2ee;
+}
+
+.hr-chamber-snapshot.hr-chamber-stage__artifact--stage1 { filter: blur(10px); opacity: 0.45; }
+.hr-chamber-snapshot.hr-chamber-stage__artifact--stage2 { filter: blur(5px); opacity: 0.6; }
+.hr-chamber-snapshot.hr-chamber-stage__artifact--stage3 { filter: blur(2px); opacity: 0.78; }
