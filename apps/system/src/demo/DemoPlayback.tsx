@@ -21,6 +21,9 @@ export interface DemoPlaybackControlsProps {
   enabled: boolean;
   externalBusy?: boolean;
   copy: DemoPlaybackCopy;
+  /** Render nothing before the first run (the stage carries the primary control). */
+  hideIdle?: boolean;
+  size?: "md" | "lg";
 }
 
 /** Mount once for the selected organization; do not hide/unmount it between demo steps. */
@@ -30,10 +33,12 @@ export function DemoPlayback({ copy, ...options }: DemoPlaybackProps) {
 }
 
 /** One control drives the whole weekly cycle: run, pause, resume, run again. */
-export function DemoPlaybackControls({ playback, enabled, externalBusy, copy }: DemoPlaybackControlsProps) {
+export function DemoPlaybackControls({ playback, enabled, externalBusy, copy, hideIdle = false, size = "md" }: DemoPlaybackControlsProps) {
   const { state } = playback;
   const blocked = !enabled || Boolean(externalBusy);
   const started = state.completedSteps > 0;
+  const idle = !started && !state.playing && !state.busy && !state.complete && !state.error;
+  if (hideIdle && idle) return null;
   const restart = () => {
     playback.reset();
     playback.play();
@@ -66,7 +71,7 @@ export function DemoPlaybackControls({ playback, enabled, externalBusy, copy }: 
         : null;
 
   return (
-    <div className="hr-demo-playback" role="group" aria-label={copy.controls}>
+    <div className={`hr-demo-playback hr-demo-playback--${size}`} role="group" aria-label={copy.controls}>
       {notice && <span className="hr-demo-playback__notice" role="status">{notice}</span>}
       <Button variant={variant} onClick={onClick} disabled={blocked || (!state.playing && state.busy)}>
         <span className="hr-demo-playback__glyph" aria-hidden="true">{glyph}</span>

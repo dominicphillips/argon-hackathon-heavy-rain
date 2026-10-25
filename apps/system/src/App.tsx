@@ -33,7 +33,9 @@ import type {
 } from "./types";
 import { TopographicCanvas } from "./components/TopographicCanvas";
 import { ChamberWireframe } from "./components/ChamberWireframe";
-import { ChamberLiveReadout } from "./components/ChamberLiveReadout";
+import { BuildProgressPanel } from "./components/BuildProgressPanel";
+import { ChamberIntake } from "./components/ChamberIntake";
+import { ChamberEmptyState } from "./components/ChamberEmptyState";
 import { RookmereEmbeddedFrame } from "./components/RookmereEmbeddedFrame";
 import { AugiEmbeddedFrame } from "./components/AugiEmbeddedFrame";
 import { InspectorDrawer } from "./components/InspectorDrawer";
@@ -50,10 +52,7 @@ import {
   DemoPlaybackControls,
   type DemoPlaybackCopy,
 } from "./demo/DemoPlayback";
-import {
-  WorkEditorialCards,
-  type WorkEditorialCardCopy,
-} from "./components/WorkEditorialCards";
+import type { WorkEditorialCardCopy } from "./components/WorkEditorialCards";
 import {
   controlBuild,
   decideCluster,
@@ -82,9 +81,9 @@ const NAV_LABELS: Record<SystemNavSection, string> = {
   Activity: "Activity",
 };
 
-// Activity is not part of the operator demo; the rail shows Build, Ingest, Apps.
+// The weekly cycle plays inside Build, so the rail shows Build and Apps only.
 const NAV_SECTIONS = SYSTEM_NAV_SECTIONS.filter(
-  (section) => section !== "Activity",
+  (section) => section === "System" || section === "Apps",
 );
 
 // Display-name overrides keyed by catalog appId (backend IDs unchanged).
@@ -451,6 +450,7 @@ export const App: FC = () => {
     onWorkspace: applySnapshot,
     onView: setActiveNav,
     onBusyChange: setDemoBusy,
+    delayMs: 6500,
   });
   const playbackOwnsLane =
     demoBusy || playback.state.playing || playback.state.busy;
@@ -463,8 +463,33 @@ export const App: FC = () => {
       enabled={demoPlaybackEnabled}
       externalBusy={Boolean(activeBackendBusy)}
       copy={demoPlaybackCopy}
+      hideIdle
     />
   ) : null;
+  // The stage is empty until the operator runs the weekly cycle; the primary control lives there.
+  const stageRunControl = (
+    <DemoPlaybackControls
+      playback={playback}
+      enabled={demoPlaybackEnabled}
+      externalBusy={Boolean(activeBackendBusy)}
+      copy={demoPlaybackCopy}
+      size="lg"
+    />
+  );
+  const demoStarted =
+    playback.state.playing ||
+    playback.state.busy ||
+    playback.state.completedSteps > 0;
+  const demoSteps = playback.state.completedSteps;
+  // Veil density follows confirmed playback progress, never a stale backend snapshot.
+  const veilStage: "queued" | "stage1" | "stage2" | "stage3" =
+    demoSteps < 2
+      ? "queued"
+      : demoSteps === 2
+        ? "stage1"
+        : demoSteps === 3
+          ? "stage2"
+          : "stage3";
 
   // Hydrate both tenants from the local backend; stay on fixtures if it is unreachable
   useEffect(() => {
@@ -1547,7 +1572,14 @@ export const App: FC = () => {
     heroDisplayName,
   ]);
 
-  const isVeiled = activeOrgState.buildStage !== "ready";
+  // The preview is revealed only after the cycle completes and the backend confirms the artifact is ready.
+  const stageRevealed =
+    demoStarted &&
+    playback.state.complete &&
+    activeOrgState.buildStage === "ready";
+  const isVeiled = !stageRevealed;
+  const heroCard =
+    workCopy.cards[activeOrgId === "rookmere" ? "pat_rm_01" : "wf_augi_01"];
 
   // Filtered Activity events
   // Filtered Apps catalog
@@ -1665,26 +1697,35 @@ export const App: FC = () => {
             />
           </div>
 
-          {/* Organization scope select; changes the operator's view, not the signed-in operator */}
-          <div className="hr-scope-select">
-            <label htmlFor="hr-scope-select" className="hr-scope-select__label">
-              {copy.scope.label}
-            </label>
-            <select
-              id="hr-scope-select"
-              className="hr-select hr-scope-select__control"
-              value={activeOrgId}
-              onChange={(e) =>
-                handleSelectOrganization(e.target.value as OrganizationId)
-              }
-            >
-              <option value="rookmere">{copy.scope.rookmere}</option>
-              <option value="augi">{copy.scope.augi}</option>
-            </select>
-          </div>
         </div>
 
-        <div className="hr-topbar__right">{playbackControls}</div>
+        <div className="hr-topbar__right">
+          {playbackControls}
+          {/* Rarely used controls stay out of the way behind one overflow menu */}
+          <details className="hr-topbar-more">
+            <summary className="hr-topbar-more__trigger" aria-label="More options">
+              <span aria-hidden="true">···</span>
+            </summary>
+            <div className="hr-topbar-more__menu">
+              <div className="hr-scope-select">
+                <label htmlFor="hr-scope-select" className="hr-scope-select__label">
+                  {copy.scope.label}
+                </label>
+                <select
+                  id="hr-scope-select"
+                  className="hr-select hr-scope-select__control"
+                  value={activeOrgId}
+                  onChange={(e) =>
+                    handleSelectOrganization(e.target.value as OrganizationId)
+                  }
+                >
+                  <option value="rookmere">{copy.scope.rookmere}</option>
+                  <option value="augi">{copy.scope.augi}</option>
+                </select>
+              </div>
+            </div>
+          </details>
+        </div>
       </header>
 
       {/* Main Topographic Stage (03-system-c.png layout) */}
@@ -1715,14 +1756,6 @@ export const App: FC = () => {
                         <span className="hr-tactile-nav__label">
                           {NAV_LABELS[section]}
                         </span>
-                        {section === "Work" && pendingWorkCount > 0 && (
-                          <span
-                            className="hr-tactile-nav__badge hr-tabular"
-                            aria-label={`${pendingWorkCount} task groups need review`}
-                          >
-                            {pendingWorkCount}
-                          </span>
-                        )}
                       </button>
                     </li>
                   );
@@ -1770,16 +1803,12 @@ export const App: FC = () => {
                       aria-hidden="true"
                     />
                     <h1 className="hr-workbench-c__title">
-                      {heroDisplayName}
+                      {demoStarted ? heroDisplayName : copy.scope[activeOrgId]}
                     </h1>
                   </div>
 
                   <div className="hr-workbench-c__controls">
-                    <Status
-                      tone={systemStateCopy.tone}
-                      label={systemStateCopy.chamberPill}
-                    />
-                    {activeOrgState.buildStage === "ready" &&
+                    {stageRevealed &&
                       (activeOrgState.appReleaseStatus !== "released" ? (
                         <Button
                           variant="primary"
@@ -1836,298 +1865,87 @@ export const App: FC = () => {
                     </div>
                   )}
 
-                  {/* Inner Artifact Viewport: blurs ONLY when isVeiled is true */}
                   <div className="hr-chamber-stage">
-                    <div
-                      className={`hr-chamber-stage__artifact hr-chamber-stage__artifact--${activeOrgState.buildStage}`}
-                      aria-busy={isVeiled}
-                      inert={isVeiled}
-                    >
-                      {activeOrgId === "rookmere" ? (
-                        <RookmereEmbeddedFrame
-                          companies={activeFixture.rookmereCompanies ?? []}
-                          externalUrl={
-                            activeFixture.externalAppUrl ||
-                            ORGANIZATION_FIXTURES[activeOrgId].externalAppUrl
-                          }
-                          mode="embedded"
-                          reducedMotion={reducedMotion}
-                          isObscured={isVeiled}
-                        />
-                      ) : (
-                        <AugiEmbeddedFrame
-                          configs={activeFixture.augiConfigs ?? []}
-                          externalUrl={
-                            activeFixture.externalAppUrl ||
-                            ORGANIZATION_FIXTURES[activeOrgId].externalAppUrl
-                          }
-                          inlineDisclosure={
-                            activeFixture.augiInlineDisclosure ?? ""
-                          }
-                          mode="embedded"
-                          reducedMotion={reducedMotion}
-                          isObscured={isVeiled}
-                        />
-                      )}
-                    </div>
-
-                    {/* Architectural build wireframe & localized smoky mist ONLY while veiled */}
-                    {isVeiled && (
+                    {!demoStarted ? (
                       <>
-                        <ChamberWireframe
-                          orgId={activeOrgId}
-                          buildStage={activeOrgState.buildStage}
-                        />
                         <div
-                          className={`hr-chamber-smoke-veil hr-chamber-smoke-veil--${activeOrgState.buildStage}`}
+                          className="hr-chamber-smoke-veil hr-chamber-smoke-veil--stage2"
                           aria-hidden="true"
                         />
+                        <ChamberEmptyState>{stageRunControl}</ChamberEmptyState>
                       </>
-                    )}
+                    ) : (
+                      <>
+                        <div
+                          className={`hr-chamber-stage__artifact hr-chamber-stage__artifact--${
+                            stageRevealed ? "ready" : veilStage
+                          }`}
+                          aria-busy={isVeiled}
+                          inert={isVeiled}
+                        >
+                          {activeOrgId === "rookmere" ? (
+                            <RookmereEmbeddedFrame
+                              companies={activeFixture.rookmereCompanies ?? []}
+                              externalUrl={
+                                activeFixture.externalAppUrl ||
+                                ORGANIZATION_FIXTURES[activeOrgId].externalAppUrl
+                              }
+                              mode="embedded"
+                              reducedMotion={reducedMotion}
+                              isObscured={isVeiled}
+                            />
+                          ) : (
+                            <AugiEmbeddedFrame
+                              configs={activeFixture.augiConfigs ?? []}
+                              externalUrl={
+                                activeFixture.externalAppUrl ||
+                                ORGANIZATION_FIXTURES[activeOrgId].externalAppUrl
+                              }
+                              inlineDisclosure={
+                                activeFixture.augiInlineDisclosure ?? ""
+                              }
+                              mode="embedded"
+                              reducedMotion={reducedMotion}
+                              isObscured={isVeiled}
+                            />
+                          )}
+                        </div>
 
-                    {/* Live readout: what the active worker is doing, sharp and centered above the veil */}
-                    {isVeiled && (
-                      <ChamberLiveReadout
-                        entries={activeFixture.workers.map((worker) => {
-                          const st = getWorkerStatus(worker.role);
-                          return {
-                            role: worker.role,
-                            stepNumber: worker.stepNumber,
-                            tone: st.tone,
-                            label: st.label,
-                            isActive: st.isActiveCell,
-                            message: resolveWorkerMessage(worker.role, st),
-                          };
-                        })}
-                        reducedMotion={reducedMotion}
-                      />
+                        {/* While veiled: smoke, the intake story, then the emerging wireframe; the progress panel stays sharp */}
+                        {isVeiled && (
+                          <>
+                            {demoSteps >= 3 && (
+                              <ChamberWireframe
+                                orgId={activeOrgId}
+                                buildStage={veilStage}
+                              />
+                            )}
+                            <div
+                              className={`hr-chamber-smoke-veil hr-chamber-smoke-veil--${veilStage}`}
+                              aria-hidden="true"
+                            />
+                            {demoSteps < 3 && (
+                              <ChamberIntake
+                                persona={heroCard.persona}
+                                appName={heroDisplayName}
+                                decision={heroCard.decision}
+                                proposed={heroCard.proposed}
+                                reviewed={demoSteps >= 2}
+                              />
+                            )}
+                            <BuildProgressPanel
+                              appName={heroDisplayName}
+                              completedSteps={demoSteps}
+                              active={playback.state.playing || playback.state.busy}
+                              reducedMotion={reducedMotion}
+                            />
+                          </>
+                        )}
+                      </>
                     )}
                   </div>
                 </section>
 
-                {/* BAND 3: Docked Horizontal Four-Worker Pipeline Bar BELOW the Chamber (03-system-c.png) */}
-                <div
-                  className="hr-workbench-c__worker-dock"
-                  role="group"
-                  aria-label="Four-stage worker pipeline"
-                >
-                  {activeFixture.workers.map((worker) => {
-                    const st = getWorkerStatus(worker.role);
-                    const isWorking =
-                      st.tone === "running" || st.tone === "building";
-
-                    return (
-                      <div
-                        key={worker.id}
-                        className={`hr-worker-cell${
-                          st.isActiveCell ? " hr-worker-cell--active" : ""
-                        }${isWorking ? " hr-worker-cell--running" : ""}`}
-                        aria-current={st.isActiveCell ? "step" : undefined}
-                      >
-                        <span className="hr-worker-cell__left">
-                          <span className="hr-worker-cell__num hr-tabular">
-                            {worker.stepNumber}
-                          </span>
-                          <span className="hr-worker-cell__name">
-                            {worker.role}
-                          </span>
-                        </span>
-                        <span className="hr-worker-cell__right">
-                          <span
-                            className={`hr-worker-cell__dot hr-worker-cell__dot--${st.tone}`}
-                            aria-hidden="true"
-                          />
-                          <span className="hr-worker-cell__status hr-tabular">
-                            {st.label}
-                          </span>
-                        </span>
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
-            )}
-
-            {/* ============================================================
-                DESTINATION 2: WORK (Weekly Recurrence Grouping & Triage)
-                ============================================================ */}
-            {activeNav === "Work" && (
-              <div className="hr-work-view">
-                <header className="hr-section-header">
-                  <div>
-                    <h1 className="hr-section-header__title">Ingest</h1>
-                    <p className="hr-ingest-intro">
-                      <strong>{experienceCopy.ingestIntro.title}.</strong>{" "}
-                      {experienceCopy.ingestIntro.body}
-                    </p>
-                  </div>
-                  <div className="hr-section-header__actions">
-                    <Status
-                      tone="queued"
-                      label={experienceCopy.ingestIntro.demoLabel}
-                    />
-                  </div>
-                </header>
-
-                {/* Optional recoverable attachment error state from UX handoff matrix */}
-                {activeOrgState.intakeErrorSimulated && (
-                  <Panel
-                    variant="elevated"
-                    eyebrow="Intake error · Recoverable attachment check"
-                    title="Report attachment check failed on 1 submission"
-                    actions={<Status tone="failed" label="Intake error" />}
-                  >
-                    <p className="hr-work-cluster__summary">
-                      Attachment <code>LP_tracker_macro.xlsm</code> uses macros
-                      outside organization policy. Ask the sender for a plain{" "}
-                      <code>.xlsx</code> or <code>.csv</code> export.
-                    </p>
-                    <div className="hr-work-cluster__actions">
-                      <Button
-                        variant="primary"
-                        size="sm"
-                        onClick={() =>
-                          updateOrgState(activeOrgId, (prev) => ({
-                            ...prev,
-                            intakeErrorSimulated: false,
-                          }))
-                        }
-                      >
-                        Request supported file format
-                      </Button>
-                      <Button
-                        variant="secondary"
-                        size="sm"
-                        onClick={() =>
-                          updateOrgState(activeOrgId, (prev) => ({
-                            ...prev,
-                            intakeErrorSimulated: false,
-                          }))
-                        }
-                      >
-                        Keep report text only
-                      </Button>
-                    </div>
-                  </Panel>
-                )}
-
-                <WorkEditorialCards
-                  clusters={activeOrgState.clusters}
-                  selectedClusterId={activeOrgState.selectedClusterId}
-                  orgId={activeOrgId}
-                  displayCopy={
-                    workCopy.cards as Record<string, WorkEditorialCardCopy>
-                  }
-                  labels={workCopy.labels}
-                  reports={activeFixture.reports}
-                  onOpenBuild={(clusterId) => {
-                    updateOrgState(activeOrgId, (prev) => ({
-                      ...prev,
-                      selectedClusterId: clusterId,
-                    }));
-                    setActiveNav("System");
-                  }}
-                  onViewApp={handleRouteClusterToApp}
-                  onRequestEvidence={handleRequestMissingEvidence}
-                  onSelect={(clusterId) =>
-                    updateOrgState(activeOrgId, (prev) => ({
-                      ...prev,
-                      selectedClusterId: clusterId,
-                    }))
-                  }
-                />
-
-                {backendConnected && (
-                  <details className="hr-work-reports">
-                    <summary className="hr-work-reports__summary">
-                      {copy.backend.submitSample}
-                    </summary>
-                      <Panel
-                        variant="elevated"
-                        title={copy.backend.submitSample}
-                        actions={
-                          intakeReceipts[activeOrgId] ? (
-                            <Status
-                              tone="completed"
-                              label={intakeReceipts[activeOrgId]?.status ?? ""}
-                            />
-                          ) : undefined
-                        }
-                      >
-                        <div className="hr-work-cluster__actions">
-                          <Button
-                            variant="secondary"
-                            size="sm"
-                            disabled={manualLocked}
-                            onClick={handlePrepareIntakePayload}
-                          >
-                            {copy.backend.outgoingPayload}
-                          </Button>
-                          <Button
-                            variant="primary"
-                            size="sm"
-                            disabled={
-                              !intakeDrafts[activeOrgId] || manualLocked
-                            }
-                            onClick={handleSubmitIntakePayload}
-                          >
-                            {copy.backend.submitSample}
-                          </Button>
-                        </div>
-                        {intakeDrafts[activeOrgId] && (
-                          <pre className="hr-backend-payload hr-tabular">
-                            {JSON.stringify(intakeDrafts[activeOrgId], null, 2)}
-                          </pre>
-                        )}
-                        {intakeReceipts[activeOrgId] && (
-                          <pre className="hr-backend-payload hr-tabular">
-                            {JSON.stringify(
-                              {
-                                reportId: intakeReceipts[activeOrgId]?.reportId,
-                                receiptId: intakeReceipts[activeOrgId]?.receiptId,
-                                batchId: intakeReceipts[activeOrgId]?.batchId,
-                                status: intakeReceipts[activeOrgId]?.status,
-                                idempotentReplay:
-                                  intakeReceipts[activeOrgId]?.idempotentReplay,
-                                receiptNotice:
-                                  intakeReceipts[activeOrgId]?.receiptNotice,
-                              },
-                              null,
-                              2,
-                            )}
-                          </pre>
-                        )}
-                      </Panel>
-                  </details>
-                )}
-
-                <details className="hr-work-reports">
-                  <summary className="hr-work-reports__summary">
-                    {workCopy.labels.reports} ({activeFixture.reports.length})
-                  </summary>
-                  <div className="hr-report-row-list">
-                    {activeFixture.reports.map((rep) => (
-                      <div key={rep.reportId} className="hr-report-row">
-                        <div className="hr-report-row__main">
-                          <span className="hr-report-row__receipt hr-tabular">
-                            {rep.receiptId}
-                          </span>
-                          <strong>{rep.employeeName}</strong>
-                          <span className="hr-report-row__role">
-                            {rep.employeeTitle} · {rep.assistantSurface}
-                          </span>
-                        </div>
-                        <Button
-                          variant="secondary"
-                          size="sm"
-                          onClick={() => handleInspectReport(rep.reportId)}
-                        >
-                          {workCopy.labels.inspectReport}
-                        </Button>
-                      </div>
-                    ))}
-                  </div>
-                </details>
               </div>
             )}
 

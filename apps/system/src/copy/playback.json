@@ -6,5 +6,44 @@
   "controls": "Weekly cycle playback",
   "unavailable": "Local demo server is offline. Start the backend and try again.",
   "stopped": "Playback stopped. Run again to retry.",
-  "verificationFailed": "Artifact check failed. Run again to rebuild locally."
+  "verificationFailed": "Artifact check failed. Run again to rebuild locally.",
+  "empty": {
+    "eyebrow": "Cairn",
+    "title": "Waiting for work",
+    "body": "Run the weekly cycle to load approved work and build the app."
+  },
+  "panel": {
+    "eyebrow": "Background build",
+    "reviewTitle": "Reviewing this week's work",
+    "buildTitle": "Building {app}",
+    "progress": "Progress",
+    "latest": "Latest checkpoint",
+    "footer": "Your preview opens when the build is ready."
+  },
+  "steps": {
+    "ingest": {
+      "label": "Load approved work",
+      "checkpoint": "Loading the work reports employees approved this week."
+    },
+    "review": {
+      "label": "Review weekly needs",
+      "checkpoint": "Comparing recurring work with the apps the organization already has."
+    },
+    "build": {
+      "label": "Schema check",
+      "checkpoint": "Checking submitted schema fields and approved attachment formats."
+    },
+    "assemble": {
+      "label": "App assembly",
+      "checkpoint": "Assembling the app view and running type and hash checks."
+    },
+    "check": {
+      "label": "Final checks",
+      "checkpoint": "Running verification checks on the local artifact."
+    },
+    "ready": {
+      "label": "Preview ready",
+      "checkpoint": "Local checks passed. The preview is ready for review and approval."
+    }
+  }
 }

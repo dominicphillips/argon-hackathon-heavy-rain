@@ -11,6 +11,8 @@ export interface UseDemoPlaybackOptions {
   onView?(view: "Work" | "System"): void;
   /** Reserves the mutation lane while auto-playing or awaiting an accepted request. */
   onBusyChange?(busy: boolean): void;
+  /** Pause between confirmed steps so each stage stays on screen long enough to read. */
+  delayMs?: number;
 }
 
 export function useDemoPlayback(options: UseDemoPlaybackOptions) {
@@ -19,11 +21,13 @@ export function useDemoPlayback(options: UseDemoPlaybackOptions) {
   const controller = useMemo(() => new PlaybackController({
     orgId: options.orgId,
     execute: executeDemoStep,
-    onResult: (workspace, step, org) => {
+    delayMs: options.delayMs,
+    onResult: (workspace, _step, org) => {
       callbacks.current.onWorkspace(org, workspace);
-      callbacks.current.onView?.(step === "ingest" || step === "review" ? "Work" : "System");
+      // The whole cycle plays inside the Build stage.
+      callbacks.current.onView?.("System");
     },
-  }), [options.orgId]);
+  }), [options.orgId, options.delayMs]);
   const state = useSyncExternalStore(controller.subscribe, controller.getState, controller.getState);
 
   useEffect(() => {
