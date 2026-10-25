@@ -21,7 +21,8 @@ from pydantic import ValidationError
 from relay.builder_driver import MANAGED_BUILDER_AGENT, safe_extract_archive, validate_antigravity_agent_config
 from relay.db import RelayDatabase
 from relay.models import (
-    LiveBuildAccepted, LiveBuildArtifact, LiveBuildCard, LiveBuildRequest, LiveBuildRun,
+    LiveBuildAccepted, LiveBuildArtifact, LiveBuildCard, LiveBuildFileProgress, LiveBuildLiveSnapshot,
+    LiveBuildRequest, LiveBuildRun,
     LiveBuildUsage, OrganizationFixture, OrganizationId,
 )
 from relay.sse import SseEventHub
@@ -106,6 +107,7 @@ def plain(value: Any) -> Any:
 class LiveBuilderService:
     max_run_seconds = 40 * 60
     file_scan_seconds = 15
+    progress_poll_seconds = 10
     early_progress_seconds = 20
 
     def __init__(self, db: RelayDatabase, hub: SseEventHub, lock: asyncio.Lock,
@@ -529,6 +531,105 @@ class LiveBuilderService:
         self.db.save_live_build(run)
         return kind == "interaction.completed" or run.status in TERMINAL_STATUSES - {"completed"}
 
+    async def _poll_progress(self, org_id, run_id):
+        while True:
+            await asyncio.sleep(self.progress_poll_seconds)
+            async with self.lock:
+                run = self.db.get_live_build(org_id, run_id)
+                if run is None or run.status in TERMINAL_STATUSES:
+                    return
+                if run.status != "in_progress" or not run.environmentId:
+                    continue
+                environment_id = run.environmentId
+            try:
+                content = await asyncio.to_thread(
+                    self._get_client().environments.files.download,
+                    environment=environment_id, path="workspace/app/progress.json",
+                )
+                text = content.decode("utf-8-sig").strip()
+                if text.startswith("```"):
+                    text = re.sub(r"^```(?:json)?\s*|\s*```$", "", text).strip()
+                value = json.loads(text)
+                if not isinstance(value, dict) or not isinstance(value.get("doing"), str):
+                    continue
+                lists = {}
+                for name in ("done", "next"):
+                    items = value.get(name) or []
+                    if isinstance(items, str):
+                        items = [items]
+                    lists[name] = [self.redact(item) for item in items if isinstance(item, str)] if isinstance(items, list) else []
+                progress = LiveBuildFileProgress(
+                    step=value.get("step"), of=value.get("of"), doing=self.redact(value["doing"]),
+                    **lists, updatedAt=datetime.now(timezone.utc).isoformat(),
+                )
+                async with self.lock:
+                    run = self.db.get_live_build(org_id, run_id)
+                    if run is None or run.status != "in_progress":
+                        return
+                    changed = run.progress is None or run.progress.doing != progress.doing
+                    run.progress = progress
+                    self.db.save_live_build(run)
+                    if changed:
+                        self._event(run, "status", f"Step {progress.step} of {progress.of}: {progress.doing}")
+            except Exception:
+                pass  # The file may be missing or only partly written between builder steps.
+
+    def _live_snapshot_root(self, org_id, run_id):
+        root = self.settings.artifact_root
+        live = root / org_id / run_id / "live"
+        live.resolve().relative_to(root)
+        for path in (live.parent.parent, live.parent, live, live / "index.html", live / "scaffold.css"):
+            if path.is_symlink():
+                raise ValueError("Unsafe snapshot path")
+        return live
+
+    async def _snapshot_files(self, org_id, run_id, environment_id, items):
+        entries = {field(item, "path", item if isinstance(item, str) else ""): item for item in items
+                   if field(item, "type") != "directory" and not field(item, "is_directory", False)}
+        if "workspace/app/index.html" not in entries:
+            return
+        async with self.lock:
+            run = self.db.get_live_build(org_id, run_id)
+            if run is None or run.status != "in_progress":
+                return
+            live = self._live_snapshot_root(org_id, run_id)
+        downloads = {}
+        for name in ("index.html", "scaffold.css"):
+            path = f"workspace/app/{name}"
+            size = field(entries.get(path), "size_bytes")
+            destination = live / name
+            if isinstance(size, int) and destination.is_file() and destination.stat().st_size == size:
+                continue
+            try:
+                content = await asyncio.to_thread(
+                    self._get_client().environments.files.download, environment=environment_id, path=path,
+                )
+                if isinstance(content, bytes):
+                    downloads[name] = content
+            except Exception:
+                pass  # HTML can arrive before the stylesheet; keep the last usable files.
+        async with self.lock:
+            run = self.db.get_live_build(org_id, run_id)
+            if run is None or run.status != "in_progress":
+                return
+            live = self._live_snapshot_root(org_id, run_id)
+            if "index.html" not in downloads and not (live / "index.html").is_file():
+                return
+            changed = False
+            live.mkdir(parents=True, exist_ok=True)
+            for name, content in downloads.items():
+                destination = live / name
+                if not destination.is_file() or destination.read_bytes() != content:
+                    destination.write_bytes(content)
+                    changed = True
+            if changed:
+                run.snapshot = LiveBuildLiveSnapshot(
+                    indexUrl=f"{self.settings.public_base_url}/artifacts/{org_id}/{run_id}/live/index.html",
+                    updatedAt=datetime.now(timezone.utc).isoformat(),
+                    version=run.snapshot.version + 1 if run.snapshot else 1,
+                )
+                self.db.save_live_build(run)
+
     async def _scan_files(self, org_id, run_id):
         while True:
             await asyncio.sleep(self.file_scan_seconds)
@@ -561,6 +662,7 @@ class LiveBuilderService:
                             run.phase = "building"
                             self._event(run, "file", path, path=path)
                     self.db.save_live_build(run)
+                await self._snapshot_files(org_id, run_id, environment_id, items)
             except Exception:
                 pass  # Listing is supplementary; a missing workspace is normal early in a run.
 
@@ -595,6 +697,7 @@ class LiveBuilderService:
         last_event_id = None
         streaming = True
         scanner = asyncio.create_task(self._scan_files(org_id, run_id))
+        progress_poller = asyncio.create_task(self._poll_progress(org_id, run_id))
         try:
             while True:
                 if loop.time() >= deadline:
@@ -679,7 +782,8 @@ class LiveBuilderService:
                 await asyncio.sleep(min(self.settings.poll_seconds, max(0, deadline - loop.time())))
         finally:
             scanner.cancel()
-            await asyncio.gather(scanner, return_exceptions=True)
+            progress_poller.cancel()
+            await asyncio.gather(scanner, progress_poller, return_exceptions=True)
 
     def _download_artifact(self, run: LiveBuildRun) -> tuple[LiveBuildArtifact | None, int]:
         if not run.environmentId:
@@ -710,10 +814,20 @@ class LiveBuilderService:
             normalized = Path(temporary) / "normalized"
             shutil.copytree(source, normalized)
             run_root.parent.mkdir(parents=True, exist_ok=True)
+            saved_live = Path(temporary) / "live"
+            if run.snapshot and self._live_snapshot_root(run.orgId, run.runId).is_dir():
+                (run_root / "live").replace(saved_live)
             if run_root.exists():
                 shutil.rmtree(run_root)
             normalized.replace(run_root)
-        files = [path for path in run_root.rglob("*") if path.is_file()]
+            files = [path for path in run_root.rglob("*") if path.is_file()]
+            artifact_bytes = sum(path.stat().st_size for path in files)
+            if saved_live.exists():
+                if (run_root / "live").is_dir():
+                    shutil.rmtree(run_root / "live")
+                elif (run_root / "live").exists():
+                    (run_root / "live").unlink()
+                saved_live.replace(run_root / "live")
         if index is None:
             return None, len(files)
         card = None
@@ -728,7 +842,7 @@ class LiveBuilderService:
         artifact = LiveBuildArtifact(
             indexUrl=f"{base}/index.html", previewUrl=f"{base}/preview.svg" if (run_root / "preview.svg").is_file() else None,
             notes=notes_path.read_text(encoding="utf-8", errors="replace") if notes_path.is_file() else None,
-            card=card, fileCount=len(files), bytes=sum(path.stat().st_size for path in files),
+            card=card, fileCount=len(files), bytes=artifact_bytes,
         )
         return artifact, len(files)
 

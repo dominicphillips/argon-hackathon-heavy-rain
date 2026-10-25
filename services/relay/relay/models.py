@@ -556,6 +556,21 @@ class LiveBuildUsage(BaseModel):
     totalOutputTokens: int = 0
 
 
+class LiveBuildFileProgress(BaseModel):
+    step: int
+    of: int
+    doing: str
+    done: list[str] = Field(default_factory=list)
+    next: list[str] = Field(default_factory=list)
+    updatedAt: str
+
+
+class LiveBuildLiveSnapshot(BaseModel):
+    indexUrl: str
+    updatedAt: str
+    version: int
+
+
 class LiveBuildRun(BaseModel):
     runId: str
     orgId: OrganizationId
@@ -573,6 +588,8 @@ class LiveBuildRun(BaseModel):
     errorReason: str | None = None
     usage: LiveBuildUsage = Field(default_factory=LiveBuildUsage)
     filesWritten: list[str] = Field(default_factory=list)
+    progress: LiveBuildFileProgress | None = None
+    snapshot: LiveBuildLiveSnapshot | None = None
 
 
 class LiveBuildProgressEvent(BaseModel):

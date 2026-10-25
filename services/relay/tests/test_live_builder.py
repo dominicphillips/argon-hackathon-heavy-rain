@@ -76,10 +76,13 @@ class FakeClient:
         self.create_error = create_error
         self.creates, self.gets, self.cancels, self.downloads = [], [], [], []
         self.download_fail_paths = set()
+        self.workspace_files = {}
+        self.listing = []
+        self.list_calls = []
         self.on_create = None
         self.on_get = None
         self.interactions = SimpleNamespace(create=self.create, get=self.get, cancel=self.cancel)
-        self.environments = SimpleNamespace(files=SimpleNamespace(download=self.download))
+        self.environments = SimpleNamespace(files=SimpleNamespace(download=self.download, list=self.list_files))
 
     def create(self, **kwargs):
         self.creates.append(kwargs)
@@ -117,7 +120,15 @@ class FakeClient:
         self.downloads.append((path, environment))
         if path in self.download_fail_paths:
             raise FileNotFoundError(path)
+        if path.startswith("workspace/app/"):
+            if path not in self.workspace_files:
+                raise FileNotFoundError(path)
+            return self.workspace_files[path]
         return self.archive
+
+    def list_files(self, *, environment, path):
+        self.list_calls.append((environment, path))
+        return SimpleNamespace(files=list(self.listing))
 
 
 @pytest.fixture
@@ -941,3 +952,228 @@ def test_stream_replay_of_create_steps_and_late_environment_id(app_factory):
         assert sum(e["kind"] == "thought" for e in ready["progress"]) == 1
         assert client.get(ready["artifact"]["indexUrl"]).status_code == 200
     assert fake.gets == ["interaction-test"] and fake.downloads == [("workspace/app", "env-test")]
+
+
+def test_live_progress_and_snapshots_poll_alongside_stream_and_persist(app_factory, tmp_path):
+    release = threading.Event()
+    fake = StreamingClient([[
+        lambda: release.wait(5),
+        stream_event("interaction.completed", interaction={"id": "interaction-test", "status": "completed"}),
+    ]], initial=snapshot("in_progress"))
+    db_path = tmp_path / "progress.sqlite3"
+    app = app_factory(fake, db_path=db_path)
+    service = app.state.live_builder
+    assert service.progress_poll_seconds == 10 and service.file_scan_seconds == 15
+    service.progress_poll_seconds = service.file_scan_seconds = 0.02
+    progress_path = "workspace/app/progress.json"
+    index_path, css_path = "workspace/app/index.html", "workspace/app/scaffold.css"
+    try:
+        with TestClient(app) as client:
+            run_id = client.post(BASE, json=SAMPLE).json()["runId"]
+            missing = wait_snapshot(client, lambda v: (progress_path, "env-test") in fake.downloads)
+            assert missing["run"]["progress"] is None and missing["run"]["snapshot"] is None
+            fake.workspace_files.update({
+                progress_path: json.dumps({"step": "1", "of": "3", "doing": "Build the page",
+                                           "done": ["Read brief", SECRET], "next": "Check the page"}).encode(),
+                index_path: b"<html>First preview</html>", css_path: b"body {color:black}",
+            })
+            fake.listing = [{"path": index_path, "type": "file"}, {"path": css_path, "type": "file"}]
+            first = wait_snapshot(client, lambda v: v["run"]["progress"] and v["run"]["snapshot"])
+            progress, live = first["run"]["progress"], first["run"]["snapshot"]
+            assert progress["step"] == 1 and progress["of"] == 3
+            assert progress["done"] == ["Read brief", "[redacted]"] and progress["next"] == ["Check the page"]
+            assert progress["updatedAt"] and live["updatedAt"] and live["version"] == 1
+            assert live["indexUrl"] == f"http://127.0.0.1:43180/artifacts/meridian/{run_id}/live/index.html"
+            response = client.get(live["indexUrl"])
+            assert response.status_code == 200 and response.content == fake.workspace_files[index_path]
+            assert "sandbox allow-scripts" in response.headers["content-security-policy"]
+            assert client.get(live["indexUrl"].replace("index.html", "scaffold.css")).content == fake.workspace_files[css_path]
+
+            # A new size downloads; identical bytes without size metadata do not advance the version.
+            before = len(fake.downloads)
+            wait_snapshot(client, lambda v: len(fake.downloads) >= before + 6)
+            unchanged = client.get(BASE + "/current").json()
+            assert unchanged["run"]["snapshot"]["version"] == 1
+            assert sum(e["title"] == "Step 1 of 3: Build the page" for e in unchanged["progress"]) == 1
+            fake.workspace_files[index_path] = b"<html>Second preview with more content</html>"
+            fake.workspace_files[progress_path] = json.dumps({"step": 2, "of": 3, "doing": "Build the page"}).encode()
+            second = wait_snapshot(client, lambda v: v["run"]["snapshot"]["version"] == 2 and v["run"]["progress"]["step"] == 2)
+            assert sum(e["title"].startswith("Step ") for e in second["progress"]) == 1
+            assert client.get(live["indexUrl"]).content == fake.workspace_files[index_path]
+
+            fake.workspace_files[css_path] = b"body {color:green}"
+            fake.workspace_files[progress_path] = b'```json\n{"step":3,"of":3,"doing":"Check the page"}\n```'
+            third = wait_snapshot(client, lambda v: v["run"]["snapshot"]["version"] == 3 and v["run"]["progress"]["step"] == 3)
+            assert sum(e["title"].startswith("Step ") for e in third["progress"]) == 2
+            assert client.get(live["indexUrl"].replace("index.html", "scaffold.css")).content == fake.workspace_files[css_path]
+            assert not fake.gets
+            assert set(fake.list_calls) == {("env-test", "workspace/app")}
+
+            release.set()
+            ready = wait_terminal(client)
+            assert ready["run"]["snapshot"]["version"] == 3
+            assert client.get(live["indexUrl"]).status_code == 200
+            assert ready["artifact"]["fileCount"] == 5
+            assert ready["artifact"]["bytes"] == sum(len(data) for data in (
+                b"<!doctype html><html><body>DealPulse preview</body></html>", b"body { color: black; }",
+                json.dumps(CARD).encode(), b'<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="750"/>',
+                b"Sample data for review.",
+            ))
+            stored = app.state.db.get_live_build("meridian", run_id)
+            assert stored.progress.model_dump() == ready["run"]["progress"]
+            assert stored.snapshot.model_dump() == ready["run"]["snapshot"]
+            with sqlite3.connect(db_path) as connection:
+                row = connection.execute("SELECT progress, snapshot FROM live_builds WHERE run_id = ?", (run_id,)).fetchone()
+                assert json.loads(row[0]) == ready["run"]["progress"]
+                assert json.loads(row[1]) == ready["run"]["snapshot"]
+    finally:
+        release.set()
+
+
+def test_live_snapshot_skips_matching_sizes_but_downloads_changed_files(app_factory):
+    from google.genai.environments import EnvironmentFile
+    release = threading.Event()
+    fake = StreamingClient([[lambda: release.wait(5)]], initial=snapshot("in_progress"))
+    index_path, css_path = "workspace/app/index.html", "workspace/app/scaffold.css"
+    fake.workspace_files = {index_path: b"<html>First</html>", css_path: b"body {}"}
+    def listing():
+        return [EnvironmentFile(path=path, type="file", size_bytes=len(content)) for path, content in fake.workspace_files.items()]
+    fake.listing = listing()
+    app = app_factory(fake)
+    app.state.live_builder.file_scan_seconds = 0.02
+    try:
+        with TestClient(app) as client:
+            run_id = client.post(BASE, json=SAMPLE).json()["runId"]
+            wait_snapshot(client, lambda v: v["run"]["snapshot"])
+            before = len(fake.list_calls)
+            wait_snapshot(client, lambda v: len(fake.list_calls) >= before + 3)
+            assert fake.downloads == [(index_path, "env-test"), (css_path, "env-test")]
+            fake.workspace_files[css_path] = b"body {color: blue}"
+            fake.listing = listing()
+            updated = wait_snapshot(client, lambda v: v["run"]["snapshot"]["version"] == 2)
+            assert fake.downloads.count((index_path, "env-test")) == 1
+            assert fake.downloads.count((css_path, "env-test")) == 2
+            assert client.get(updated["run"]["snapshot"]["indexUrl"].replace("index.html", "scaffold.css")).content == fake.workspace_files[css_path]
+            assert client.post(f"{BASE}/{run_id}/cancel").json()["status"] == "cancelled"
+            release.set()
+    finally:
+        release.set()
+
+
+def test_live_progress_tolerates_invalid_files_without_losing_last_value(app_factory):
+    release = threading.Event()
+    fake = StreamingClient([[lambda: release.wait(5)]], initial=snapshot("in_progress"))
+    path = "workspace/app/progress.json"
+    app = app_factory(fake)
+    app.state.live_builder.progress_poll_seconds = 0.01
+    try:
+        with TestClient(app) as client:
+            run_id = client.post(BASE, json=SAMPLE).json()["runId"]
+            for invalid in (b"{", b"[]", b'{"doing":"Working"}', b'{"step":1,"of":3,"doing":{}}', b"\xff"):
+                fake.workspace_files[path] = invalid
+                before = len(fake.downloads)
+                result = wait_snapshot(client, lambda v: len(fake.downloads) >= before + 2)
+                assert result["run"]["progress"] is None and result["run"]["status"] == "in_progress"
+            fake.workspace_files[path] = b'{"step":1,"of":3,"doing":"Working"}'
+            valid = wait_snapshot(client, lambda v: v["run"]["progress"])
+            fake.workspace_files[path] = b"{"
+            before = len(fake.downloads)
+            result = wait_snapshot(client, lambda v: len(fake.downloads) >= before + 2)
+            assert result["run"]["progress"] == valid["run"]["progress"]
+            assert not [event for event in result["progress"] if event["kind"] == "error"]
+            client.post(f"{BASE}/{run_id}/cancel")
+            release.set()
+    finally:
+        release.set()
+
+
+@pytest.mark.parametrize("blocked_path", ["progress.json", "index.html"])
+def test_live_polls_cannot_publish_after_cancel(app_factory, blocked_path):
+    release_stream, release_download, entered = threading.Event(), threading.Event(), threading.Event()
+    fake = StreamingClient([[lambda: release_stream.wait(5)]], initial=snapshot("in_progress"))
+    fake.workspace_files = {"workspace/app/progress.json": b'{"step":1,"of":2,"doing":"Working"}',
+                            "workspace/app/index.html": b"<html>Preview</html>", "workspace/app/scaffold.css": b"body {}"}
+    fake.listing = [{"path": "workspace/app/index.html", "type": "file"}]
+    original_download = fake.download
+    def download(*, path, environment):
+        if path == f"workspace/app/{blocked_path}":
+            entered.set()
+            release_download.wait(5)
+        return original_download(path=path, environment=environment)
+    fake.environments.files.download = download
+    app = app_factory(fake)
+    service = app.state.live_builder
+    if blocked_path == "progress.json":
+        service.progress_poll_seconds = 0.01
+    else:
+        service.file_scan_seconds = 0.01
+    try:
+        with TestClient(app) as client:
+            run_id = client.post(BASE, json=SAMPLE).json()["runId"]
+            assert entered.wait(1)
+            cancelled = client.post(f"{BASE}/{run_id}/cancel").json()
+            assert cancelled["status"] == "cancelled" and cancelled["progress"] is None and cancelled["snapshot"] is None
+            assert not service.tasks
+            release_download.set()
+            release_stream.set()
+        run = app.state.db.get_live_build("meridian", run_id)
+        assert run.progress is None and run.snapshot is None
+        assert not (service.settings.artifact_root / "meridian" / run_id / "live").exists()
+    finally:
+        release_download.set()
+        release_stream.set()
+
+
+def test_live_columns_migrate_existing_database(app_factory, tmp_path):
+    path = tmp_path / "migration.sqlite3"
+    app = app_factory(db_path=path)
+    run, created, _ = app.state.db.reserve_live_build("meridian", LiveBuildRequest.model_validate(SAMPLE), "gemini-3.8-flash", "migration-run")
+    assert created
+    app.state.db.close()
+    with sqlite3.connect(path) as connection:
+        connection.execute("ALTER TABLE live_builds DROP COLUMN progress")
+        connection.execute("ALTER TABLE live_builds DROP COLUMN snapshot")
+    migrated = RelayDatabase(path)
+    try:
+        run = migrated.get_live_build("meridian", "migration-run")
+        assert run.progress is None and run.snapshot is None
+        migrated.save_live_build(run)
+        assert migrated.get_live_build("meridian", "migration-run") == run
+    finally:
+        migrated.close()
+
+
+def test_completed_bundle_counts_exclude_preserved_snapshot(app_factory):
+    from relay.models import LiveBuildLiveSnapshot
+    files = {"index.html": b"<html>Completed</html>", "live/index.html": b"Other page", "live/extra.txt": b"Extra file"}
+    fake = FakeClient(archive=archive_bytes(files=files))
+    app = app_factory(fake)
+    service = app.state.live_builder
+    run, _, _ = app.state.db.reserve_live_build("meridian", LiveBuildRequest.model_validate(SAMPLE), "gemini-3.8-flash", "count-run")
+    run.environmentId = "env-test"
+    run.snapshot = LiveBuildLiveSnapshot(indexUrl="/artifacts/meridian/count-run/live/index.html", updatedAt=run.startedAt, version=1)
+    live = service.settings.artifact_root / "meridian" / run.runId / "live"
+    live.mkdir(parents=True)
+    (live / "index.html").write_bytes(b"<html>Last snapshot</html>")
+    artifact, count = service._download_artifact(run)
+    assert count == artifact.fileCount == len(files)
+    assert artifact.bytes == sum(map(len, files.values()))
+    assert (live / "index.html").read_bytes() == b"<html>Last snapshot</html>"
+
+
+def test_live_snapshot_rejects_symlinks_before_downloading(app_factory, tmp_path):
+    fake = FakeClient()
+    app = app_factory(fake)
+    service = app.state.live_builder
+    run, _, _ = app.state.db.reserve_live_build("meridian", LiveBuildRequest.model_validate(SAMPLE), "gemini-3.8-flash", "safe-run")
+    run.status, run.environmentId = "in_progress", "env-test"
+    app.state.db.save_live_build(run)
+    outside = tmp_path / "outside"
+    outside.mkdir()
+    live = service.settings.artifact_root / "meridian" / run.runId / "live"
+    live.parent.mkdir(parents=True)
+    live.symlink_to(outside, target_is_directory=True)
+    with pytest.raises(ValueError, match="Unsafe snapshot path|not in the subpath"):
+        asyncio.run(service._snapshot_files("meridian", run.runId, "env-test", [{"path": "workspace/app/index.html"}]))
+    assert not fake.downloads and not list(outside.iterdir())
+    assert app.state.db.get_live_build("meridian", run.runId).snapshot is None

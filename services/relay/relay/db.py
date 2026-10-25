@@ -218,6 +218,8 @@ class RelayDatabase:
                 app TEXT NOT NULL,
                 usage TEXT NOT NULL,
                 files_written TEXT NOT NULL,
+                progress TEXT,
+                snapshot TEXT,
                 artifact TEXT,
                 steps_recorded INTEGER NOT NULL DEFAULT 0,
                 started_at TEXT NOT NULL,
@@ -256,6 +258,11 @@ class RelayDatabase:
         )
         self._conn.commit()
         self._migrate_organization_ids()
+        columns = {row["name"] for row in self._conn.execute("PRAGMA table_info(live_builds)")}
+        for column in ("progress", "snapshot"):
+            if column not in columns:
+                self._conn.execute(f"ALTER TABLE live_builds ADD COLUMN {column} TEXT")
+        self._conn.commit()
 
     def _migrate_organization_ids(self) -> None:
         schema = self._conn.execute(
@@ -657,6 +664,8 @@ class RelayDatabase:
             model=row["model"], interactionId=row["interaction_id"], environmentId=row["environment_id"],
             requestedBy=json.loads(row["requested_by"]), workflow=json.loads(row["workflow"]),
             app=json.loads(row["app"]), usage=json.loads(row["usage"]),
+            progress=json.loads(row["progress"]) if row["progress"] else None,
+            snapshot=json.loads(row["snapshot"]) if row["snapshot"] else None,
             filesWritten=json.loads(row["files_written"]), startedAt=row["started_at"],
             updatedAt=row["updated_at"], completedAt=row["completed_at"], errorReason=row["error_reason"],
         )
@@ -714,10 +723,12 @@ class RelayDatabase:
         run.updatedAt = datetime.now(timezone.utc).isoformat()
         self._conn.execute(
             """UPDATE live_builds SET status = ?, phase = ?, interaction_id = ?, environment_id = ?,
-               usage = ?, files_written = ?, updated_at = ?, completed_at = ?, error_reason = ?
+               usage = ?, files_written = ?, progress = ?, snapshot = ?, updated_at = ?, completed_at = ?, error_reason = ?
                WHERE org_id = ? AND run_id = ?""",
             (run.status, run.phase, run.interactionId, run.environmentId, run.usage.model_dump_json(),
-             json.dumps(run.filesWritten), run.updatedAt, run.completedAt, run.errorReason, run.orgId, run.runId),
+             json.dumps(run.filesWritten), run.progress.model_dump_json() if run.progress else None,
+             run.snapshot.model_dump_json() if run.snapshot else None,
+             run.updatedAt, run.completedAt, run.errorReason, run.orgId, run.runId),
         )
         self._conn.commit()
 
