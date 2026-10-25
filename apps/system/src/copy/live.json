@@ -1,0 +1,57 @@
+{
+  "org": {
+    "meridian": "Meridian Crest Capital",
+    "augi": "AUGI"
+  },
+  "nav": {
+    "build": "Build",
+    "apps": "Apps"
+  },
+  "empty": {
+    "liveTitle": "Waiting for work",
+    "liveBody": "This screen fills on its own when someone at Meridian sends a weekly workflow from the HeavyRain app.",
+    "demoTitle": "Weekly cycle ready",
+    "demoBody": "Run the weekly cycle to load approved work and build the app."
+  },
+  "panel": {
+    "eyebrow": "Background build",
+    "receivedTitle": "Received {app}",
+    "buildingTitle": "Building {app}",
+    "requestedBy": "Requested by {name}, {role}",
+    "progress": "Progress",
+    "phases": {
+      "received": "Request received",
+      "reading": "Reading workflow",
+      "building": "Building application",
+      "checking": "Running final checks",
+      "ready": "Preview ready"
+    },
+    "footer": "The preview opens on its own when the build is ready.",
+    "failedTitle": "Build stopped",
+    "failedBody": "The build stopped ({reason}); send the request again from the HeavyRain app.",
+    "stoppedBody": "The build stopped early because it reached the time or token limit for this run.",
+    "waitingInputBody": "The build cannot continue because it is waiting for input that this console cannot provide."
+  },
+  "feed": {
+    "label": "Builder steps as they happen",
+    "tokens": "Tokens: {n}",
+    "files": "Files written: {n}"
+  },
+  "card": {
+    "eyebrow": "Built this week",
+    "view": "View application",
+    "notes": "Build notes",
+    "highlights": "Highlights",
+    "screens": "Screens",
+    "madeFor": "Made for {name}",
+    "sampleNote": "This app runs on sample data until it is connected."
+  },
+  "workers": {
+    "Researcher": "Catalog matcher",
+    "Connector": "Schema checker",
+    "Builder": "App builder",
+    "Notifier": "Release drafter",
+    "Cairn": "Weekly coordinator",
+    "Relay": "Report intake"
+  }
+}

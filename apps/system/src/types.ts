@@ -1,6 +1,6 @@
 import type { SystemNavSection, SystemStatusTone, WorkerRole } from "@heavy-rain/system-ui";
 
-export type OrganizationId = "rookmere" | "augi";
+export type OrganizationId = "rookmere" | "augi" | "meridian";
 
 export type BuildStageId =
   | "idle"

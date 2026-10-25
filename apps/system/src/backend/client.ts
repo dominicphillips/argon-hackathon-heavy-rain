@@ -44,10 +44,10 @@ export function getBackendBaseUrl(): string {
 // Org constants and helpers
 // ---------------------------------------------------------------------------
 
-export const ORGANIZATION_IDS: readonly OrganizationId[] = ["rookmere", "augi"];
+export const ORGANIZATION_IDS: readonly OrganizationId[] = ["rookmere", "augi", "meridian"];
 
 export function isOrganizationId(value: unknown): value is OrganizationId {
-  return value === "rookmere" || value === "augi";
+  return typeof value === "string" && (ORGANIZATION_IDS as readonly string[]).includes(value);
 }
 
 export interface OrgAuthorizers {
@@ -61,7 +61,10 @@ export interface OrgAuthorizers {
   runId: "run_rm_var_01" | "run_augi_sable_3d_01";
 }
 
-const ORG_AUTHORIZERS: Record<OrganizationId, OrgAuthorizers> = {
+type ScriptedOrganizationId = Exclude<OrganizationId, "meridian">;
+
+// Meridian builds run through the live builder; only the scripted organizations have fixture authorizers.
+const ORG_AUTHORIZERS: Record<ScriptedOrganizationId, OrgAuthorizers> = {
   rookmere: {
     buildClusterId: "pat_rm_01",
     buildAuthorizerEmployeeId: "emp_rm_07",
@@ -73,15 +76,25 @@ const ORG_AUTHORIZERS: Record<OrganizationId, OrgAuthorizers> = {
     buildAuthorizerEmployeeId: "emp_augi_01",
     releaseReviewerEmployeeId: "emp_augi_08",
     runId: "run_augi_sable_3d_01",
-  },
+  }
 };
 
+function scriptedOrg(org: OrganizationId): ScriptedOrganizationId {
+  if (org === "meridian") {
+    throw new BackendError("Meridian has no scripted sandbox flow; use the live builder.", {
+      status: 0,
+      url: orgPath(org),
+    });
+  }
+  return org;
+}
+
 export function orgAuthorizers(org: OrganizationId): OrgAuthorizers {
-  return ORG_AUTHORIZERS[org];
+  return ORG_AUTHORIZERS[scriptedOrg(org)];
 }
 
 export function runId(org: OrganizationId): OrgAuthorizers["runId"] {
-  return ORG_AUTHORIZERS[org].runId;
+  return ORG_AUTHORIZERS[scriptedOrg(org)].runId;
 }
 
 // ---------------------------------------------------------------------------
@@ -765,5 +778,78 @@ export function subscribeWorkspaceEvents(
     source.onerror = null;
     source.close();
     connection.status = "closed";
+  };
+}
+
+// ---------------------------------------------------------------------------
+// Live builds (real sandbox runs; see docs/superpowers/specs/2026-10-25-live-builder-design.md)
+// ---------------------------------------------------------------------------
+
+export type LiveBuildStatus =
+  | "queued"
+  | "in_progress"
+  | "requires_action"
+  | "incomplete"
+  | "completed"
+  | "failed"
+  | "cancelled";
+export type LiveBuildPhase = "received" | "reading" | "building" | "checking" | "ready" | "failed";
+export type LiveBuildEventKind = "status" | "thought" | "tool_call" | "tool_result" | "file" | "message" | "error";
+
+export interface LiveBuildRun {
+  runId: string;
+  orgId: OrganizationId;
+  status: LiveBuildStatus;
+  phase: LiveBuildPhase;
+  model: string;
+  interactionId: string | null;
+  environmentId: string | null;
+  requestedBy: { personaId: string; name: string; role: string };
+  workflow: { title: string; summary: string; tools: string[]; weeklyHoursSaved: number | null };
+  app: { name: string; purpose: string; features: string[]; assumptions: string[] };
+  startedAt: string;
+  updatedAt: string;
+  completedAt: string | null;
+  errorReason: string | null;
+  usage: { totalTokens: number; totalThoughtTokens: number; totalOutputTokens: number };
+  filesWritten: string[];
+}
+
+export interface LiveBuildProgressEvent {
+  seq: number;
+  at: string;
+  kind: LiveBuildEventKind;
+  title: string;
+  detail: string | null;
+  path: string | null;
+}
+
+export interface LiveBuildArtifact {
+  indexUrl: string;
+  previewUrl: string | null;
+  notes: string | null;
+  card: { name: string; tagline: string; highlights: string[]; screens: string[] } | null;
+  fileCount: number;
+  bytes: number;
+}
+
+export interface LiveBuildSnapshot {
+  run: LiveBuildRun | null;
+  progress: LiveBuildProgressEvent[];
+  artifact: LiveBuildArtifact | null;
+}
+
+export async function getLiveBuildCurrent(
+  org: OrganizationId,
+  since?: number,
+  signal?: AbortSignal,
+): Promise<LiveBuildSnapshot> {
+  const query = since !== undefined ? `?since=${encodeURIComponent(String(since))}` : "";
+  const url = orgPath(org, `/builds/live/current${query}`);
+  const body = await request<Partial<LiveBuildSnapshot>>(url, { org, signal });
+  return {
+    run: body.run ?? null,
+    progress: Array.isArray(body.progress) ? body.progress : [],
+    artifact: body.artifact ?? null,
   };
 }

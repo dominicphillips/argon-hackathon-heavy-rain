@@ -36,6 +36,10 @@ import { ChamberWireframe } from "./components/ChamberWireframe";
 import { BuildProgressPanel } from "./components/BuildProgressPanel";
 import { ChamberIntake } from "./components/ChamberIntake";
 import { ChamberEmptyState } from "./components/ChamberEmptyState";
+import { ChamberAtmosphere } from "./components/ChamberAtmosphere";
+import { LiveBuildStage } from "./components/LiveBuildStage";
+import liveCopy from "./copy/live.json";
+import { DEMO_STEPS } from "./demo/playbackController";
 import { RookmereEmbeddedFrame } from "./components/RookmereEmbeddedFrame";
 import { AugiEmbeddedFrame } from "./components/AugiEmbeddedFrame";
 import { InspectorDrawer } from "./components/InspectorDrawer";
@@ -53,6 +57,7 @@ import {
   type DemoPlaybackCopy,
 } from "./demo/DemoPlayback";
 import type { WorkEditorialCardCopy } from "./components/WorkEditorialCards";
+import type { WorkspaceWithStatuses } from "./backend/client";
 import {
   controlBuild,
   decideCluster,
@@ -105,6 +110,12 @@ const INTAKE_SOURCE: Record<
     employeeId: "emp_augi_01",
     roleId: "role_biw_structures",
   },
+  // Meridian has no scripted intake; real work arrives from the HeavyRain app.
+  meridian: {
+    reportId: "",
+    employeeId: "",
+    roleId: "",
+  }
 };
 
 function buildIntakePayload(
@@ -217,6 +228,13 @@ const workerStatusMessages = workerStatusCopy as Partial<
 >;
 const demoPlaybackCopy: DemoPlaybackCopy = playbackCopy;
 
+// Plain organization names for headers; internal ids never render.
+const ORG_NAMES: Record<OrganizationId, string> = {
+  rookmere: copy.scope.rookmere,
+  augi: liveCopy.org.augi,
+  meridian: liveCopy.org.meridian,
+};
+
 // Explicit catalog app routing. Only implemented local apps get a URL; other cards keep View details.
 const CATALOG_APP_URLS: Record<string, string> = {
   app_augi_bom_mass_ledger: "http://127.0.0.1:43171/?app=balance",
@@ -247,7 +265,7 @@ export const App: FC = () => {
   });
 
   // Active organization scope ("rookmere" | "augi")
-  const [activeOrgId, setActiveOrgId] = useState<OrganizationId>("rookmere");
+  const [activeOrgId, setActiveOrgId] = useState<OrganizationId>("meridian");
 
   // Active navigation destination ("System" | "Work" | "Apps" | "Activity")
   const [activeNav, setActiveNav] = useState<SystemNavSection>("System");
@@ -258,6 +276,7 @@ export const App: FC = () => {
   >(() => ({
     rookmere: createInitialOrgState("rookmere"),
     augi: createInitialOrgState("augi"),
+    meridian: createInitialOrgState("meridian"),
   }));
 
   // Local backend connection (http://127.0.0.1:43180); false means explicit offline fixture fallback
@@ -268,10 +287,11 @@ export const App: FC = () => {
   >(() => ({ ...ORGANIZATION_FIXTURES }));
   const [backendBusy, setBackendBusy] = useState<
     Record<OrganizationId, string | null>
-  >({ rookmere: null, augi: null });
+  >({ rookmere: null, augi: null, meridian: null });
   const busyRef = useRef<Record<OrganizationId, string | null>>({
     rookmere: null,
     augi: null,
+    meridian: null,
   });
   // Demo playback owns the mutation lane while playing or awaiting an accepted request.
   // Never fed back into the playback hook's externalBusy; that would deadlock it.
@@ -279,13 +299,13 @@ export const App: FC = () => {
   const playbackLaneRef = useRef<boolean>(false);
   const [backendErrors, setBackendErrors] = useState<
     Record<OrganizationId, string | null>
-  >({ rookmere: null, augi: null });
+  >({ rookmere: null, augi: null, meridian: null });
   const [intakeDrafts, setIntakeDrafts] = useState<
     Record<OrganizationId, WorkReportSubmission | null>
-  >({ rookmere: null, augi: null });
+  >({ rookmere: null, augi: null, meridian: null });
   const [intakeReceipts, setIntakeReceipts] = useState<
     Record<OrganizationId, WorkReportReceipt | null>
-  >({ rookmere: null, augi: null });
+  >({ rookmere: null, augi: null, meridian: null });
 
   // Reduced motion preference (initializes from OS prefers-reduced-motion, toggleable in account menu)
   const [reducedMotion, setReducedMotion] = useState<boolean>(() => {
@@ -445,7 +465,7 @@ export const App: FC = () => {
     backendHealth?.operatingMode === "demo_fixture_replay";
   const playback = useDemoPlayback({
     orgId: activeOrgId,
-    enabled: demoPlaybackEnabled,
+    enabled: demoPlaybackEnabled && activeOrgId !== "meridian",
     externalBusy: Boolean(activeBackendBusy),
     onWorkspace: applySnapshot,
     onView: setActiveNav,
@@ -503,11 +523,20 @@ export const App: FC = () => {
           getWorkspace("rookmere"),
           getWorkspace("augi"),
         ]);
+        // Meridian may not exist on an older relay; keep the empty local fixture then.
+        let mf = ORGANIZATION_FIXTURES.meridian;
+        let mw: WorkspaceWithStatuses | null = null;
+        try {
+          [mf, mw] = await Promise.all([getOrgFixture("meridian"), getWorkspace("meridian")]);
+        } catch {
+          mw = null;
+        }
         if (cancelled) return;
-        setFixtures({ rookmere: rf, augi: af });
+        setFixtures({ rookmere: rf, augi: af, meridian: mf });
         setOrgStates((prev) => ({
           rookmere: mergeSnapshot(prev.rookmere, rw),
           augi: mergeSnapshot(prev.augi, aw),
+          meridian: mw ? mergeSnapshot(prev.meridian, mw) : prev.meridian,
         }));
         setBackendHealth(health);
         setBackendConnected(true);
@@ -1697,10 +1726,30 @@ export const App: FC = () => {
             />
           </div>
 
+          <nav aria-label="Primary navigation" className="hr-topnav">
+            {NAV_SECTIONS.map((section, idx) => {
+              const isActive = activeNav === section;
+              return (
+                <button
+                  key={section}
+                  ref={(el) => {
+                    navButtonRefs.current[idx] = el;
+                  }}
+                  type="button"
+                  className={`hr-topnav__item${isActive ? " hr-topnav__item--active" : ""}`}
+                  aria-current={isActive ? "page" : undefined}
+                  onClick={() => setActiveNav(section)}
+                  onKeyDown={(e) => handleNavKeyDown(e, idx)}
+                >
+                  {NAV_LABELS[section]}
+                </button>
+              );
+            })}
+          </nav>
         </div>
 
         <div className="hr-topbar__right">
-          {playbackControls}
+          {activeOrgId !== "meridian" && playbackControls}
           {/* Rarely used controls stay out of the way behind one overflow menu */}
           <details className="hr-topbar-more">
             <summary className="hr-topbar-more__trigger" aria-label="More options">
@@ -1719,8 +1768,8 @@ export const App: FC = () => {
                     handleSelectOrganization(e.target.value as OrganizationId)
                   }
                 >
-                  <option value="rookmere">{copy.scope.rookmere}</option>
-                  <option value="augi">{copy.scope.augi}</option>
+                  <option value="meridian">{liveCopy.org.meridian}</option>
+                  <option value="augi">{liveCopy.org.augi}</option>
                 </select>
               </div>
             </div>
@@ -1733,47 +1782,6 @@ export const App: FC = () => {
         <TopographicCanvas />
 
         <div className="hr-stage-layout">
-          {/* Tactile Left Vertical Navigation Rail */}
-          <aside className="hr-left-rail">
-            <nav aria-label="Primary navigation" className="hr-tactile-nav">
-              <ul className="hr-tactile-nav__list">
-                {NAV_SECTIONS.map((section, idx) => {
-                  const isActive = activeNav === section;
-                  return (
-                    <li key={section}>
-                      <button
-                        ref={(el) => {
-                          navButtonRefs.current[idx] = el;
-                        }}
-                        type="button"
-                        className={`hr-tactile-nav__item${
-                          isActive ? " hr-tactile-nav__item--active" : ""
-                        }`}
-                        aria-current={isActive ? "page" : undefined}
-                        onClick={() => setActiveNav(section)}
-                        onKeyDown={(e) => handleNavKeyDown(e, idx)}
-                      >
-                        <span className="hr-tactile-nav__label">
-                          {NAV_LABELS[section]}
-                        </span>
-                      </button>
-                    </li>
-                  );
-                })}
-              </ul>
-
-              {/* 2x10 Dot-Matrix Ornament from 03-system-c.png & Reference 09 */}
-              <div
-                className="hr-tactile-nav__dots"
-                aria-hidden="true"
-              >
-                {Array.from({ length: 20 }).map((_, idx) => (
-                  <span key={idx} />
-                ))}
-              </div>
-            </nav>
-          </aside>
-
           {/* Dominant Center Workbench Stage */}
           <main className="hr-center-stage" id="main-workspace">
             <div
@@ -1790,20 +1798,32 @@ export const App: FC = () => {
             {/* ============================================================
                 DESTINATION 1: SYSTEM (03-system-c.png 3-Band Artifact Workbench)
                 ============================================================ */}
-            {activeNav === "System" && (
+            {activeNav === "System" && activeOrgId === "meridian" && (
+              <LiveBuildStage
+                orgId={activeOrgId}
+                orgName={ORG_NAMES[activeOrgId]}
+                enabled={backendConnected}
+                reducedMotion={reducedMotion}
+              />
+            )}
+            {activeNav === "System" && activeOrgId !== "meridian" && (
               <div className="hr-workbench-c">
                 {/* BAND 1: Slim Top Workbench Header / Control Bar (03-system-c.png) */}
                 <header className="hr-workbench-c__header">
                   <div className="hr-workbench-c__title-group">
-                    <span className="hr-workbench-c__eyebrow">
-                      {activeFixture.heroOrchestratorEyebrow}
-                    </span>
-                    <span
-                      className="hr-workbench-c__divider"
-                      aria-hidden="true"
-                    />
+                    {demoStarted && (
+                      <span className="hr-workbench-c__eyebrow">
+                        {ORG_NAMES[activeOrgId]}
+                      </span>
+                    )}
+                    {demoStarted && (
+                      <span
+                        className="hr-workbench-c__divider"
+                        aria-hidden="true"
+                      />
+                    )}
                     <h1 className="hr-workbench-c__title">
-                      {demoStarted ? heroDisplayName : copy.scope[activeOrgId]}
+                      {demoStarted ? heroDisplayName : ORG_NAMES[activeOrgId]}
                     </h1>
                   </div>
 
@@ -1866,13 +1886,19 @@ export const App: FC = () => {
                   )}
 
                   <div className="hr-chamber-stage">
+                    <ChamberAtmosphere reducedMotion={reducedMotion} />
                     {!demoStarted ? (
                       <>
                         <div
                           className="hr-chamber-smoke-veil hr-chamber-smoke-veil--stage2"
                           aria-hidden="true"
                         />
-                        <ChamberEmptyState>{stageRunControl}</ChamberEmptyState>
+                        <ChamberEmptyState
+                          title={liveCopy.empty.demoTitle}
+                          body={liveCopy.empty.demoBody}
+                        >
+                          {stageRunControl}
+                        </ChamberEmptyState>
                       </>
                     ) : (
                       <>
@@ -1934,9 +1960,25 @@ export const App: FC = () => {
                               />
                             )}
                             <BuildProgressPanel
-                              appName={heroDisplayName}
-                              completedSteps={demoSteps}
-                              active={playback.state.playing || playback.state.busy}
+                              eyebrow={playbackCopy.panel.eyebrow}
+                              title={
+                                demoSteps < 2
+                                  ? playbackCopy.panel.reviewTitle
+                                  : playbackCopy.panel.buildTitle.replace("{app}", heroDisplayName)
+                              }
+                              rows={DEMO_STEPS.map((step, index) => ({
+                                key: step,
+                                label: playbackCopy.steps[step].label,
+                                state:
+                                  index < demoSteps
+                                    ? "done"
+                                    : index === demoSteps
+                                      ? playback.state.playing || playback.state.busy
+                                        ? "active"
+                                        : "paused"
+                                      : "queued",
+                              }))}
+                              footer={playbackCopy.panel.footer}
                               reducedMotion={reducedMotion}
                             />
                           </>

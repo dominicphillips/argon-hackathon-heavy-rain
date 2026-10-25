@@ -20,7 +20,7 @@ export const SYSTEM_OPERATOR_ACCOUNTS: readonly SystemOperatorAccount[] = [
   },
 ];
 
-export const ORGANIZATION_FIXTURES: Record<OrganizationId, OrganizationFixture> = {
+const DEMO_FIXTURES: Record<"rookmere" | "augi", OrganizationFixture> = {
   rookmere: {
     orgId: "rookmere",
     name: "Rookmere Capital",
@@ -1544,3 +1544,35 @@ export function createInitialOrgState(
     scopeApprovalSimulated: false,
   };
 }
+
+// Meridian Crest Capital starts empty. Real work arrives from the HeavyRain app; nothing is scripted.
+export const ORGANIZATION_FIXTURES: Record<OrganizationId, OrganizationFixture> = {
+  ...DEMO_FIXTURES,
+  meridian: {
+    ...DEMO_FIXTURES.rookmere,
+    orgId: "meridian",
+    name: "Meridian Crest Capital",
+    shortLabel: "Meridian",
+    legalEntity: "Meridian Crest Capital",
+    sector: "Private equity",
+    headquarters: [],
+    totalStaffCount: 0,
+    namedRosterCount: 0,
+    weeklyBatchId: "batch_meridian_live",
+    totalReportsIngested: 0,
+    heroTitle: "",
+    heroFullName: "",
+    heroOrchestratorEyebrow: "",
+    heroDecisionSummary: "",
+    heroFailedHeadline: "",
+    heroFailedDetail: "",
+    externalAppUrl: undefined,
+    clusters: [],
+    reports: [],
+    catalogApps: [],
+    initialEvents: [],
+    rookmereCompanies: [],
+    augiConfigs: [],
+    augiInlineDisclosure: undefined,
+  },
+};

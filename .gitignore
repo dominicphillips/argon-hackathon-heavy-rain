@@ -37,3 +37,6 @@ coverage/
 *.swp
 *.swo
 *~
+
+# Agent working outputs (copy briefs, generated media receipts)
+output/

@@ -1,6 +1,6 @@
 export const DEMO_STEPS = ["ingest", "review", "build", "assemble", "check", "ready"] as const;
 export type DemoStep = (typeof DEMO_STEPS)[number];
-export type DemoOrg = "rookmere" | "augi";
+export type DemoOrg = "rookmere" | "augi" | "meridian";
 
 export interface PlaybackState {
   /** Number of confirmed steps, never inferred from a timer. */
