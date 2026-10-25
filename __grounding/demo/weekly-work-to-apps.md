@@ -399,3 +399,45 @@ Verify approved SPR/FDS fastener codes, galvanic isolation adhesive thickness, a
 - **testable acceptance criteria:** Clicking 'Route to existing app' on the AUGI reuse cluster transitions status to 'Routed to approved app' and logs a Notifier delivery event in Activity without spawning a Builder run.
 - **approvers:** Pre-authorized under existing role_biw_structures and role_materials_joining scopes
 - **post release feedback loop:** Engineers linked joint IDs from app_augi_fastener_weld_matrix back to the 5 subassembly groups in app_augi_sable_chassis_3d.
+
+## Marcus Vance Context Transfer
+
+### 1. Synthetic Persona Prompt and Weekly Workflow Source
+- **Persona identity:** Marcus Vance (`MV`), `VP, Deal Sourcing & Screening` on the Growth Equity Deal Team ([Marcus fixture](../../HeavyRain_BDMD/backend/mock_org_data.py), `workspace_messages.m_msg_3` and `fragmented_workflow`). All scenario facts represent a synthetic sample persona rather than measured production surveillance.
+- **Pre-call prompt evidence:** In the sample VeloceAI Series B intro call scenario (CEO Liam Chen), Marcus manually combines four-month-old Affinity CRM notes, three Google News headlines, and text from Liam's email (`$8.4M ARR`, up `140% YoY`, two Fortune 500 logistics logos) into a custom screening skill using the verbatim prompt:
+  > "Here are my messy CRM notes from 4 months ago, 3 Google News headlines on VeloceAI, and text from Liam's email. Run my deal screening skill and give me 5 questions to ask."
+- **Seven-step workflow:** Across 14+ weekly founder calls, the synthetic workflow spans:
+  1. Outlook Calendar 15-minute meeting reminder with no brief prepared.
+  2. Manual search across Affinity CRM and Outlook for prior notes and teaser decks.
+  3. Manual Google Search and Google News queries for company and competitor updates.
+  4. Manual paste into Claude or Gemini to generate five pre-call screening questions.
+  5. Call recording and shorthand note capture in Zoom and Granola.
+  6. Manual transcript export from Granola into Gemini/Claude to format an investment committee deal note.
+  7. Manual copy of the summary into an Outlook email to the deal team and manual entry of six Affinity CRM fields.
+
+### 2. Scenario Evidence, Counterevidence, and Scope Adjustments
+- **Evidence for connected pre-call and post-call views:** Marcus's existing AI prompts (Claude/Gemini screening skill and Granola transcription) already produce useful outputs; the friction comes from re-collecting inputs before the call and re-formatting outputs afterward.
+- **Counterevidence 1 — Manual diligence risk additions:** In the synthetic Week 1 beta feedback, Marcus manually added a three-bullet diligence risks and open questions list to 11 of 14 post-call emails (capturing items from the Granola transcript such as `$280k/mo` burn, a `$22M` Series B target, and a 60-day enterprise security review bottleneck). The proposed `DealPulse AutoBrief` scope therefore elevates three editable diligence risks into the core post-call summary.
+- **Counterevidence 2 — Unused public market comps ticker:** The synthetic fixture records that the public market comp ticker went unused during early-stage Series A/B screening calls (the fixture contains an internal discrepancy between `"0 clicks"` in its narrative diff and `4` in `usage_rate_pct`). To avoid overclaiming or repeating conflicting synthetic numbers, the UI rationale states plainly that the public comps ticker went unused and added visual clutter in sample feedback, and excludes the ticker from both the proposed app description and the default build brief.
+
+### 3. Catalog and Shared-Processing Fit
+- **Fixture overlap context:** The underlying synthetic fixture notes potential shared subtasks with Elena Rostova's `DiscoveryOS: Persona & Call Aggregator` (calendar trigger, Granola transcript ingestion, and Gemini post-call synthesis) alongside persona-specific output adapters (Marcus outputs to a deal-team email and six Affinity CRM fields).
+- **Current runtime boundary:** Per the October 25 owner correction, the `"68% Shared DNA"` badge is removed from [`HeavyRain_BDMD/frontend/src/App.tsx`](../../HeavyRain_BDMD/frontend/src/App.tsx), and [`HeavyRain_BDMD/frontend/src/transfer/transferContext.ts`](../../HeavyRain_BDMD/frontend/src/transfer/transferContext.ts) submits `LiveBuildRequestPayload` directly to `/api/v1/orgs/meridian/builds/live` without executing an automated catalog deduplication check in the frontend.
+
+### 4. Operator-Directed Build Decision and Planned Sandbox Capabilities
+- **Operator-directed submission:** Mounting [`HeavyRain_BDMD/frontend/src/App.tsx`](../../HeavyRain_BDMD/frontend/src/App.tsx) pre-fills the `Context` textarea with the 120–180-word `DealPulse AutoBrief` brief only when `sessionStorage` (`heavyrain.bdmd.marcus.transfer.v1`) holds no existing draft or accepted record. Page load never initiates a build; the operator can inspect and edit the full brief before activating `Transfer Context`.
+- **Planned capabilities in the default brief:**
+  - Local editable pre-call inputs pre-loaded with synthetic VeloceAI CRM notes, founder email metrics, and news headlines paired with five screening questions.
+  - Local editable post-call Granola notes generating a structured deal summary and three diligence risks.
+  - Local reviewable deal-team email draft and six Affinity field updates, with no live calendar/CRM integrations and no external sends.
+
+### 5. Verification Requirements
+Completion of this frontend update requires verifying:
+1. **Copy and static checks:** `copy-check.mjs --strict`, TypeScript typechecking (`tsc --noEmit`), and production build (`vite build`) in `HeavyRain_BDMD/frontend`.
+2. **Controller and UI unit tests ([`HeavyRain_BDMD/frontend/src/transfer/transferContext.ts`](../../HeavyRain_BDMD/frontend/src/transfer/transferContext.ts), [`HeavyRain_BDMD/frontend/src/App.tsx`](../../HeavyRain_BDMD/frontend/src/App.tsx)):**
+   - Default context pre-populates when storage is empty and yields to restored `pending`, `ambiguous_error`, or `accepted` session records.
+   - Rendering `<App />` performs zero automatic `POST` requests.
+   - The `Context` textarea is disabled while `viewState.inFlight` is `true`.
+   - `HTTP 409` conflict responses populate a non-null `consoleUrl` so the `Open Heavy Rain` link renders and points to the Meridian console.
+   - Requests exceeding the bounded 30-second timeout abort cleanly, surface `copy.errorUnknownOutcome`, persist `ambiguous_error`, and retain the same `idempotency_key` on retry (verified via injected short timeout and mocked `fetchFn` without paid live builds).
+3. **Responsive layout checks:** Visual inspection of the single-column white layout at `390px`, `1280px`, and `1440px` viewports.

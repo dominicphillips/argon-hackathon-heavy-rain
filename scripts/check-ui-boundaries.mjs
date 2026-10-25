@@ -266,6 +266,11 @@ function collectOrganizationTargets(rootDir) {
     targets.push(org3dDir);
   }
 
+  const bdmdDir = path.join(rootDir, "HeavyRain_BDMD", "frontend");
+  if (fs.existsSync(bdmdDir)) {
+    targets.push(bdmdDir);
+  }
+
   const appsDir = path.join(rootDir, "apps");
   if (fs.existsSync(appsDir)) {
     for (const entry of fs.readdirSync(appsDir, { withFileTypes: true })) {

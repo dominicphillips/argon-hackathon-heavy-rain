@@ -88,3 +88,27 @@
   - `POST /api/v1/orgs/{org_id}/mcp/submit-work-report` is a REST JSON route carrying the `heavyrain_submit_work_report` tool name rather than a standalone MCP transport, and persona headers (`X-HeavyRain-Org-Id`, `X-HeavyRain-Actor-Id`) act as unauthenticated loopback demo selectors.
   - Candidate artifact verification runs real local tar extraction, SHA-256 checks, and TypeScript/Node fixture checks. Release approval records `approved_demo` in SQLite without production deployment or external notifications, and optional live Cairn review stays disabled (`503`) and unverified.
   - The planned hosted production architecture—**Cairn** on `google-antigravity 0.1.22` (`gemini-4-argon` at `high` thinking) and remote **Builders** on Google-hosted `antigravity-preview-09-2026` containers—remains future tense until the hosted builder demo is executed.
+
+---
+
+## Owner Correction and Scoped Implementation Decision (October 25, 2026)
+
+### 1. Owner Correction on Marcus Vance Surface Scope
+On October 25, 2026, the product owner reviewed the reduced Marcus Vance transfer screen in [`HeavyRain_BDMD/frontend/src/App.tsx`](../HeavyRain_BDMD/frontend/src/App.tsx) and directed two changes:
+- **Remove overlap badge:** Delete the `"68% Shared DNA"` badge element and its `sharedDnaLabel` key from [`HeavyRain_BDMD/frontend/src/App.tsx`](../HeavyRain_BDMD/frontend/src/App.tsx) and [`HeavyRain_BDMD/frontend/src/copy/en.json`](../HeavyRain_BDMD/frontend/src/copy/en.json).
+- **Restore substantive persona context and scoping rationale:** Replace the over-pruned view with a single-column white editorial narrative (`760px`–`900px` max width) that explains Marcus Vance's workflow and the reasoning behind the proposed build before the user submits the context transfer:
+  1. **Identity header:** Keep `Marcus Vance` (`MV`, `VP, Deal Sourcing & Screening`) with a single `Sample persona` notice and no persona switcher or executive dashboard.
+  2. **Concrete use-case story:** Present a short first-person summary of preparing for and following up on 14+ weekly founder calls across Outlook, Affinity CRM, Google Search/News, Claude/Gemini, and Granola as a synthetic example without unverified ROI or time-saved scores.
+  3. **Verbatim pre-call prompt:** Display the exact prompt from the synthetic fixture (`"Here are my messy CRM notes from 4 months ago, 3 Google News headlines on VeloceAI, and text from Liam's email. Run my deal screening skill and give me 5 questions to ask."`) with a label naming its purpose.
+  4. **Seven numbered workflow rows:** Render all seven steps from the fragmented workflow in flat, self-contained rows (`title`, `tools`, `action`, `reason`) explaining the repeated manual handoffs in plain language.
+  5. **Proposed app block (`DealPulse AutoBrief`):** Describe the planned pre-call brief, editable post-call summary with three diligence risks, and reviewable email/CRM update drafts clearly as a proposed app to build rather than an active integration.
+  6. **Three rationale items:** Explain why the scope retains existing AI prompts while connecting their inputs, why it prioritizes three diligence risks and follow-up drafts, and why it omits the unused public market comps ticker.
+  7. **Pre-filled editable `Context` field:** Pre-fill the protected `Context` textarea with a 120–180-word sandbox build brief matching the narrative when no persisted session exists in `sessionStorage`, while preserving priority for restored drafts or accepted runs and never auto-submitting on page load.
+
+### 2. Scoped `agy` Argon Implementation Override
+- Under an explicit owner routing override for this task, the existing `agy` (Gemini 4 Argon) worker session is authorized to update the frontend copy files ([`HeavyRain_BDMD/frontend/src/copy/keys.json`](../HeavyRain_BDMD/frontend/src/copy/keys.json), [`HeavyRain_BDMD/frontend/src/copy/en.json`](../HeavyRain_BDMD/frontend/src/copy/en.json)), the editorial layout ([`HeavyRain_BDMD/frontend/src/App.tsx`](../HeavyRain_BDMD/frontend/src/App.tsx)), the transfer controller ([`HeavyRain_BDMD/frontend/src/transfer/transferContext.ts`](../HeavyRain_BDMD/frontend/src/transfer/transferContext.ts)), and the frontend test suite.
+- This override is scoped strictly to `HeavyRain_BDMD/frontend` and includes two functional controller requirements identified during parent review:
+  1. Providing a working `consoleUrl` on `HTTP 409` responses so the `Open Heavy Rain` recovery action in `copy.errorConflict` renders an active link.
+  2. Enforcing a bounded 30-second fetch timeout that transitions to `ambiguous_error` while retaining the active `idempotency_key` for retry.
+
+- `HeavyRain_BDMD/frontend` remains a lightweight context-capture and handoff client. Clicking `Transfer Context` validates the user-reviewed text and sends `POST /api/v1/orgs/meridian/builds/live` ([`HeavyRain_BDMD/frontend/src/transfer/transferContext.ts`](../HeavyRain_BDMD/frontend/src/transfer/transferContext.ts)) with headers `X-HeavyRain-Org-Id: meridian` and `X-HeavyRain-Actor-Id: marcus`.
