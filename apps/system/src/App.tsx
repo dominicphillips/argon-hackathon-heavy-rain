@@ -46,15 +46,14 @@ import { InspectorDrawer } from "./components/InspectorDrawer";
 import { CatalogAppHero } from "./components/CatalogAppHero";
 import { copy } from "./copy";
 import workCopy from "./copy/work.json";
-import workerQuoteCopy from "./copy/worker-quotes.json";
 import catalogCopy from "./copy/catalog.json";
 import playbackCopy from "./copy/playback.json";
-import workerStatusCopy from "./copy/worker-status.json";
 import { useDemoPlayback } from "./demo/useDemoPlayback";
 import {
   DemoPlaybackControls,
   type DemoPlaybackCopy,
 } from "./demo/DemoPlayback";
+import type { OrganizationFixture } from "./types";
 import type { WorkspaceWithStatuses } from "./backend/client";
 import {
   controlBuild,
@@ -69,7 +68,6 @@ import {
   type WorkReportReceipt,
   type WorkReportSubmission,
 } from "./backend/client";
-import type { EmployeeReport, OrganizationFixture } from "./types";
 
 // Visible navigation labels; internal SystemNavSection IDs and switch logic stay unchanged.
 const NAV_LABELS: Record<SystemNavSection, string> = {
@@ -87,29 +85,6 @@ const NAV_SECTIONS = SYSTEM_NAV_SECTIONS.filter(
 // Display-name overrides keyed by catalog appId (backend IDs unchanged).
 const CATALOG_DISPLAY: Record<string, { name?: string; purpose?: string }> =
   catalogCopy;
-
-// Canonical fixture report per authorized intake employee (role mapping from the backend contract)
-const INTAKE_SOURCE: Record<
-  OrganizationId,
-  { reportId: string; employeeId: string; roleId: string }
-> = {
-  rookmere: {
-    reportId: "rep_rm_20261022_003",
-    employeeId: "emp_rm_07",
-    roleId: "role_fund_finance",
-  },
-  augi: {
-    reportId: "rep_augi_20261021_001",
-    employeeId: "emp_augi_01",
-    roleId: "role_biw_structures",
-  },
-  // Meridian has no scripted intake; real work arrives from the HeavyRain app.
-  meridian: {
-    reportId: "",
-    employeeId: "",
-    roleId: "",
-  }
-};
 
 // Merge a server snapshot while keeping local view selections that still resolve
 function mergeSnapshot(
@@ -246,9 +221,6 @@ export const App: FC = () => {
   >({ rookmere: null, augi: null, meridian: null });
   const [intakeDrafts, setIntakeDrafts] = useState<
     Record<OrganizationId, WorkReportSubmission | null>
-  >({ rookmere: null, augi: null, meridian: null });
-  const [, setIntakeReceipts] = useState<
-    Record<OrganizationId, WorkReportReceipt | null>
   >({ rookmere: null, augi: null, meridian: null });
 
   // Reduced motion preference (initializes from OS prefers-reduced-motion, toggleable in account menu)
