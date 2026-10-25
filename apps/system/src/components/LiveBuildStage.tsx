@@ -129,9 +129,9 @@ export const LiveBuildStage: FC<LiveBuildStageProps> = ({ orgId, orgName, enable
 
   return (
     <div className="hr-workbench-c hr-workbench-c--live">
-      <section className={`hr-workbench-c__chamber hr-workbench-c__chamber--${ready ? "ready" : veilStage} hr-workbench-c__chamber--clear hr-workbench-c__chamber--light`} aria-label={run ? run.app.name : orgName}>
+      <section className={`hr-workbench-c__chamber hr-workbench-c__chamber--${ready ? "ready" : veilStage}${!run || ready ? " hr-workbench-c__chamber--clear hr-workbench-c__chamber--light" : ""}`} aria-label={run ? run.app.name : orgName}>
         <div className="hr-chamber-stage">
-          <ChamberAtmosphere variant="pale" reducedMotion={reducedMotion} />
+          <ChamberAtmosphere variant={run && !ready ? "dark" : "pale"} reducedMotion={reducedMotion} />
 
           {!run && (
             <ChamberEmptyState title={liveCopy.empty.liveTitle} />

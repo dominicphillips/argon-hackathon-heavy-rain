@@ -3620,8 +3620,8 @@ body {
   overflow-x: hidden;
 }
 
-/* Legibility over the live snapshot: a soft page-coloured fade behind the panel, not a card */
-.hr-workbench-c--live .hr-build-panel {
+/* Legibility over the live snapshot in the light states: a soft page-coloured fade behind the panel */
+.hr-workbench-c--live .hr-workbench-c__chamber--light .hr-build-panel {
   background: linear-gradient(
     90deg,
     rgba(226, 226, 228, 0.94) 0%,
@@ -3636,4 +3636,11 @@ body {
 
 .hr-workbench-c--live .hr-chamber-snapshot.hr-chamber-stage__artifact--stage3 {
   opacity: 0.6;
+}
+
+
+.hr-workbench-c--live .hr-workbench-c__chamber:not(.hr-workbench-c__chamber--clear) {
+  border-radius: 0;
+  border-left: 0;
+  border-right: 0;
 }
