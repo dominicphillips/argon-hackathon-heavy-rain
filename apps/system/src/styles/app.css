@@ -377,7 +377,6 @@ body {
 .hr-topbar__toggle:focus-visible,
 .hr-tactile-nav__item:focus-visible,
 .hr-checkpoint-subrail__btn:focus-visible,
-.hr-worker-cell:focus-visible,
 .hr-worker-pill:focus-visible,
 .hr-inspector-tab:focus-visible,
 .hr-status-chip:focus-visible,
@@ -1022,7 +1021,7 @@ body {
 }
 
 .hr-worker-cell {
-  appearance: none;
+  position: relative;
   background-color: var(--hr-workbench-bar-bg);
   border: none;
   border-right: 1px solid var(--hr-workbench-bar-border);
@@ -1033,7 +1032,6 @@ body {
   align-items: center;
   justify-content: space-between;
   gap: 10px;
-  cursor: pointer;
   color: var(--hr-slate);
   font-family: var(--hr-font-sans);
   transition:
@@ -1046,15 +1044,6 @@ body {
   border-right: none;
 }
 
-.hr-worker-cell:hover {
-  background-color: #eef0f4;
-  color: var(--hr-ink);
-}
-
-.hr-worker-cell:active {
-  transform: translateY(1px);
-}
-
 /* Active worker cell matches 03-system-c.png Cell 3 (3px #10B981 top border, #F2F4F7 fill) */
 .hr-worker-cell--active {
   border-top-color: var(--hr-mint);
@@ -1062,8 +1051,25 @@ body {
   color: var(--hr-ink);
 }
 
-.hr-worker-cell--selected {
-  box-shadow: inset 0 -2px 0 var(--hr-ink);
+/* Running worker: the top rule carries a travelling mint sweep; the dot breathes */
+.hr-worker-cell--running {
+  border-top-color: rgba(16, 185, 129, 0.32);
+  clip-path: inset(-3px 0 0 0);
+}
+
+.hr-worker-cell--running::before {
+  content: "";
+  position: absolute;
+  top: -3px;
+  left: 0;
+  height: 3px;
+  width: 42%;
+  background: linear-gradient(90deg, transparent, var(--hr-mint), transparent);
+  animation: hr-dock-sweep 1.5s ease-in-out infinite;
+}
+
+.hr-worker-cell--running .hr-worker-cell__dot {
+  animation: hr-live-dot 1.6s ease-out infinite;
 }
 
 .hr-worker-cell__left {
@@ -2134,53 +2140,200 @@ button.hr-status-chip:active {
   word-break: break-word;
 }
 
-/* Worker quote layer over the chamber: cards only take pointer events */
-.hr-chamber-quotes {
+/* ============================================================================
+   Live readout: centered, always sharp, above the smoky veil.
+   Says which worker is active, what it is doing now, and what is already done.
+   ============================================================================ */
+.hr-chamber-live {
   position: absolute;
   inset: 0;
-  z-index: 7;
+  z-index: 8;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 26px;
+  padding: 32px 56px;
   pointer-events: none;
+  text-align: center;
+  color: #f3f5f7;
+  background: radial-gradient(
+    ellipse 64% 72% at 50% 50%,
+    rgba(10, 13, 18, 0.86) 0%,
+    rgba(10, 13, 18, 0.58) 46%,
+    rgba(10, 13, 18, 0) 76%
+  );
 }
 
-.hr-chamber-quotes__item {
-  position: absolute;
-  bottom: 14px;
-  max-width: calc(50% - 24px);
+.hr-chamber-live__now {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  max-width: 780px;
+  animation: hr-live-in 560ms cubic-bezier(0.2, 0.7, 0.2, 1) both;
 }
 
-.hr-chamber-quotes__item--start {
-  left: 16px;
-}
-
-.hr-chamber-quotes__item--end {
-  right: 16px;
-}
-
-/* Demo playback: one shared control instance, in the Build toolbar or the top bar. */
-.hr-workbench-c__controls .hr-demo-playback {
-  margin-left: auto;
-}
-.hr-topbar__playback {
+.hr-chamber-live__eyebrow {
   display: inline-flex;
   align-items: center;
-  min-width: 0;
-  max-width: 420px;
-  margin-right: 8px;
+  gap: 10px;
+  font-family: var(--hr-font-mono);
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #9fe8d2;
 }
-.hr-topbar__playback .hr-demo-playback__status {
-  flex-basis: auto;
-  max-width: 220px;
-  white-space: nowrap;
+
+.hr-chamber-live__dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background-color: var(--hr-mint);
+  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.22);
+}
+
+.hr-chamber-live__dot--running,
+.hr-chamber-live__dot--building {
+  animation: hr-live-dot 1.6s ease-out infinite;
+}
+
+.hr-chamber-live__dot--paused {
+  background-color: #f2c57c;
+  box-shadow: 0 0 0 3px rgba(242, 197, 124, 0.22);
+}
+
+.hr-chamber-live__dot--failed {
+  background-color: #ff929b;
+  box-shadow: 0 0 0 3px rgba(255, 146, 155, 0.22);
+}
+
+.hr-chamber-live__headline {
+  margin: 0;
+  font-family: var(--hr-font-display);
+  font-size: clamp(26px, 2.7vw, 38px);
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  line-height: 1.16;
+  text-wrap: balance;
+  color: #f3f5f7;
+  text-shadow: 0 2px 28px rgba(0, 0, 0, 0.5);
+}
+
+.hr-chamber-live__sweep {
+  position: relative;
+  width: 200px;
+  height: 2px;
+  border-radius: 2px;
+  background: rgba(255, 255, 255, 0.14);
   overflow: hidden;
-  text-overflow: ellipsis;
 }
-@media (max-width: 1280px) {
-  .hr-demo-playback__status {
-    flex-basis: auto;
-    max-width: 200px;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
+
+.hr-chamber-live__sweep::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 44%;
+  background: linear-gradient(90deg, transparent, var(--hr-mint), transparent);
+  animation: hr-live-sweep 1.5s ease-in-out infinite;
+}
+
+.hr-chamber-live__done {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  max-width: 700px;
+}
+
+.hr-chamber-live__done-item {
+  display: grid;
+  grid-template-columns: 14px 92px 1fr;
+  gap: 10px;
+  align-items: baseline;
+  font-size: 13px;
+  line-height: 1.4;
+  text-align: left;
+  color: rgba(243, 245, 247, 0.72);
+  animation: hr-live-in 480ms ease-out both;
+  animation-delay: calc(var(--hr-live-i, 0) * 70ms + 140ms);
+}
+
+.hr-chamber-live__check {
+  color: var(--hr-mint);
+  font-weight: 700;
+}
+
+.hr-chamber-live__done-role {
+  font-family: var(--hr-font-mono);
+  font-size: 12px;
+  color: rgba(243, 245, 247, 0.9);
+}
+
+.hr-chamber-live__done-text {
+  color: rgba(243, 245, 247, 0.66);
+}
+
+@keyframes hr-live-in {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes hr-live-sweep {
+  from {
+    transform: translateX(-120%);
+  }
+  to {
+    transform: translateX(350%);
+  }
+}
+
+@keyframes hr-live-dot {
+  0% {
+    box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.3);
+  }
+  70% {
+    box-shadow: 0 0 0 11px rgba(16, 185, 129, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 11px rgba(16, 185, 129, 0);
+  }
+}
+
+@keyframes hr-dock-sweep {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(340%);
+  }
+}
+
+.hr-chamber-live--static .hr-chamber-live__now,
+.hr-chamber-live--static .hr-chamber-live__done-item,
+.hr-chamber-live--static .hr-chamber-live__dot,
+.hr-chamber-live--static .hr-chamber-live__sweep::after {
+  animation: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hr-chamber-live__now,
+  .hr-chamber-live__done-item,
+  .hr-chamber-live__dot,
+  .hr-chamber-live__sweep::after,
+  .hr-worker-cell--running::before,
+  .hr-worker-cell--running .hr-worker-cell__dot {
+    animation: none;
   }
 }
 @media (max-width: 1024px) {

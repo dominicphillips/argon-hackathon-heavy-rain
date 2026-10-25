@@ -18,18 +18,16 @@ export interface AugiEmbeddedFrameProps {
   inlineDisclosure: string;
   mode?: "embedded" | "fullscreen";
   reducedMotion?: boolean;
-  releaseVersion?: string;
   isObscured?: boolean;
   onExitFullscreen?: () => void;
 }
 
 export const AugiEmbeddedFrame: FC<AugiEmbeddedFrameProps> = ({
   configs,
-  externalUrl = "http://127.0.0.1:43171",
+  externalUrl,
   inlineDisclosure,
   mode = "embedded",
   reducedMotion = false,
-  releaseVersion = "1.0.0-rc1",
   isObscured = false,
   onExitFullscreen,
 }) => {
@@ -37,6 +35,8 @@ export const AugiEmbeddedFrame: FC<AugiEmbeddedFrameProps> = ({
     configs[1]?.configId ?? "cfg_sable_b_cell_to_body_hybrid",
   );
   const [showTableCompanion, setShowTableCompanion] = useState<boolean>(false);
+  // The backend fixture may omit the URL; the live frame must still load.
+  const appUrl = externalUrl || "http://127.0.0.1:43171";
 
   const activeConfig =
     configs.find((c) => c.configId === selectedConfigId) ?? configs[0];
@@ -57,7 +57,7 @@ export const AugiEmbeddedFrame: FC<AugiEmbeddedFrameProps> = ({
           <span className="augi-embed-frame__title">{appName}</span>
           <Status
             tone="estimate"
-            label={`Concept estimate · v${releaseVersion}`}
+            label="Concept estimate"
           />
         </div>
         <div className="augi-embed-frame__actions">
@@ -83,13 +83,13 @@ export const AugiEmbeddedFrame: FC<AugiEmbeddedFrameProps> = ({
             {showTableCompanion ? "Show 3D frame" : "Compare SABLE-A/B/C"}
           </Button>
           <a
-            href={externalUrl}
+            href={appUrl}
             target="_blank"
             rel="noopener noreferrer"
             tabIndex={isObscured ? -1 : undefined}
             className="org-button org-button--primary org-button--sm augi-embed-frame__open-link"
           >
-            Open app (127.0.0.1:43171)
+            Open app
           </a>
           {mode === "fullscreen" && onExitFullscreen && (
             <Button variant="secondary" size="sm" onClick={onExitFullscreen}>
@@ -103,7 +103,7 @@ export const AugiEmbeddedFrame: FC<AugiEmbeddedFrameProps> = ({
         {!showTableCompanion ? (
           <div className="augi-embed-frame__iframe-shell">
             <iframe
-              src={externalUrl}
+              src={appUrl}
               title={`AUGI ${appName}`}
               className="augi-embed-frame__iframe"
               loading="eager"

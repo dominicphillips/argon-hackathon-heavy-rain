@@ -1,23 +1,21 @@
-import { useState, type FC } from "react";
+import type { FC } from "react";
 import {
   Button,
   MetricReadout,
   OrganizationThemeProvider,
-  Panel,
   RookmereLogo,
-  Status,
 } from "@heavy-rain/organization-ui";
 import type { PortfolioCompanyRow } from "../types";
 import catalogCopy from "../copy/catalog.json";
 
 const appName = catalogCopy.app_rm_variance_workbench.name;
+const DEFAULT_APP_URL = "http://127.0.0.1:43173";
 
 export interface RookmereEmbeddedFrameProps {
   companies: PortfolioCompanyRow[];
   externalUrl?: string;
   mode?: "embedded" | "fullscreen";
   reducedMotion?: boolean;
-  releaseVersion?: string;
   isObscured?: boolean;
   onExitFullscreen?: () => void;
 }
@@ -42,20 +40,15 @@ function formatSignedEurK(amountEur: number): string {
 
 export const RookmereEmbeddedFrame: FC<RookmereEmbeddedFrameProps> = ({
   companies,
-  externalUrl = "http://127.0.0.1:43173",
+  externalUrl,
   mode = "embedded",
   reducedMotion = false,
-  releaseVersion = "1.0.0-rc1",
   isObscured = false,
   onExitFullscreen,
 }) => {
-  const [selectedCompanyId, setSelectedCompanyId] = useState<string>(
-    companies[0]?.companyId ?? "port_kelvion_flow",
-  );
-  const [showTableCompanion, setShowTableCompanion] = useState<boolean>(false);
-
-  const activeCompany =
-    companies.find((c) => c.companyId === selectedCompanyId) ?? companies[0];
+  // The backend fixture may omit the URL; the live frame must still load.
+  const appUrl = externalUrl || DEFAULT_APP_URL;
+  const activeCompany = companies[0];
 
   const totals = companies.reduce(
     (acc, row) => {
@@ -91,26 +84,16 @@ export const RookmereEmbeddedFrame: FC<RookmereEmbeddedFrameProps> = ({
             ·
           </span>
           <span className="augi-embed-frame__title">{appName}</span>
-          <Status tone="estimate" label={`v${releaseVersion} · 2026-09`} />
         </div>
         <div className="augi-embed-frame__actions">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => setShowTableCompanion((prev) => !prev)}
-          >
-            {showTableCompanion
-              ? "Show live frame"
-              : "Compare 8 companies"}
-          </Button>
           <a
-            href={externalUrl}
+            href={appUrl}
             target="_blank"
             rel="noopener noreferrer"
             tabIndex={isObscured ? -1 : undefined}
             className="org-button org-button--primary org-button--sm augi-embed-frame__open-link"
           >
-            Open app (127.0.0.1:43173)
+            Open app
           </a>
           {mode === "fullscreen" && onExitFullscreen && (
             <Button variant="secondary" size="sm" onClick={onExitFullscreen}>
@@ -121,78 +104,15 @@ export const RookmereEmbeddedFrame: FC<RookmereEmbeddedFrameProps> = ({
       </header>
 
       <div className="augi-embed-frame__stage">
-        {!showTableCompanion ? (
-          <div className="augi-embed-frame__iframe-shell">
-            <iframe
-              src={externalUrl}
-              title={`Rookmere Capital ${appName}`}
-              className="augi-embed-frame__iframe"
-              loading="eager"
-              tabIndex={isObscured ? -1 : undefined}
-            />
-          </div>
-        ) : (
-          <div className="augi-embed-frame__comparator">
-            <Panel
-              title="Rookmere Portfolio Monthly Variance Ledger (2026-09)"
-              subtitle="Synthetic monthly trial-balance rollup in EUR across RIG-III (EUR 480m) and RIG-IV (EUR 720m); read-only scope with 0 ERP writes."
-            >
-              <div className="augi-embed-frame__table-wrap">
-                <table className="rm-variance-app__table org-tabular">
-                  <thead>
-                    <tr>
-                      <th>Company</th>
-                      <th>Fund / CCY</th>
-                      <th>ERP System</th>
-                      <th>EBITDA Actual</th>
-                      <th>EBITDA Var</th>
-                      <th>FX Impact</th>
-                      <th>Net Lev / Cov</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {companies.map((row) => {
-                      const deltaEur =
-                        row.ebitdaActualEur - row.ebitdaBudgetEur;
-                      return (
-                        <tr
-                          key={row.companyId}
-                          className={
-                            activeCompany?.companyId === row.companyId
-                              ? "rm-variance-app__row--selected"
-                              : ""
-                          }
-                          onClick={() => setSelectedCompanyId(row.companyId)}
-                        >
-                          <td>
-                            <strong>{row.name}</strong>
-                          </td>
-                          <td className="rm-variance-app__mono">
-                            {row.fundShortCode} · {row.localCurrency}
-                          </td>
-                          <td>{row.erpSystem}</td>
-                          <td className="rm-variance-app__mono">
-                            {formatEurCompact(row.ebitdaActualEur)}
-                          </td>
-                          <td className="rm-variance-app__mono">
-                            {formatSignedEurK(deltaEur)}
-                          </td>
-                          <td className="rm-variance-app__mono">
-                            {formatSignedEurK(row.fxTranslationImpactEur)}
-                          </td>
-                          <td className="rm-variance-app__mono">
-                            {row.netLeverageRatio.toFixed(2)}x /{" "}
-                            {row.covenantMaxLeverage.toFixed(2)}x
-                          </td>
-                        </tr>
-                      );
-                    })}
-                  </tbody>
-                </table>
-              </div>
-            </Panel>
-          </div>
-        )}
+        <div className="augi-embed-frame__iframe-shell">
+          <iframe
+            src={appUrl}
+            title={`Rookmere Capital ${appName}`}
+            className="augi-embed-frame__iframe"
+            loading="eager"
+            tabIndex={isObscured ? -1 : undefined}
+          />
+        </div>
 
         <div className="augi-embed-frame__metrics">
           <MetricReadout

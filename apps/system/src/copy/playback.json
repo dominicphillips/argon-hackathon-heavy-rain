@@ -1,20 +1,10 @@
 {
-  "play": "Play",
+  "run": "Run weekly cycle",
   "pause": "Pause",
-  "next": "Next",
-  "restart": "Reset",
-  "controls": "Playback controls",
-  "progress": "Demo progress",
+  "resume": "Resume",
+  "runAgain": "Run again",
+  "controls": "Weekly cycle playback",
   "unavailable": "Local demo server is offline. Start the backend and try again.",
-  "waitingForApproval": "Local checks passed. Ready for human review and approval.",
-  "stopped": "Playback paused. Select Play or Next to continue.",
-  "verificationFailed": "Artifact check failed. Reset the demo to run the local build again.",
-  "steps": {
-    "ingest": "Load approved work",
-    "review": "Review weekly needs",
-    "build": "Start app build",
-    "assemble": "Assemble workspace",
-    "check": "Verify local artifact",
-    "ready": "Ready for approval"
-  }
+  "stopped": "Playback stopped. Run again to retry.",
+  "verificationFailed": "Artifact check failed. Run again to rebuild locally."
 }

@@ -1,22 +1,17 @@
 import { Button } from "@heavy-rain/system-ui";
-import type { DemoStep } from "./playbackController";
-import { DEMO_STEPS } from "./playbackController";
 import { useDemoPlayback } from "./useDemoPlayback";
 import type { DemoPlaybackHandle, UseDemoPlaybackOptions } from "./useDemoPlayback";
 import "./demo-playback.css";
 
 export interface DemoPlaybackCopy {
-  play: string;
+  run: string;
   pause: string;
-  next: string;
-  restart: string;
+  resume: string;
+  runAgain: string;
   controls: string;
-  progress: string;
   unavailable: string;
-  waitingForApproval: string;
   stopped: string;
   verificationFailed: string;
-  steps: Record<DemoStep, string>;
 }
 
 export interface DemoPlaybackProps extends UseDemoPlaybackOptions { copy: DemoPlaybackCopy; }
@@ -34,40 +29,49 @@ export function DemoPlayback({ copy, ...options }: DemoPlaybackProps) {
   return <DemoPlaybackControls playback={playback} enabled={options.enabled} externalBusy={options.externalBusy} copy={copy} />;
 }
 
-/** Pair with an App-level hook when demo steps navigate between screens. */
+/** One control drives the whole weekly cycle: run, pause, resume, run again. */
 export function DemoPlaybackControls({ playback, enabled, externalBusy, copy }: DemoPlaybackControlsProps) {
   const { state } = playback;
   const blocked = !enabled || Boolean(externalBusy);
-  const currentStep = DEMO_STEPS[Math.min(state.completedSteps, DEMO_STEPS.length - 1)];
-  const status = !enabled ? copy.unavailable : state.complete ? copy.waitingForApproval : copy.steps[currentStep];
+  const started = state.completedSteps > 0;
+  const restart = () => {
+    playback.reset();
+    playback.play();
+  };
+
+  let label = copy.run;
+  let onClick: () => void = playback.play;
+  let variant: "primary" | "secondary" = "primary";
+  let glyph = "▶";
+  if (state.playing) {
+    label = copy.pause;
+    onClick = playback.pause;
+    variant = "secondary";
+    glyph = "Ⅱ";
+  } else if (state.complete || state.error) {
+    label = copy.runAgain;
+    onClick = restart;
+    variant = state.error ? "primary" : "secondary";
+    glyph = "↻";
+  } else if (started) {
+    label = copy.resume;
+  }
+
+  const notice = !enabled
+    ? copy.unavailable
+    : state.error === "verification_failed"
+      ? copy.verificationFailed
+      : state.error
+        ? copy.stopped
+        : null;
+
   return (
     <div className="hr-demo-playback" role="group" aria-label={copy.controls}>
-      <Button
-        size="sm"
-        variant="secondary"
-        onClick={state.playing ? playback.pause : playback.play}
-        disabled={blocked || state.complete || (!state.playing && state.busy)}
-      >
-        <span aria-hidden="true">{state.playing ? "Ⅱ" : "▶"}</span>
-        {state.playing ? copy.pause : copy.play}
+      {notice && <span className="hr-demo-playback__notice" role="status">{notice}</span>}
+      <Button variant={variant} onClick={onClick} disabled={blocked || (!state.playing && state.busy)}>
+        <span className="hr-demo-playback__glyph" aria-hidden="true">{glyph}</span>
+        {label}
       </Button>
-      <span className="hr-demo-playback__progress" aria-label={copy.progress}>
-        {state.completedSteps}/{DEMO_STEPS.length}
-      </span>
-      <details className="hr-demo-playback__more">
-        <summary aria-label={copy.controls} title={copy.controls}>···</summary>
-        <div className="hr-demo-playback__menu">
-          <Button size="sm" variant="ghost" onClick={playback.next} disabled={blocked || state.busy || state.complete}>{copy.next}</Button>
-          <Button size="sm" variant="ghost" onClick={playback.reset} disabled={state.busy}>{copy.restart}</Button>
-        </div>
-      </details>
-      <span className="hr-demo-playback__status" role="status" aria-live="polite">{status}</span>
-      {state.error && (
-        <details className="hr-demo-playback__error" role="alert">
-          <summary>{copy.stopped}</summary>
-          <span>{state.error === "verification_failed" ? copy.verificationFailed : state.error === "demo_unavailable" ? copy.unavailable : state.error}</span>
-        </details>
-      )}
     </div>
   );
 }

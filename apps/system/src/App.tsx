@@ -13,7 +13,6 @@ import {
   HeavyRainWordmark,
   Panel,
   Status,
-  WorkerQuote,
   SYSTEM_NAV_SECTIONS,
   type SystemNavSection,
   type SystemStatusTone,
@@ -34,10 +33,10 @@ import type {
 } from "./types";
 import { TopographicCanvas } from "./components/TopographicCanvas";
 import { ChamberWireframe } from "./components/ChamberWireframe";
+import { ChamberLiveReadout } from "./components/ChamberLiveReadout";
 import { RookmereEmbeddedFrame } from "./components/RookmereEmbeddedFrame";
 import { AugiEmbeddedFrame } from "./components/AugiEmbeddedFrame";
 import { InspectorDrawer } from "./components/InspectorDrawer";
-import { ActivityTimeline } from "./components/ActivityTimeline";
 import { CatalogAppHero } from "./components/CatalogAppHero";
 import { copy } from "./copy";
 import workCopy from "./copy/work.json";
@@ -82,6 +81,11 @@ const NAV_LABELS: Record<SystemNavSection, string> = {
   Apps: "Apps",
   Activity: "Activity",
 };
+
+// Activity is not part of the operator demo; the rail shows Build, Ingest, Apps.
+const NAV_SECTIONS = SYSTEM_NAV_SECTIONS.filter(
+  (section) => section !== "Activity",
+);
 
 // Display-name overrides keyed by catalog appId (backend IDs unchanged).
 const CATALOG_DISPLAY: Record<string, { name?: string; purpose?: string }> =
@@ -205,7 +209,6 @@ function formatUtcNow(): string {
   return `${hh}:${mm}:${ss} UTC`;
 }
 
-const WORKER_QUOTE_LIMIT = 2;
 const workerQuoteMessages = workerQuoteCopy.messages as Partial<
   Record<OrganizationId, Partial<Record<WorkerRole, string>>>
 >;
@@ -296,21 +299,10 @@ export const App: FC = () => {
     return false;
   });
 
-  // Small on-canvas worker quote boxes, isolated per organization (max 2 visible)
-  const [openWorkerQuotes, setOpenWorkerQuotes] = useState<
-    Record<OrganizationId, WorkerRole[]>
-  >({ rookmere: [], augi: [] });
-
   // Contextual right inspector drawer state (does not permanently shrink center workbench)
   const [inspectorOpen, setInspectorOpen] = useState<boolean>(false);
   const [inspectorTab, setInspectorTab] =
     useState<InspectorTabId>("decision");
-
-  // Accessible header Account menu state
-  const [demoMenuOpen, setDemoMenuOpen] = useState<boolean>(false);
-  const demoMenuRef = useRef<HTMLDivElement | null>(null);
-  const accountTriggerRef = useRef<HTMLButtonElement | null>(null);
-  const firstAccountControlRef = useRef<HTMLSelectElement | null>(null);
 
   useEffect(() => {
     function handlePopState() {
@@ -319,34 +311,6 @@ export const App: FC = () => {
     window.addEventListener("popstate", handlePopState);
     return () => window.removeEventListener("popstate", handlePopState);
   }, []);
-
-  useEffect(() => {
-    if (!demoMenuOpen) {
-      return;
-    }
-    function handleKeyDown(event: globalThis.KeyboardEvent) {
-      if (event.key === "Escape") {
-        event.preventDefault();
-        setDemoMenuOpen(false);
-        accountTriggerRef.current?.focus();
-      }
-    }
-    function handlePointerDown(event: MouseEvent) {
-      if (
-        demoMenuRef.current &&
-        event.target instanceof Node &&
-        !demoMenuRef.current.contains(event.target)
-      ) {
-        setDemoMenuOpen(false);
-      }
-    }
-    window.addEventListener("keydown", handleKeyDown);
-    window.addEventListener("mousedown", handlePointerDown);
-    return () => {
-      window.removeEventListener("keydown", handleKeyDown);
-      window.removeEventListener("mousedown", handlePointerDown);
-    };
-  }, [demoMenuOpen]);
 
   const activeOperator = useMemo(
     () =>
@@ -381,26 +345,6 @@ export const App: FC = () => {
     setShowEntryScreen(false);
   }
 
-  function handleOpenEntryScreen() {
-    setDemoMenuOpen(false);
-    if (typeof window !== "undefined") {
-      window.history.pushState({}, "", "/login");
-    }
-    setShowEntryScreen(true);
-  }
-
-  function handleAccountTriggerKeyDown(
-    event: KeyboardEvent<HTMLButtonElement>,
-  ) {
-    if (event.key === "ArrowDown") {
-      event.preventDefault();
-      setDemoMenuOpen(true);
-      window.requestAnimationFrame(() => {
-        firstAccountControlRef.current?.focus();
-      });
-    }
-  }
-
   function handleOpenStandaloneOrgApp(targetOrgId: OrganizationId = activeOrgId) {
     const url =
       ORGANIZATION_FIXTURES[targetOrgId].externalAppUrl ??
@@ -412,10 +356,6 @@ export const App: FC = () => {
     }
   }
 
-  // Activity view filter state
-  const [activityActorFilter, setActivityActorFilter] = useState<
-    "all" | "Cairn" | "Relay" | WorkerRole
-  >("all");
 
   // Apps view filter state
   const [appsFilter, setAppsFilter] = useState<
@@ -664,18 +604,16 @@ export const App: FC = () => {
     };
   }, [activeOrgId, activeOrgState.isReplaying, backendConnected, updateOrgState]);
 
-  // Global keyboard shortcuts (Escape closes the inspector drawer when the account menu is not open)
+  // Global keyboard shortcuts (Escape closes the inspector drawer)
   useEffect(() => {
     function handleKeyDown(e: globalThis.KeyboardEvent) {
-      if (e.key === "Escape" && !demoMenuOpen && inspectorOpen) {
+      if (e.key === "Escape" && inspectorOpen) {
         setInspectorOpen(false);
       }
     }
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [demoMenuOpen, inspectorOpen]);
-
-  const openWorkerQuoteRoles = openWorkerQuotes[activeOrgId] ?? [];
+  }, [inspectorOpen]);
 
   // Compute each worker's status for the 4-worker horizontal dock below the chamber
   const getWorkerStatus = useCallback(
@@ -792,59 +730,6 @@ export const App: FC = () => {
       isReplaying: false,
     }));
     setActiveOrgId(nextOrgId);
-  }
-
-  // Action: Start / Replay weekly run
-  function handleReplayWeeklyRun() {
-    const targetOrgId = activeOrgId;
-    if (backendConnected) {
-      const auth = orgAuthorizers(targetOrgId);
-      void runBackend(
-        targetOrgId,
-        "replay",
-        async () => {
-          await evaluateBatch(targetOrgId);
-          return startBuild(targetOrgId, {
-            clusterId: auth.buildClusterId,
-            authorizedByEmployeeId: auth.buildAuthorizerEmployeeId,
-          });
-        },
-        () => refreshFixture(targetOrgId),
-      );
-      setActiveNav("System");
-      return;
-    }
-    const fixture = ORGANIZATION_FIXTURES[targetOrgId];
-    updateOrgState(targetOrgId, (prev) => {
-      if (prev.isReplaying) {
-        return { ...prev, isReplaying: false };
-      }
-      const startEvent: TraceEvent = {
-        eventId: `evt_${targetOrgId}_replay_start_${Date.now()}`,
-        timestamp: formatUtcNow(),
-        actor: "Relay",
-        stageLabel: "Replay weekly run",
-        tone: "running",
-        headline: `Replaying weekly cutoff sequence for ${fixture.name}`,
-        toolName: "relay_start_fixture_replay",
-        inputEvidence: `${fixture.weeklyBatchId} (${fixture.totalReportsIngested} reports)`,
-        toolOutput:
-          "Stepping through Queued -> Stage 1 (Schema check) -> Stage 2 (UI assembly) -> Stage 3 (Verification) -> Ready for review.",
-        durationMs: 420,
-        decisionSummary:
-          "Sample fixture replay active; 0 production writes or external notifications.",
-      };
-      return {
-        ...prev,
-        buildStage: "stage1",
-        lastActiveCheckpoint: 1,
-        weeklyRunStatus: "Grouping reports",
-        isReplaying: true,
-        events: [...prev.events, startEvent],
-        selectedEventId: startEvent.eventId,
-      };
-    });
-    setActiveNav("System");
   }
 
   // Action: Pause or Resume sandbox build at exact checkpoint
@@ -1498,23 +1383,6 @@ export const App: FC = () => {
     setInspectorOpen(true);
   }
 
-  // Select a worker from the 4-worker horizontal dock below the chamber.
-  // Toggles a small quote box on the chamber canvas; the Inspector stays closed.
-  function handleSelectWorkerFromDock(role: WorkerRole) {
-    setInspectorOpen(false);
-    updateOrgState(activeOrgId, (prev) => ({
-      ...prev,
-      selectedWorker: role,
-    }));
-    setOpenWorkerQuotes((prev) => {
-      const current = prev[activeOrgId] ?? [];
-      const next = current.includes(role)
-        ? current.filter((r) => r !== role)
-        : [...current, role].slice(-WORKER_QUOTE_LIMIT);
-      return { ...prev, [activeOrgId]: next };
-    });
-  }
-
   // Quote text: explicit per-org override, else the state variant for the worker's current tone.
   // Paused or failed workers show their short status label instead of a completion claim.
   function resolveWorkerMessage(
@@ -1540,23 +1408,6 @@ export const App: FC = () => {
     }
   }
 
-  function handleDismissWorkerQuote(role: WorkerRole) {
-    setOpenWorkerQuotes((prev) => ({
-      ...prev,
-      [activeOrgId]: (prev[activeOrgId] ?? []).filter((r) => r !== role),
-    }));
-  }
-
-  // Secondary action from a quote box: open the Inspector worker view as before
-  function handleViewWorkerDetails(role: WorkerRole) {
-    updateOrgState(activeOrgId, (prev) => ({
-      ...prev,
-      selectedWorker: role,
-    }));
-    setInspectorTab("worker");
-    setInspectorOpen(true);
-  }
-
   // Left navigation keyboard roving handler
   function handleNavKeyDown(
     event: KeyboardEvent<HTMLButtonElement>,
@@ -1564,16 +1415,16 @@ export const App: FC = () => {
   ) {
     if (event.key === "ArrowDown" || event.key === "ArrowRight") {
       event.preventDefault();
-      const nextIndex = (index + 1) % SYSTEM_NAV_SECTIONS.length;
-      const nextSection = SYSTEM_NAV_SECTIONS[nextIndex];
+      const nextIndex = (index + 1) % NAV_SECTIONS.length;
+      const nextSection = NAV_SECTIONS[nextIndex];
       setActiveNav(nextSection);
       navButtonRefs.current[nextIndex]?.focus();
     } else if (event.key === "ArrowUp" || event.key === "ArrowLeft") {
       event.preventDefault();
       const prevIndex =
-        (index - 1 + SYSTEM_NAV_SECTIONS.length) %
-        SYSTEM_NAV_SECTIONS.length;
-      const prevSection = SYSTEM_NAV_SECTIONS[prevIndex];
+        (index - 1 + NAV_SECTIONS.length) %
+        NAV_SECTIONS.length;
+      const prevSection = NAV_SECTIONS[prevIndex];
       setActiveNav(prevSection);
       navButtonRefs.current[prevIndex]?.focus();
     }
@@ -1699,22 +1550,6 @@ export const App: FC = () => {
   const isVeiled = activeOrgState.buildStage !== "ready";
 
   // Filtered Activity events
-  const visibleEvents = useMemo(() => {
-    if (activityActorFilter === "all") {
-      return activeOrgState.events;
-    }
-    return activeOrgState.events.filter(
-      (evt) => evt.actor === activityActorFilter,
-    );
-  }, [activeOrgState.events, activityActorFilter]);
-
-  const selectedEvent =
-    visibleEvents.find(
-      (evt) => evt.eventId === activeOrgState.selectedEventId,
-    ) ??
-    visibleEvents[visibleEvents.length - 1] ??
-    null;
-
   // Filtered Apps catalog
   const visibleCatalogApps = useMemo(() => {
     return activeOrgState.catalogApps.filter((app) => {
@@ -1849,322 +1684,7 @@ export const App: FC = () => {
           </div>
         </div>
 
-        <div className="hr-topbar__right">
-          {/* Single accessible account menu: identity, demo status, preferences, entry links */}
-          <div className="hr-account-menu" ref={demoMenuRef}>
-            <button
-              ref={accountTriggerRef}
-              type="button"
-              className={`hr-topbar__toggle hr-account-menu__trigger${
-                demoMenuOpen ? " hr-topbar__toggle--active" : ""
-              }`}
-              aria-expanded={demoMenuOpen}
-              aria-haspopup="dialog"
-              aria-controls="hr-account-popover"
-              onClick={() => setDemoMenuOpen((prev) => !prev)}
-              onKeyDown={handleAccountTriggerKeyDown}
-            >
-              <span className="hr-account-menu__name">
-                {activeOperator.name}
-              </span>
-              <span className="hr-account-menu__badge">
-                {copy.account.badge}
-              </span>
-            </button>
-
-            {demoMenuOpen && (
-              <div
-                id="hr-account-popover"
-                className="hr-demo-popover hr-account-popover"
-                role="dialog"
-                aria-label={copy.account.dialogLabel}
-              >
-                <div className="hr-demo-popover__section">
-                  <span className="hr-account-popover__eyebrow">
-                    {copy.account.identityEyebrow}
-                  </span>
-                  <strong className="hr-account-popover__identity">
-                    {activeOperator.name}
-                  </strong>
-                  <span className="hr-account-popover__role">
-                    {activeOperator.title}
-                  </span>
-                  <span className="hr-account-popover__scope">
-                    {copy.account.scopePrefix} {activeOperator.scopeLabel}
-                  </span>
-                  <label
-                    htmlFor="hr-menu-operator-select"
-                    className="hr-account-popover__label"
-                  >
-                    {copy.account.switchLabel}
-                  </label>
-                  <select
-                    ref={firstAccountControlRef}
-                    id="hr-menu-operator-select"
-                    className="hr-select"
-                    value={activeOperator.operatorId}
-                    onChange={(e) => handleSelectOperator(e.target.value)}
-                  >
-                    {SYSTEM_OPERATOR_ACCOUNTS.map((op) => (
-                      <option key={op.operatorId} value={op.operatorId}>
-                        {op.name} · {op.title}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-
-                <div className="hr-demo-popover__section">
-                  <span className="hr-account-popover__eyebrow">
-                    {copy.account.statusEyebrow}
-                  </span>
-                  <div className="hr-demo-popover__meta hr-tabular">
-                    <span>
-                      {backendConnected
-                        ? `${copy.backend.connected} · ${backendHealth?.operatingMode ?? copy.backend.demoMode}`
-                        : `${copy.backend.offlineFallback} · ${copy.account.sampleReplay}`}
-                    </span>
-                    <span>Weekly run: {activeFixture.weeklyCutoffLabel}</span>
-                    <span>
-                      Run: <strong>{activeOrgState.weeklyRunStatus}</strong> ·
-                      Sandbox: <strong>{systemStateCopy.badgeLabel}</strong>
-                    </span>
-                    <span>
-                      Release:{" "}
-                      <strong>
-                        {backendConnected &&
-                        activeOrgState.appReleaseStatus === "released"
-                          ? `${copy.backend.approvedInDemo} · ${copy.backend.notDeployed} · ${copy.backend.noNotifications}`
-                          : activeOrgState.appReleaseStatus === "released"
-                          ? `Released (v${activeOrgState.approvedRelease?.version ?? "1.0.0"})`
-                          : activeOrgState.approvedRelease
-                          ? `v${activeOrgState.approvedRelease.version} live · Candidate rebuilding`
-                          : activeOrgState.appReleaseStatus ===
-                            "changes_requested"
-                          ? "Changes requested"
-                          : "In sandbox review"}
-                      </strong>
-                    </span>
-                    <span>{activeFixture.capturedThroughLabel}</span>
-                  </div>
-                  <div className="hr-demo-popover__toggles">
-                    <button
-                      type="button"
-                      className={`hr-topbar__toggle${
-                        reducedMotion ? " hr-topbar__toggle--active" : ""
-                      }`}
-                      aria-pressed={reducedMotion}
-                      onClick={() => setReducedMotion((prev) => !prev)}
-                    >
-                      {copy.account.reducedMotion.label}:{" "}
-                      {reducedMotion
-                        ? copy.account.reducedMotion.on
-                        : copy.account.reducedMotion.off}
-                    </button>
-
-                    <button
-                      type="button"
-                      className="hr-status-chip"
-                      title="Pausing schedule stops future Sunday 18:00 UTC cutoffs only; active sandbox builds continue unless paused separately"
-                      disabled={manualLocked}
-                      onClick={() => {
-                        if (backendConnected) {
-                          const org = activeOrgId;
-                          void runBackend(org, "schedule", () =>
-                            setWeeklySchedule(
-                              org,
-                              !orgStates[org].weeklyScheduleActive,
-                            ),
-                          );
-                          return;
-                        }
-                        updateOrgState(activeOrgId, (prev) => ({
-                          ...prev,
-                          weeklyScheduleActive: !prev.weeklyScheduleActive,
-                        }));
-                      }}
-                    >
-                      {copy.account.weeklySchedule.label}:{" "}
-                      <strong>
-                        {activeOrgState.weeklyScheduleActive
-                          ? copy.account.weeklySchedule.active
-                          : copy.account.weeklySchedule.paused}
-                      </strong>
-                    </button>
-                  </div>
-                </div>
-
-                <div className="hr-demo-popover__section">
-                  <p className="hr-checkpoint-subrail__label">Checkpoints</p>
-                  <button
-                    type="button"
-                    className={`hr-checkpoint-subrail__btn${
-                      activeOrgState.buildStage === "stage1"
-                        ? " hr-checkpoint-subrail__btn--active"
-                        : ""
-                    }`}
-                    onClick={() => handleSelectBuildStage("stage1")}
-                  >
-                    <span>1. Schema check</span>
-                    <span className="hr-checkpoint-subrail__state">
-                      {activeOrgState.buildStage === "stage1"
-                        ? "Running"
-                        : "Done"}
-                    </span>
-                  </button>
-                  <button
-                    type="button"
-                    className={`hr-checkpoint-subrail__btn${
-                      activeOrgState.buildStage === "stage2"
-                        ? " hr-checkpoint-subrail__btn--active"
-                        : ""
-                    }`}
-                    onClick={() => handleSelectBuildStage("stage2")}
-                  >
-                    <span>2. UI assembly</span>
-                    <span className="hr-checkpoint-subrail__state">
-                      {activeOrgState.buildStage === "stage2"
-                        ? "Running"
-                        : activeOrgState.buildStage === "stage3" ||
-                          activeOrgState.buildStage === "ready"
-                        ? "Done"
-                        : "Saved"}
-                    </span>
-                  </button>
-                  <button
-                    type="button"
-                    className={`hr-checkpoint-subrail__btn${
-                      activeOrgState.buildStage === "stage3"
-                        ? " hr-checkpoint-subrail__btn--active"
-                        : ""
-                    }`}
-                    onClick={() => handleSelectBuildStage("stage3")}
-                  >
-                    <span>3. Verification</span>
-                    <span className="hr-checkpoint-subrail__state">
-                      {activeOrgState.buildStage === "ready"
-                        ? "3/3"
-                        : activeOrgState.buildStage === "stage3"
-                        ? "Running"
-                        : "Queued"}
-                    </span>
-                  </button>
-                  <button
-                    type="button"
-                    className={`hr-checkpoint-subrail__btn${
-                      activeOrgState.buildStage === "ready"
-                        ? " hr-checkpoint-subrail__btn--active"
-                        : ""
-                    }`}
-                    onClick={handleRevealReadyArtifact}
-                  >
-                    <span>Ready for review</span>
-                    <span className="hr-checkpoint-subrail__state">Sharp</span>
-                  </button>
-                  <button
-                    type="button"
-                    className={`hr-checkpoint-subrail__btn${
-                      activeOrgState.buildStage === "failed"
-                        ? " hr-checkpoint-subrail__btn--active"
-                        : ""
-                    }`}
-                    onClick={() => handleSelectBuildStage("failed")}
-                  >
-                    <span>Check failed</span>
-                    <span className="hr-checkpoint-subrail__state">Test</span>
-                  </button>
-                  <div className="hr-demo-popover__actions">
-                    <Button
-                      variant={
-                        activeOrgState.isReplaying ? "primary" : "secondary"
-                      }
-                      size="sm"
-                      onClick={handleReplayWeeklyRun}
-                    >
-                      {activeOrgState.isReplaying
-                        ? "Stop replay"
-                        : "Replay weekly run"}
-                    </Button>
-                    <Button
-                      variant="secondary"
-                      size="sm"
-                      onClick={handleRevealReadyArtifact}
-                      disabled={activeOrgState.buildStage === "ready"}
-                    >
-                      Reveal ready artifact
-                    </Button>
-                    {activeOrgState.buildStage === "paused" && (
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={handleCancelBuildKeepDraft}
-                      >
-                        Cancel build; keep draft
-                      </Button>
-                    )}
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => handleOpenStandaloneOrgApp(activeOrgId)}
-                    >
-                      {copy.account.openOrgApp}
-                    </Button>
-                  </div>
-                </div>
-
-                <div className="hr-demo-popover__section hr-demo-popover__section--last">
-                  <span className="hr-account-popover__eyebrow">
-                    {copy.account.linksEyebrow}
-                  </span>
-                  <nav
-                    aria-label={copy.account.linksEyebrow}
-                    className="hr-account-popover__links"
-                  >
-                    <a
-                      href="http://127.0.0.1:43170/login"
-                      className="hr-account-popover__link"
-                      onClick={(e) => {
-                        e.preventDefault();
-                        handleOpenEntryScreen();
-                      }}
-                    >
-                      <span>{copy.account.links.heavyRain}</span>
-                      <code>127.0.0.1:43170/login</code>
-                    </a>
-                    <a
-                      href="http://127.0.0.1:43173/login"
-                      className="hr-account-popover__link"
-                    >
-                      <span>{copy.account.links.rookmere}</span>
-                      <code>127.0.0.1:43173/login</code>
-                    </a>
-                    <a
-                      href="http://127.0.0.1:43171/login"
-                      className="hr-account-popover__link"
-                    >
-                      <span>{copy.account.links.augi}</span>
-                      <code>127.0.0.1:43171/login</code>
-                    </a>
-                  </nav>
-                </div>
-              </div>
-            )}
-          </div>
-
-          {activeNav !== "System" && playbackControls && (
-            <div className="hr-topbar__playback">{playbackControls}</div>
-          )}
-
-          <button
-            type="button"
-            className={`hr-topbar__toggle${
-              inspectorOpen ? " hr-topbar__toggle--active" : ""
-            }`}
-            aria-expanded={inspectorOpen}
-            onClick={() => setInspectorOpen((prev) => !prev)}
-          >
-            Inspector {inspectorOpen ? "· Open" : ""}
-          </button>
-        </div>
+        <div className="hr-topbar__right">{playbackControls}</div>
       </header>
 
       {/* Main Topographic Stage (03-system-c.png layout) */}
@@ -2176,7 +1696,7 @@ export const App: FC = () => {
           <aside className="hr-left-rail">
             <nav aria-label="Primary navigation" className="hr-tactile-nav">
               <ul className="hr-tactile-nav__list">
-                {SYSTEM_NAV_SECTIONS.map((section, idx) => {
+                {NAV_SECTIONS.map((section, idx) => {
                   const isActive = activeNav === section;
                   return (
                     <li key={section}>
@@ -2259,53 +1779,6 @@ export const App: FC = () => {
                       tone={systemStateCopy.tone}
                       label={systemStateCopy.chamberPill}
                     />
-                    {playbackControls}
-
-                    {/* Single primary contextual action */}
-                    {(activeOrgState.buildStage === "stage1" ||
-                      activeOrgState.buildStage === "stage2" ||
-                      activeOrgState.buildStage === "stage3") && (
-                      <Button
-                        variant="primary"
-                        disabled={manualLocked}
-                        onClick={handleTogglePauseBuild}
-                      >
-                        Pause build
-                      </Button>
-                    )}
-
-                    {activeOrgState.buildStage === "paused" && (
-                      <Button
-                        variant="primary"
-                        disabled={manualLocked}
-                        onClick={handleTogglePauseBuild}
-                      >
-                        Resume from checkpoint
-                      </Button>
-                    )}
-
-                    {activeOrgState.buildStage === "failed" && (
-                      <Button
-                        variant="primary"
-                        disabled={manualLocked}
-                        onClick={handleRetryFromCheckpoint}
-                      >
-                        Retry from checkpoint
-                      </Button>
-                    )}
-
-                    {(activeOrgState.buildStage === "idle" ||
-                      activeOrgState.buildStage === "queued" ||
-                      activeOrgState.buildStage === "loading") && (
-                      <Button
-                        variant="primary"
-                        disabled={manualLocked}
-                        onClick={() => handleSelectBuildStage("stage2")}
-                      >
-                        Start sandbox build
-                      </Button>
-                    )}
-
                     {activeOrgState.buildStage === "ready" &&
                       (activeOrgState.appReleaseStatus !== "released" ? (
                         <Button
@@ -2373,28 +1846,26 @@ export const App: FC = () => {
                       {activeOrgId === "rookmere" ? (
                         <RookmereEmbeddedFrame
                           companies={activeFixture.rookmereCompanies ?? []}
-                          externalUrl={activeFixture.externalAppUrl}
+                          externalUrl={
+                            activeFixture.externalAppUrl ||
+                            ORGANIZATION_FIXTURES[activeOrgId].externalAppUrl
+                          }
                           mode="embedded"
                           reducedMotion={reducedMotion}
-                          releaseVersion={
-                            activeOrgState.approvedRelease?.version ??
-                            activeOrgState.candidateVersion
-                          }
                           isObscured={isVeiled}
                         />
                       ) : (
                         <AugiEmbeddedFrame
                           configs={activeFixture.augiConfigs ?? []}
-                          externalUrl={activeFixture.externalAppUrl}
+                          externalUrl={
+                            activeFixture.externalAppUrl ||
+                            ORGANIZATION_FIXTURES[activeOrgId].externalAppUrl
+                          }
                           inlineDisclosure={
                             activeFixture.augiInlineDisclosure ?? ""
                           }
                           mode="embedded"
                           reducedMotion={reducedMotion}
-                          releaseVersion={
-                            activeOrgState.approvedRelease?.version ??
-                            activeOrgState.candidateVersion
-                          }
                           isObscured={isVeiled}
                         />
                       )}
@@ -2414,36 +1885,22 @@ export const App: FC = () => {
                       </>
                     )}
 
-                    {/* Small worker quote boxes, sharp and above the veil, anchored to chamber corners */}
-                    {openWorkerQuoteRoles.length > 0 && (
-                      <div className="hr-chamber-quotes">
-                        {openWorkerQuoteRoles.map((role, index) => {
-                          const worker = activeFixture.workers.find(
-                            (w) => w.role === role,
-                          );
-                          if (!worker) return null;
-                          const st = getWorkerStatus(role);
-                          const message = resolveWorkerMessage(role, st);
-                          return (
-                            <WorkerQuote
-                              key={worker.id}
-                              className={`hr-chamber-quotes__item hr-chamber-quotes__item--${
-                                index === 0 ? "start" : "end"
-                              }`}
-                              roleName={worker.role}
-                              stepNumber={worker.stepNumber}
-                              tone={st.tone}
-                              statusLabel={st.label}
-                              message={message}
-                              dismissLabel={workerQuoteCopy.labels.dismiss}
-                              detailsLabel={workerQuoteCopy.labels.viewDetails}
-                              onDismiss={() => handleDismissWorkerQuote(role)}
-                              onViewDetails={() => handleViewWorkerDetails(role)}
-                              reducedMotion={reducedMotion}
-                            />
-                          );
+                    {/* Live readout: what the active worker is doing, sharp and centered above the veil */}
+                    {isVeiled && (
+                      <ChamberLiveReadout
+                        entries={activeFixture.workers.map((worker) => {
+                          const st = getWorkerStatus(worker.role);
+                          return {
+                            role: worker.role,
+                            stepNumber: worker.stepNumber,
+                            tone: st.tone,
+                            label: st.label,
+                            isActive: st.isActiveCell,
+                            message: resolveWorkerMessage(worker.role, st),
+                          };
                         })}
-                      </div>
+                        reducedMotion={reducedMotion}
+                      />
                     )}
                   </div>
                 </section>
@@ -2456,23 +1913,16 @@ export const App: FC = () => {
                 >
                   {activeFixture.workers.map((worker) => {
                     const st = getWorkerStatus(worker.role);
-                    const isSelectedInInspector = openWorkerQuoteRoles.includes(
-                      worker.role,
-                    );
+                    const isWorking =
+                      st.tone === "running" || st.tone === "building";
 
                     return (
-                      <button
+                      <div
                         key={worker.id}
-                        type="button"
                         className={`hr-worker-cell${
                           st.isActiveCell ? " hr-worker-cell--active" : ""
-                        }${
-                          isSelectedInInspector
-                            ? " hr-worker-cell--selected"
-                            : ""
-                        }`}
-                        aria-pressed={isSelectedInInspector}
-                        onClick={() => handleSelectWorkerFromDock(worker.role)}
+                        }${isWorking ? " hr-worker-cell--running" : ""}`}
+                        aria-current={st.isActiveCell ? "step" : undefined}
                       >
                         <span className="hr-worker-cell__left">
                           <span className="hr-worker-cell__num hr-tabular">
@@ -2491,7 +1941,7 @@ export const App: FC = () => {
                             {st.label}
                           </span>
                         </span>
-                      </button>
+                      </div>
                     );
                   })}
                 </div>
@@ -2888,7 +2338,7 @@ export const App: FC = () => {
                                       rel="noopener noreferrer"
                                       className="hr-button hr-button--secondary hr-button--sm"
                                     >
-                                      Open app (43171)
+                                      {copy.account.openOrgApp}
                                     </a>
                                   )}
                                 {app.feedbackEntries.length > 0 && (
@@ -2935,78 +2385,6 @@ export const App: FC = () => {
               </div>
             )}
 
-            {/* ============================================================
-                DESTINATION 4: ACTIVITY (Chronological worker trace)
-                ============================================================ */}
-            {activeNav === "Activity" && (
-              <div className="hr-activity-view">
-                <header className="hr-section-header">
-                  <div>
-                    <h1 className="hr-section-header__title">
-                      {experienceCopy.activity.title}
-                    </h1>
-                  </div>
-                  <div className="hr-section-header__actions">
-                    <div
-                      className="hr-filter-pills"
-                      role="group"
-                      aria-label="Filter trace events by worker"
-                    >
-                      {(
-                        [
-                          "all",
-                          "Cairn",
-                          "Relay",
-                          "Researcher",
-                          "Connector",
-                          "Builder",
-                          "Notifier",
-                        ] as const
-                      ).map((actor) => (
-                        <button
-                          key={actor}
-                          type="button"
-                          className={`hr-worker-pill${
-                            activityActorFilter === actor
-                              ? " hr-worker-pill--active"
-                              : ""
-                          }`}
-                          onClick={() => setActivityActorFilter(actor)}
-                        >
-                          {actor === "all" ? "All actors" : actor}
-                        </button>
-                      ))}
-                    </div>
-                    <Button
-                      variant="secondary"
-                      size="sm"
-                      onClick={handleReplayWeeklyRun}
-                    >
-                      {activeOrgState.isReplaying
-                        ? "Stop replay"
-                        : "Replay weekly run"}
-                    </Button>
-                  </div>
-                </header>
-
-                <ActivityTimeline
-                  events={visibleEvents}
-                  detailsLabel={
-                    experienceCopy.activity.details || workCopy.labels.details
-                  }
-                  emptyState={experienceCopy.activity.emptyState}
-                  detailLabels={experienceCopy.activity.detailLabels}
-                  selectedEventId={selectedEvent?.eventId}
-                  onSelect={(eventId) =>
-                    updateOrgState(activeOrgId, (prev) => ({
-                      ...prev,
-                      selectedEventId: eventId,
-                    }))
-                  }
-                  reducedMotion={reducedMotion}
-                />
-              </div>
-            )}
           </main>
 
           {/* Contextual Right Inspector Drawer (opens on demand without permanently shrinking center) */}
@@ -3037,12 +2415,6 @@ export const App: FC = () => {
             onRequestChanges={handleRequestChanges}
             onRevealReady={handleRevealReadyArtifact}
             onOpenOrgApp={() => handleOpenStandaloneOrgApp(activeOrgId)}
-            onNavigateActivity={(workerFilter) => {
-              if (workerFilter) {
-                setActivityActorFilter(workerFilter);
-              }
-              setActiveNav("Activity");
-            }}
           />
         </div>
       </div>

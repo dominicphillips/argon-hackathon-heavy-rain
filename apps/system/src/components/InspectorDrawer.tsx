@@ -31,7 +31,7 @@ export interface InspectorDrawerProps {
   onRequestChanges: (note: string) => void;
   onRevealReady: () => void;
   onOpenOrgApp: () => void;
-  onNavigateActivity: (workerFilter?: WorkerRole) => void;
+  onNavigateActivity?: (workerFilter?: WorkerRole) => void;
 }
 
 export const InspectorDrawer: FC<InspectorDrawerProps> = ({
@@ -386,17 +386,19 @@ export const InspectorDrawer: FC<InspectorDrawerProps> = ({
                   </span>
                   <p>{activeWorkerSummary.decisionSummary}</p>
                 </div>
-                <div className="hr-inspector-actions">
-                  <Button
-                    variant="secondary"
-                    size="sm"
-                    onClick={() =>
-                      onNavigateActivity(activeWorkerSummary.role)
-                    }
-                  >
-                    Inspect worker activity in trace
-                  </Button>
-                </div>
+                {onNavigateActivity && (
+                  <div className="hr-inspector-actions">
+                    <Button
+                      variant="secondary"
+                      size="sm"
+                      onClick={() =>
+                        onNavigateActivity(activeWorkerSummary.role)
+                      }
+                    >
+                      Inspect worker activity in trace
+                    </Button>
+                  </div>
+                )}
               </Panel>
             )}
 
