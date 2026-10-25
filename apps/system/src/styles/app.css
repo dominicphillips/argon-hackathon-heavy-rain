@@ -2949,7 +2949,8 @@ button.hr-status-chip:active {
 .hr-app-card__body {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  justify-content: center;
+  gap: 14px;
   min-width: 0;
 }
 
@@ -2972,9 +2973,10 @@ button.hr-status-chip:active {
 
 .hr-app-card__tagline {
   margin: 0;
-  font-size: 15px;
+  font-size: 16px;
   line-height: 1.5;
   color: var(--hr-slate);
+  max-width: 44ch;
 }
 
 .hr-app-card__section {
@@ -3120,4 +3122,50 @@ button.hr-status-chip:active {
 
 .hr-chamber-actions:empty {
   display: none;
+}
+
+
+.hr-topbar-more__action {
+  margin-top: 10px;
+  width: 100%;
+  padding: 8px 10px;
+  border: 1px solid #b8bec8;
+  border-radius: 6px;
+  background: #fff;
+  color: var(--hr-ink);
+  font: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.hr-topbar-more__action:hover {
+  background: #e9ebef;
+}
+
+
+/* The pale loop breathes slowly behind the idle stage and the finished app card */
+.hr-workbench-c__chamber--clear .hr-chamber-atmosphere--pale {
+  animation: hr-smoke-pulse 7s ease-in-out infinite;
+}
+
+@keyframes hr-smoke-pulse {
+  0%,
+  100% {
+    opacity: 0.72;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+.hr-workbench-c__chamber--clear .hr-app-card {
+  box-shadow: 0 24px 70px rgba(18, 22, 26, 0.22);
+  border: 1px solid #d6d9df;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hr-workbench-c__chamber--clear .hr-chamber-atmosphere--pale {
+    animation: none;
+  }
 }

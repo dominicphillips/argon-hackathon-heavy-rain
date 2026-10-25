@@ -407,6 +407,17 @@ export const App: FC = () => {
       size="lg"
     />
   );
+  // Reset: clear the shown live run, or rewind the scripted cycle, back to the empty stage.
+  const [liveResetToken, setLiveResetToken] = useState<number>(0);
+  const moreMenuRef = useRef<HTMLDetailsElement | null>(null);
+  const handleReset = () => {
+    if (activeOrgId === "meridian") {
+      setLiveResetToken((token) => token + 1);
+    } else {
+      playback.reset();
+    }
+    if (moreMenuRef.current) moreMenuRef.current.open = false;
+  };
   const demoStarted =
     playback.state.playing ||
     playback.state.busy ||
@@ -1090,7 +1101,7 @@ export const App: FC = () => {
         <div className="hr-topbar__right">
           {activeOrgId !== "meridian" && playbackControls}
           {/* Rarely used controls stay out of the way behind one overflow menu */}
-          <details className="hr-topbar-more">
+          <details className="hr-topbar-more" ref={moreMenuRef}>
             <summary className="hr-topbar-more__trigger" aria-label="More options">
               <span aria-hidden="true">···</span>
             </summary>
@@ -1111,6 +1122,9 @@ export const App: FC = () => {
                   <option value="augi">{liveCopy.org.augi}</option>
                 </select>
               </div>
+              <button type="button" className="hr-topbar-more__action" onClick={handleReset}>
+                {liveCopy.reset}
+              </button>
             </div>
           </details>
         </div>
@@ -1142,6 +1156,7 @@ export const App: FC = () => {
                 orgId={activeOrgId}
                 orgName={ORG_NAMES[activeOrgId]}
                 enabled={backendConnected}
+                resetToken={liveResetToken}
                 reducedMotion={reducedMotion}
               />
             )}

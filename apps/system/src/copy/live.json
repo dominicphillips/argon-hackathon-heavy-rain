@@ -38,13 +38,7 @@
     "files": "Files written: {n}"
   },
   "card": {
-    "eyebrow": "Built this week",
-    "view": "View application",
-    "notes": "Build notes",
-    "highlights": "Highlights",
-    "screens": "Screens",
-    "madeFor": "Made for {name}",
-    "sampleNote": "This app runs on sample data until it is connected."
+    "open": "Open application"
   },
   "workers": {
     "Researcher": "Catalog matcher",
@@ -53,5 +47,6 @@
     "Notifier": "Release drafter",
     "Cairn": "Weekly coordinator",
     "Relay": "Report intake"
-  }
+  },
+  "reset": "Reset"
 }

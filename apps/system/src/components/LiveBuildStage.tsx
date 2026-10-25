@@ -1,4 +1,4 @@
-import type { FC } from "react";
+import { useEffect, useState, type FC } from "react";
 import { ChamberWireframe } from "./ChamberWireframe";
 import { ChamberAtmosphere } from "./ChamberAtmosphere";
 import { ChamberEmptyState } from "./ChamberEmptyState";
@@ -13,7 +13,21 @@ export interface LiveBuildStageProps {
   orgId: OrganizationId;
   orgName: string;
   enabled: boolean;
+  /** Increment to clear the shown run; the stage goes back to waiting until a newer run arrives. */
+  resetToken?: number;
   reducedMotion?: boolean;
+}
+
+function dismissedKey(orgId: OrganizationId): string {
+  return `heavy_rain_live_dismissed_${orgId}`;
+}
+
+function readDismissed(orgId: OrganizationId): string | null {
+  try {
+    return window.localStorage.getItem(dismissedKey(orgId));
+  } catch {
+    return null;
+  }
 }
 
 const PHASES = ["received", "reading", "building", "checking", "ready"] as const;
@@ -24,8 +38,28 @@ function fill(template: string, tokens: Record<string, string>): string {
 }
 
 /** Real builds for one organization: empty until work arrives, then the panel, the builder's feed, and the app card. */
-export const LiveBuildStage: FC<LiveBuildStageProps> = ({ orgId, orgName, enabled, reducedMotion = false }) => {
-  const { run, progress, artifact } = useLiveBuild(orgId, enabled);
+export const LiveBuildStage: FC<LiveBuildStageProps> = ({ orgId, orgName, enabled, resetToken = 0, reducedMotion = false }) => {
+  const live = useLiveBuild(orgId, enabled);
+  const [dismissedRunId, setDismissedRunId] = useState<string | null>(() => readDismissed(orgId));
+  useEffect(() => {
+    setDismissedRunId(readDismissed(orgId));
+  }, [orgId]);
+  useEffect(() => {
+    if (resetToken === 0) return;
+    const current = live.run?.runId ?? null;
+    setDismissedRunId(current);
+    try {
+      if (current) window.localStorage.setItem(dismissedKey(orgId), current);
+      else window.localStorage.removeItem(dismissedKey(orgId));
+    } catch {
+      // Storage may be unavailable; the reset still applies for this session.
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [resetToken]);
+  const dismissed = Boolean(live.run && live.run.runId === dismissedRunId);
+  const run = dismissed ? null : live.run;
+  const progress = dismissed ? [] : live.progress;
+  const artifact = dismissed ? null : live.artifact;
   const active = run && run.phase !== "ready" && run.phase !== "failed";
   const ready = Boolean(run && run.phase === "ready" && artifact);
   const failed = Boolean(run && run.phase === "failed");
@@ -86,7 +120,7 @@ export const LiveBuildStage: FC<LiveBuildStageProps> = ({ orgId, orgName, enable
 
   return (
     <div className="hr-workbench-c hr-workbench-c--live">
-      <section className={`hr-workbench-c__chamber hr-workbench-c__chamber--${ready ? "ready" : veilStage}${run ? "" : " hr-workbench-c__chamber--clear"}`} aria-label={run ? run.app.name : orgName}>
+      <section className={`hr-workbench-c__chamber hr-workbench-c__chamber--${ready ? "ready" : veilStage}${!run || ready ? " hr-workbench-c__chamber--clear" : ""}`} aria-label={run ? run.app.name : orgName}>
         <div className="hr-chamber-stage">
           <ChamberAtmosphere variant={run && !ready ? "dark" : "pale"} reducedMotion={reducedMotion} />
 
@@ -121,8 +155,7 @@ export const LiveBuildStage: FC<LiveBuildStageProps> = ({ orgId, orgName, enable
               artifact={artifact}
               appName={run.app.name}
               purpose={run.app.purpose}
-              requesterName={run.requestedBy.name}
-              copy={liveCopy.card}
+              copy={{ open: liveCopy.card.open }}
             />
           )}
         </div>
