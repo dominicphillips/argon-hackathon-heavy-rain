@@ -1360,6 +1360,7 @@ export const App: FC = () => {
               <LiveAppsView
                 orgId={activeOrgId}
                 enabled={backendConnected}
+                title={workCopy.labels.apps}
                 emptyTitle={liveCopy.empty.liveTitle}
               />
             )}

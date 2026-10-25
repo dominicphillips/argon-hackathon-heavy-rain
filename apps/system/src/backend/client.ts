@@ -880,3 +880,21 @@ export async function startLiveBuild(org: OrganizationId, payload: LiveBuildRequ
   const url = orgPath(org, "/builds/live");
   return request<LiveBuildAccepted>(url, { org, method: "POST", body: payload });
 }
+
+export interface LiveBuildListItem {
+  run: LiveBuildRun;
+  artifact: LiveBuildArtifact | null;
+}
+
+/** Finished live builds, newest first. Falls back to the current run on a relay without the list route. */
+export async function listLiveBuilds(org: OrganizationId, limit = 20, signal?: AbortSignal): Promise<LiveBuildListItem[]> {
+  try {
+    const url = orgPath(org, `/builds/live?limit=${encodeURIComponent(String(limit))}`);
+    const body = await request<{ runs?: LiveBuildListItem[] }>(url, { org, signal });
+    if (Array.isArray(body.runs)) return body.runs;
+  } catch (error) {
+    if (!(error instanceof BackendError) || (error.status !== 404 && error.status !== 405)) throw error;
+  }
+  const current = await getLiveBuildCurrent(org, undefined, signal);
+  return current.run && current.run.phase === "ready" && current.artifact ? [{ run: current.run, artifact: current.artifact }] : [];
+}
