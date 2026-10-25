@@ -48,7 +48,6 @@ import { copy } from "./copy";
 import workCopy from "./copy/work.json";
 import workerQuoteCopy from "./copy/worker-quotes.json";
 import catalogCopy from "./copy/catalog.json";
-import experienceCopy from "./copy/experience.json";
 import playbackCopy from "./copy/playback.json";
 import workerStatusCopy from "./copy/worker-status.json";
 import { useDemoPlayback } from "./demo/useDemoPlayback";
@@ -56,20 +55,14 @@ import {
   DemoPlaybackControls,
   type DemoPlaybackCopy,
 } from "./demo/DemoPlayback";
-import type { WorkEditorialCardCopy } from "./components/WorkEditorialCards";
 import type { WorkspaceWithStatuses } from "./backend/client";
 import {
   controlBuild,
-  decideCluster,
-  evaluateBatch,
   getHealth,
   getOrgFixture,
   getWorkspace,
   orgAuthorizers,
-  setWeeklySchedule,
-  startBuild,
   submitReleaseReview,
-  submitReviewedWorkReport,
   subscribeWorkspaceEvents,
   verifyBuild,
   type BackendHealth,
@@ -118,38 +111,6 @@ const INTAKE_SOURCE: Record<
   }
 };
 
-function buildIntakePayload(
-  org: OrganizationId,
-  report: EmployeeReport,
-): WorkReportSubmission {
-  const source = INTAKE_SOURCE[org];
-  const stamp = Date.now();
-  return {
-    idempotency_key: `idem_${org}_${report.reportId}_${stamp}`,
-    org_id: org,
-    employee_id: source.employeeId,
-    role_id: source.roleId,
-    assistant_surface: report.assistantSurface,
-    mcp_tool_name: "heavyrain_submit_work_report",
-    session_provenance: {
-      session_id: `sess_${org}_${stamp}`,
-      captured_at: new Date(stamp).toISOString(),
-    },
-    user_inspected_outgoing_payload: true,
-    host_chat_history_excluded: true,
-    redaction_manifest: {
-      client_redaction_applied: true,
-      excluded_fields: [],
-      policy_version: "2026.10",
-    },
-    data_scope: report.dataScope,
-    pattern_hint: report.clusterId,
-    task_summary: report.taskSummary,
-    outgoing_payload_preview: report.outgoingPayloadPreview,
-    attachments: [],
-  };
-}
-
 // Merge a server snapshot while keeping local view selections that still resolve
 function mergeSnapshot(
   prev: OrganizationWorkspaceState,
@@ -177,16 +138,6 @@ function mergeSnapshot(
     scopeApprovalSimulated: prev.scopeApprovalSimulated,
   };
 }
-
-const STAGE_ORDER: readonly BuildStageId[] = [
-  "idle",
-  "loading",
-  "queued",
-  "stage1",
-  "stage2",
-  "stage3",
-  "ready",
-];
 
 const OPERATOR_STORAGE_KEY = "heavy_rain_system_demo_operator_v1";
 
@@ -219,13 +170,11 @@ function formatUtcNow(): string {
   return `${hh}:${mm}:${ss} UTC`;
 }
 
-const workerQuoteMessages = workerQuoteCopy.messages as Partial<
-  Record<OrganizationId, Partial<Record<WorkerRole, string>>>
->;
-// State-specific worker text keyed by role; per-org overrides above win when present.
-const workerStatusMessages = workerStatusCopy as Partial<
-  Record<WorkerRole, { queued: string; working: string; completed: string }>
->;
+// Explicit catalog app routing. Only implemented local apps get a URL; other cards keep View details.
+const CATALOG_APP_URLS: Record<string, string> = {
+  app_augi_bom_mass_ledger: "http://127.0.0.1:43171/?app=balance",
+};
+
 const demoPlaybackCopy: DemoPlaybackCopy = playbackCopy;
 
 // Plain organization names for headers; internal ids never render.
@@ -233,11 +182,6 @@ const ORG_NAMES: Record<OrganizationId, string> = {
   rookmere: copy.scope.rookmere,
   augi: liveCopy.org.augi,
   meridian: liveCopy.org.meridian,
-};
-
-// Explicit catalog app routing. Only implemented local apps get a URL; other cards keep View details.
-const CATALOG_APP_URLS: Record<string, string> = {
-  app_augi_bom_mass_ledger: "http://127.0.0.1:43171/?app=balance",
 };
 
 export const App: FC = () => {
@@ -303,12 +247,12 @@ export const App: FC = () => {
   const [intakeDrafts, setIntakeDrafts] = useState<
     Record<OrganizationId, WorkReportSubmission | null>
   >({ rookmere: null, augi: null, meridian: null });
-  const [intakeReceipts, setIntakeReceipts] = useState<
+  const [, setIntakeReceipts] = useState<
     Record<OrganizationId, WorkReportReceipt | null>
   >({ rookmere: null, augi: null, meridian: null });
 
   // Reduced motion preference (initializes from OS prefers-reduced-motion, toggleable in account menu)
-  const [reducedMotion, setReducedMotion] = useState<boolean>(() => {
+  const [reducedMotion] = useState<boolean>(() => {
     if (
       typeof window !== "undefined" &&
       typeof window.matchMedia === "function"
@@ -420,11 +364,6 @@ export const App: FC = () => {
     },
     [updateOrgState],
   );
-
-  const refreshFixture = useCallback(async (org: OrganizationId) => {
-    const next = await getOrgFixture(org);
-    setFixtures((prev) => ({ ...prev, [org]: next }));
-  }, []);
 
   // Run one backend operation per org at a time; apply the server workspace, surface the server error text
   const runBackend = useCallback(
@@ -786,134 +725,6 @@ export const App: FC = () => {
     setActiveOrgId(nextOrgId);
   }
 
-  // Action: Pause or Resume sandbox build at exact checkpoint
-  function handleTogglePauseBuild() {
-    const targetOrgId = activeOrgId;
-    if (backendConnected) {
-      const action =
-        orgStates[targetOrgId].buildStage === "paused" ? "resume" : "pause";
-      void runBackend(targetOrgId, action, () =>
-        controlBuild(targetOrgId, action),
-      );
-      return;
-    }
-    const fixture = ORGANIZATION_FIXTURES[targetOrgId];
-
-    updateOrgState(targetOrgId, (prev) => {
-      if (prev.buildStage === "paused") {
-        const resumeStage: BuildStageId =
-          prev.lastActiveCheckpoint === 1
-            ? "stage1"
-            : prev.lastActiveCheckpoint === 3
-            ? "stage3"
-            : "stage2";
-        const resumeEvt: TraceEvent = {
-          eventId: `evt_${targetOrgId}_resume_${Date.now()}`,
-          timestamp: formatUtcNow(),
-          actor: "Builder",
-          stageLabel: `Resumed at Stage ${prev.lastActiveCheckpoint}`,
-          tone: "building",
-          headline: `Resumed ${fixture.heroFullName} build from Checkpoint ${prev.lastActiveCheckpoint}`,
-          toolName: "sandbox_resume_checkpoint",
-          inputEvidence: `Checkpoint ${prev.lastActiveCheckpoint} snapshot`,
-          toolOutput: `Skipped already verified stages; continuing from Stage ${prev.lastActiveCheckpoint} of 3.`,
-          durationMs: 310,
-          decisionSummary:
-            "Idempotent checkpoint resume completed without restarting Stage 1.",
-          checkpointStep: prev.lastActiveCheckpoint,
-        };
-        return {
-          ...prev,
-          buildStage: resumeStage,
-          events: [...prev.events, resumeEvt],
-          selectedEventId: resumeEvt.eventId,
-        };
-      }
-
-      const activeCp: CheckpointNumber =
-        prev.buildStage === "stage1"
-          ? 1
-          : prev.buildStage === "stage3"
-          ? 3
-          : 2;
-
-      const pauseEvt: TraceEvent = {
-        eventId: `evt_${targetOrgId}_pause_${Date.now()}`,
-        timestamp: formatUtcNow(),
-        actor: "Builder",
-        stageLabel: `Paused at Checkpoint ${activeCp}`,
-        tone: "paused",
-        headline: `Sandbox build paused at Stage ${activeCp} (${
-          activeCp === 1
-            ? "Schema check"
-            : activeCp === 2
-            ? "UI assembly"
-            : "Verification"
-        })`,
-        toolName: "sandbox_pause_checkpoint",
-        inputEvidence: `Operator pause command on ${fixture.heroFullName}`,
-        toolOutput: `Checkpoint ${Math.max(
-          1,
-          activeCp - 1,
-        )} remains saved. Smoke drift frozen at last verified frame.`,
-        durationMs: 190,
-        decisionSummary:
-          "Build frozen at checkpoint; weekly schedule remains independent.",
-        checkpointStep: activeCp,
-      };
-
-      return {
-        ...prev,
-        buildStage: "paused",
-        lastActiveCheckpoint: activeCp,
-        isReplaying: false,
-        events: [...prev.events, pauseEvt],
-        selectedEventId: pauseEvt.eventId,
-      };
-    });
-  }
-
-  // Action: Cancel build; keep draft
-  function handleCancelBuildKeepDraft() {
-    const targetOrgId = activeOrgId;
-    if (backendConnected) {
-      void runBackend(targetOrgId, "cancel", () =>
-        controlBuild(targetOrgId, "cancel"),
-      );
-      return;
-    }
-    const fixture = ORGANIZATION_FIXTURES[targetOrgId];
-    updateOrgState(targetOrgId, (prev) => {
-      const cancelEvt: TraceEvent = {
-        eventId: `evt_${targetOrgId}_cancel_${Date.now()}`,
-        timestamp: formatUtcNow(),
-        actor: "Cairn",
-        stageLabel: "Draft preserved",
-        tone: "queued",
-        headline: `Cancelled active sandbox run; preserved ${fixture.heroFullName} grouped draft in Ingest`,
-        toolName: "cairn_cancel_keep_draft",
-        inputEvidence: `${fixture.weeklyBatchId} · Checkpoint ${prev.lastActiveCheckpoint}`,
-        toolOutput:
-          "Sandbox worker stopped cleanly; employee reports and Checkpoint 1 schema remain intact.",
-        durationMs: 240,
-        decisionSummary:
-          "Zero partial release state written to Apps; operator can restart from Work anytime.",
-      };
-      return {
-        ...prev,
-        buildStage: "idle",
-        isReplaying: false,
-        clusters: prev.clusters.map((c) =>
-          c.disposition === "build_in_sandbox"
-            ? { ...c, actionState: "pending_triage" }
-            : c,
-        ),
-        events: [...prev.events, cancelEvt],
-        selectedEventId: cancelEvt.eventId,
-      };
-    });
-  }
-
   // Action: Reveal ready artifact immediately
   function handleRevealReadyArtifact() {
     const targetOrgId = activeOrgId;
@@ -957,82 +768,6 @@ export const App: FC = () => {
       };
     });
     setActiveNav("System");
-  }
-
-  // Action: Jump directly to a specific build stage (for checkpoint rail / error recovery inspection)
-  function handleSelectBuildStage(nextStage: BuildStageId) {
-    const targetOrgId = activeOrgId;
-    if (backendConnected) {
-      // Only a forward checkpoint advance is authoritative; backward jumps and failure views are not sent
-      const current = STAGE_ORDER.indexOf(orgStates[targetOrgId].buildStage);
-      const target = STAGE_ORDER.indexOf(nextStage);
-      if (target > current && nextStage !== "ready") {
-        void runBackend(targetOrgId, "advance_checkpoint", () =>
-          controlBuild(targetOrgId, "advance_checkpoint"),
-        );
-      }
-      return;
-    }
-    const fixture = ORGANIZATION_FIXTURES[targetOrgId];
-    updateOrgState(targetOrgId, (prev) => {
-      const cp: CheckpointNumber =
-        nextStage === "stage1"
-          ? 1
-          : nextStage === "stage2"
-          ? 2
-          : nextStage === "stage3" ||
-            nextStage === "failed" ||
-            nextStage === "ready"
-          ? 3
-          : prev.lastActiveCheckpoint;
-
-      const stageEvt: TraceEvent = {
-        eventId: `evt_${targetOrgId}_stage_${nextStage}_${Date.now()}`,
-        timestamp: formatUtcNow(),
-        actor: nextStage === "stage1" ? "Connector" : "Builder",
-        stageLabel:
-          nextStage === "failed"
-            ? "Check failed"
-            : nextStage === "ready"
-            ? "Ready for review"
-            : `Stage: ${nextStage}`,
-        tone:
-          nextStage === "failed"
-            ? "failed"
-            : nextStage === "ready"
-            ? "completed"
-            : nextStage === "paused"
-            ? "paused"
-            : "building",
-        headline:
-          nextStage === "failed"
-            ? fixture.heroFailedHeadline
-            : nextStage === "ready"
-            ? `Sandbox checks passed · ${fixture.heroFullName} ready for review`
-            : `Switched sandbox view to ${nextStage}`,
-        toolName: "sandbox_checkpoint_select",
-        inputEvidence: `${fixture.heroFullName} · Checkpoint ${cp}`,
-        toolOutput:
-          nextStage === "failed"
-            ? fixture.heroFailedDetail
-            : `Checkpoint ${cp} active.`,
-        durationMs: 320,
-        decisionSummary:
-          nextStage === "failed"
-            ? "Prior checkpoints remain saved; operator can Retry from checkpoint or Request changes."
-            : "Updated sandbox build stage.",
-        checkpointStep: cp,
-      };
-
-      return {
-        ...prev,
-        buildStage: nextStage,
-        lastActiveCheckpoint: cp,
-        isReplaying: false,
-        events: [...prev.events, stageEvt],
-        selectedEventId: stageEvt.eventId,
-      };
-    });
   }
 
   // Action: Retry from checkpoint after a failed check
@@ -1211,257 +946,6 @@ export const App: FC = () => {
     });
   }
 
-  // Work Triage Action 1: Route matched cluster to existing catalog app
-  function handleRouteClusterToApp(clusterId: string) {
-    if (backendConnected) {
-      const org = activeOrgId;
-      void runBackend(org, `route_${clusterId}`, () =>
-        decideCluster(org, clusterId, "route_to_existing_app"),
-      );
-      return;
-    }
-    const targetOrgId = activeOrgId;
-    updateOrgState(targetOrgId, (prev) => {
-      const cluster = prev.clusters.find((c) => c.clusterId === clusterId);
-      if (!cluster) return prev;
-
-      const routeEvt: TraceEvent = {
-        eventId: `evt_${targetOrgId}_route_${Date.now()}`,
-        timestamp: formatUtcNow(),
-        actor: "Notifier",
-        stageLabel: "Catalog match routed",
-        tone: "completed",
-        headline: `Routed ${cluster.reportCount} reporting employees directly to ${
-          cluster.matchedAppName ?? "approved catalog app"
-        } v${cluster.matchedAppVersion ?? "2.4"}`,
-        toolName: "notifier_route_existing_app",
-        inputEvidence: `${cluster.clusterId} · No new permission scope required`,
-        toolOutput: `Sent access-checked deep link to ${cluster.distinctEmployeeCount} employees; no duplicate app build commissioned.`,
-        durationMs: 380,
-        decisionSummary:
-          "Reused approved catalog application directly without adding redundant approval gates.",
-      };
-
-      const nextClusters = prev.clusters.map((c) =>
-        c.clusterId === clusterId
-          ? { ...c, actionState: "routed_to_app" as const }
-          : c,
-      );
-
-      const allDecided = nextClusters.every(
-        (c) => c.actionState !== "pending_triage",
-      );
-
-      return {
-        ...prev,
-        clusters: nextClusters,
-        weeklyRunStatus: allDecided
-          ? "Complete"
-          : prev.weeklyRunStatus,
-        events: [...prev.events, routeEvt],
-        selectedEventId: routeEvt.eventId,
-      };
-    });
-  }
-
-  // Work Triage Action 2: Start sandbox build from Work cluster
-  function handleStartBuildFromWork(clusterId: string) {
-    if (backendConnected) {
-      const org = activeOrgId;
-      const auth = orgAuthorizers(org);
-      if (clusterId !== auth.buildClusterId) return;
-      void runBackend(org, `build_${clusterId}`, () =>
-        startBuild(org, {
-          clusterId: auth.buildClusterId,
-          authorizedByEmployeeId: auth.buildAuthorizerEmployeeId,
-        }),
-      );
-      setActiveNav("System");
-      return;
-    }
-    const targetOrgId = activeOrgId;
-    const fixture = ORGANIZATION_FIXTURES[targetOrgId];
-    updateOrgState(targetOrgId, (prev) => {
-      const startEvt: TraceEvent = {
-        eventId: `evt_${targetOrgId}_start_build_${Date.now()}`,
-        timestamp: formatUtcNow(),
-        actor: "Cairn",
-        stageLabel: "Sandbox build commissioned",
-        tone: "building",
-        headline: `Started 3-stage sandbox build for ${fixture.heroFullName}`,
-        toolName: "cairn_start_sandbox_build",
-        inputEvidence: `${clusterId} · Authorized read-only scope`,
-        toolOutput:
-          "Builder executing Stage 2 of 3 (UI assembly) behind smoky veil.",
-        durationMs: 460,
-        decisionSummary:
-          "Focused System workbench on active sandbox build.",
-        checkpointStep: 2,
-      };
-
-      return {
-        ...prev,
-        buildStage:
-          prev.buildStage === "idle" || prev.buildStage === "queued"
-            ? "stage2"
-            : prev.buildStage,
-        lastActiveCheckpoint: 2,
-        clusters: prev.clusters.map((c) =>
-          c.clusterId === clusterId
-            ? { ...c, actionState: "building_in_sandbox" as const }
-            : c,
-        ),
-        events: [...prev.events, startEvt],
-        selectedEventId: startEvt.eventId,
-      };
-    });
-    setActiveNav("System");
-  }
-
-  // Work Triage Action 3: Request missing evidence (leaves other clusters unblocked!)
-  function handleRequestMissingEvidence(clusterId: string) {
-    if (backendConnected) {
-      const org = activeOrgId;
-      void runBackend(org, `evidence_${clusterId}`, () =>
-        decideCluster(org, clusterId, "request_missing_evidence"),
-      );
-      return;
-    }
-    const targetOrgId = activeOrgId;
-    updateOrgState(targetOrgId, (prev) => {
-      const cluster = prev.clusters.find((c) => c.clusterId === clusterId);
-      if (!cluster) return prev;
-
-      const evEvt: TraceEvent = {
-        eventId: `evt_${targetOrgId}_evidence_req_${Date.now()}`,
-        timestamp: formatUtcNow(),
-        actor: "Relay",
-        stageLabel: "Needs evidence",
-        tone: "needs-evidence",
-        headline: `Sent missing-evidence request for ${cluster.shortTitle} to ${
-          cluster.missingEvidenceAssignee ?? "Legal / Compliance"
-        }`,
-        toolName: "relay_request_missing_evidence",
-        inputEvidence: `${cluster.clusterId} (${cluster.reportCount} reports)`,
-        toolOutput: `${
-          cluster.missingEvidenceDetail ??
-          "Requested 1 redacted sample schedule."
-        } Other weekly clusters continue unblocked.`,
-        durationMs: 340,
-        decisionSummary:
-          "Isolated missing-evidence cluster into recoverable request loop without blocking the weekly run.",
-      };
-
-      const nextClusters = prev.clusters.map((c) =>
-        c.clusterId === clusterId
-          ? { ...c, actionState: "evidence_requested" as const }
-          : c,
-      );
-      const allDecided = nextClusters.every(
-        (c) => c.actionState !== "pending_triage",
-      );
-
-      return {
-        ...prev,
-        clusters: nextClusters,
-        weeklyRunStatus: allDecided
-          ? "Complete"
-          : prev.weeklyRunStatus,
-        events: [...prev.events, evEvt],
-        selectedEventId: evEvt.eventId,
-      };
-    });
-  }
-
-  // Work Triage Action 3b: Defer cluster to next weekly run
-  function handleDeferCluster(clusterId: string) {
-    if (backendConnected) {
-      const org = activeOrgId;
-      void runBackend(org, `defer_${clusterId}`, () =>
-        decideCluster(org, clusterId, "defer_next_run"),
-      );
-      return;
-    }
-    const targetOrgId = activeOrgId;
-    updateOrgState(targetOrgId, (prev) => ({
-      ...prev,
-      clusters: prev.clusters.map((c) =>
-        c.clusterId === clusterId
-          ? { ...c, actionState: "deferred_next_run" as const }
-          : c,
-      ),
-    }));
-  }
-
-  // Inspect a specific employee report in the contextual right drawer
-  // Intake: build the outgoing payload from the canonical fixture report for the authorized employee
-  function handlePrepareIntakePayload() {
-    const org = activeOrgId;
-    const source = INTAKE_SOURCE[org];
-    const report =
-      fixtures[org].reports.find((r) => r.reportId === source.reportId) ??
-      fixtures[org].reports.find((r) => r.employeeId === source.employeeId);
-    if (!report) return;
-    setIntakeDrafts((prev) => ({
-      ...prev,
-      [org]: buildIntakePayload(org, report),
-    }));
-  }
-
-  function handleSubmitIntakePayload() {
-    const org = activeOrgId;
-    const payload = intakeDrafts[org];
-    if (!payload || !backendConnected) return;
-    void runBackend(
-      org,
-      "intake",
-      async () => {
-        const receipt = await submitReviewedWorkReport(org, payload);
-        const workspace = await getWorkspace(org);
-        return { data: receipt.data, workspace };
-      },
-      async (receipt) => {
-        setIntakeReceipts((prev) => ({ ...prev, [org]: receipt }));
-        setIntakeDrafts((prev) => ({ ...prev, [org]: null }));
-        await refreshFixture(org);
-      },
-    );
-  }
-
-  function handleInspectReport(reportId: string) {
-    updateOrgState(activeOrgId, (prev) => ({
-      ...prev,
-      selectedReportId: reportId,
-    }));
-    setInspectorTab("report");
-    setInspectorOpen(true);
-  }
-
-  // Quote text: explicit per-org override, else the state variant for the worker's current tone.
-  // Paused or failed workers show their short status label instead of a completion claim.
-  function resolveWorkerMessage(
-    role: WorkerRole,
-    status: { tone: SystemStatusTone; label: string },
-  ): string {
-    const override = workerQuoteMessages[activeOrgId]?.[role];
-    if (override) return override;
-    const variants = workerStatusMessages[role];
-    switch (status.tone) {
-      case "queued":
-      case "accepted":
-        return variants?.queued ?? status.label;
-      case "running":
-      case "building":
-        return variants?.working ?? status.label;
-      case "completed":
-      case "verified":
-      case "deployed":
-        return variants?.completed ?? status.label;
-      default:
-        return status.label;
-    }
-  }
-
   // Left navigation keyboard roving handler
   function handleNavKeyDown(
     event: KeyboardEvent<HTMLButtonElement>,
@@ -1483,123 +967,6 @@ export const App: FC = () => {
       navButtonRefs.current[prevIndex]?.focus();
     }
   }
-
-  // Count how many Work clusters still need operator triage
-  const pendingWorkCount = useMemo(
-    () =>
-      activeOrgState.clusters.filter(
-        (c) =>
-          c.actionState === "pending_triage" ||
-          c.actionState === "evidence_requested",
-      ).length,
-    [activeOrgState.clusters],
-  );
-
-  // Determine exact System screen state copy from UX handoff table
-  const systemStateCopy = useMemo(() => {
-    const stage = activeOrgState.buildStage;
-    const appName = heroDisplayName;
-    switch (stage) {
-      case "idle":
-        return {
-          tone: "queued" as SystemStatusTone,
-          badgeLabel: "Idle",
-          chamberPill: "Idle",
-          headline: "No sandbox build selected",
-          detail:
-            "Select a grouped task in Ingest or replay the weekly run to inspect a sandbox build.",
-        };
-      case "loading":
-        return {
-          tone: "running" as SystemStatusTone,
-          badgeLabel: "Loading",
-          chamberPill: "Loading",
-          headline: "Loading sandbox workspace",
-          detail:
-            "Fetching checkpoint state and sample evidence for the selected run.",
-        };
-      case "queued":
-        return {
-          tone: "queued" as SystemStatusTone,
-          badgeLabel: "Queued",
-          chamberPill: "Queued",
-          headline: `Queued ${appName} for sandbox build`,
-          detail:
-            "Spec and sample evidence locked. Start sandbox build to verify schema and assemble UI.",
-        };
-      case "stage1":
-        return {
-          tone: "building" as SystemStatusTone,
-          badgeLabel: "Running · Stage 1 of 3",
-          chamberPill: "Building",
-          headline: `Building ${appName} in sandbox`,
-          detail:
-            "Stage 1/3 (Schema check): Verifying data contract and sample headers before UI assembly.",
-        };
-      case "stage2":
-        return {
-          tone: "building" as SystemStatusTone,
-          badgeLabel: "Running · Stage 2 of 3",
-          chamberPill: "Building",
-          headline: `Building ${appName} in sandbox`,
-          detail:
-            "Preview obscured while Builder assembles components against sample data. Checkpoints stay verifiable.",
-        };
-      case "stage3":
-        return {
-          tone: "building" as SystemStatusTone,
-          badgeLabel: "Running · Stage 3 of 3",
-          chamberPill: "Building",
-          headline: `Building ${appName} in sandbox`,
-          detail:
-            "Stage 3/3 (Verification): Running 3 automated checks on read-only sample data.",
-        };
-      case "paused":
-        return {
-          tone: "paused" as SystemStatusTone,
-          badgeLabel: "Paused at checkpoint",
-          chamberPill: `Paused at Checkpoint ${activeOrgState.lastActiveCheckpoint}`,
-          headline: `Sandbox build paused at Stage ${activeOrgState.lastActiveCheckpoint} (UI assembly)`,
-          detail:
-            "Checkpoint 1 (Schema check) is saved. Resuming continues from Stage 2 without repeating completed checks.",
-        };
-      case "failed":
-        return {
-          tone: "failed" as SystemStatusTone,
-          badgeLabel: "Check failed",
-          chamberPill: "Check failed",
-          headline: activeFixture.heroFailedHeadline,
-          detail: activeFixture.heroFailedDetail,
-        };
-      case "ready":
-      default:
-        return {
-          tone:
-            activeOrgState.appReleaseStatus === "released"
-              ? ("deployed" as SystemStatusTone)
-              : ("completed" as SystemStatusTone),
-          badgeLabel:
-            activeOrgState.appReleaseStatus === "released"
-              ? backendConnected
-                ? copy.backend.approvedInDemo
-                : "Released to organization"
-              : "Ready for review",
-          chamberPill:
-            activeOrgState.appReleaseStatus === "released"
-              ? "Released"
-              : "Ready for review",
-          headline: "Sandbox checks passed · Artifact ready for review",
-          detail:
-            "3 of 3 verification checks passed on read-only sample data. 0 production writes executed.",
-        };
-    }
-  }, [
-    activeOrgState.buildStage,
-    activeOrgState.lastActiveCheckpoint,
-    activeOrgState.appReleaseStatus,
-    activeFixture,
-    heroDisplayName,
-  ]);
 
   // The preview is revealed only after the cycle completes and the backend confirms the artifact is ready.
   const stageRevealed =
