@@ -989,13 +989,13 @@ class LiveBuilderService:
                 raise HTTPException(status_code=404, detail=COPY["unknown_run"])
             if run.status in {"failed", "cancelled"} or run.phase == "ready":
                 return run
+        # Best effort on the provider side: the operator's cancel must always clear the run locally.
         try:
             if run.interactionId:
                 await asyncio.to_thread(self._get_client().interactions.cancel, run.interactionId)
         except Exception as exc:
             async with self.lock:
-                self._event(run, "error", "Failed", str(exc))
-            raise HTTPException(status_code=502, detail=self.redact(str(exc))) from None
+                self._event(run, "error", COPY.get("cancel_remote_failed_title", "Could not stop the remote run"), self.redact(str(exc)))
         task = self.tasks.get(run_id)
         if task:
             task.cancel()
