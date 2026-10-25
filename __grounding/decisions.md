@@ -112,3 +112,5 @@ On October 25, 2026, the product owner reviewed the reduced Marcus Vance transfe
   2. Enforcing a bounded 30-second fetch timeout that transitions to `ambiguous_error` while retaining the active `idempotency_key` for retry.
 
 - `HeavyRain_BDMD/frontend` remains a lightweight context-capture and handoff client. Clicking `Transfer Context` validates the user-reviewed text and sends `POST /api/v1/orgs/meridian/builds/live` ([`HeavyRain_BDMD/frontend/src/transfer/transferContext.ts`](../HeavyRain_BDMD/frontend/src/transfer/transferContext.ts)) with headers `X-HeavyRain-Org-Id: meridian` and `X-HeavyRain-Actor-Id: marcus`.
+
+- Owner-directed tightening caps the idle page outside Context at 280–340 words and supersedes the 120–180-word default-context target with a 70–95-word budget.
