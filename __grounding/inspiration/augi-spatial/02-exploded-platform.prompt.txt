@@ -1,0 +1,61 @@
+High-fidelity desktop application UI mockup, 16:9 aspect ratio at 4K UHD resolution, flat front-facing viewport screenshot with no browser chrome, no monitor bezel, and no perspective screen tilt. Visual aesthetic anchored on Reference 09 and the horizontal workbench discipline of System Layout C: a pale ash background (#e2e2e4) etched with subtle, organic low-contrast topographic contour lines, deep carbon-black dark ink (#141517) for primary typography and active ticks, muted slate grey for secondary labels, anodized cobalt and warm copper engineering accents, crisp hairline borders, generous negative space around an immense, physically rich, photorealistic central 3D exploded mechanical chassis, a narrow floating left clickable navigation rail, a restrained right-hand parameter and inspector column, and a docked bottom assembly scrubber bar.
+
+STRICT TEXT RULE: Every visible word or number in the rendered image must come strictly from the double-quoted strings in this prompt. Render each double-quoted string with exact spelling, capitalization, units, and punctuation. Do not render any unquoted words, color hex codes, resolution labels, coordinate numbers, or random serial numbers anywhere on the canvas or on the 3D hardware.
+
+TOP APPLICATION BAR (sparse full-width header floating cleanly across the top edge of the pale ash contour canvas):
+- Top-left brand lockup: An original geometric dark-ink AUGI emblem—a chamfered hexagonal structural spaceframe ring enclosing an isometric cube and horizontal axle bar—followed by bold dark ink "AUGI" and regular slate "Sable". (Never show a Heavy Rain wordmark.)
+- Top-center view selector: A sleek segmented pill group with thin hairline borders containing four camera projection buttons: active dark-ink pill "Isometric" in crisp light text, followed by muted clickable pills "Top Plan", "Side Profile", and "Underbody".
+- Top-right program status pill: A compact outlined pill in monospace dark ink reading "SABLE-C · Gate C2".
+
+NARROW LEFT NAVIGATION RAIL (floating vertically at mid-left directly over the pale ash topographic contours, matching Reference 09):
+- Five stacked clickable navigation labels with generous vertical spacing:
+  - Inactive faded slate-grey clickable label (with no vertical tick bar): "Cutaway"
+  - Active second item preceded by a sharp, high-contrast dark vertical tick bar and dark ink semibold label: "Platform"
+  - Inactive faded slate-grey clickable label (with no vertical tick bar): "Suspension"
+  - Inactive faded slate-grey clickable label (with no vertical tick bar): "Torsion"
+  - Inactive faded slate-grey clickable label (with no vertical tick bar): "Compare"
+- Directly beneath the fifth navigation label sits a small, quiet two-by-ten rectangular grid of muted grey dots.
+
+IMMENSE CENTRAL 3D CENTERPIECE & BACKGROUND TITLE (dominating the central stage like the floating hyper-detailed artifact in Reference 09):
+- Positioned centered above the exploded assembly is a small tracked monospace eyebrow in muted slate reading "SABLE-C · 31 STRUCTURAL PARTS", directly above a very large, light-weight geometric sans-serif title in dark ink reading "Skateboard Platform". The upper lifted torque ring of the 3D chassis subtly overlaps the lower baseline of "Skateboard Platform" to create commanding spatial depth.
+- Floating across the center of the viewport in three-quarter isometric perspective is an immense, studio-lit, physically rich exploded mechanical EV skateboard chassis and suspension platform. Every separated layer and module aligns along crisp, vertical and longitudinal dashed dark-ink datum guide lines passing through matching machined bolt bosses, dowel pins, and structural flanges—zero disconnected fantasy mechanics and zero schematic cubes:
+  - Upper structural tier (separated upward along vertical datum lines): Hot-stamped dark boron-steel front dash bulkhead and transverse seat cross-member ring, paired with the stamped aluminum cabin floor top shear plate.
+  - Central core tier (at datum elevation): The structural high-voltage battery pack bay displaying precision brushed-aluminum prismatic cell modules, internal transverse shear bulkheads, orange high-voltage busbars, and front coolant manifolds. Pulled slightly outward along lateral alignment pins on the left and right are the twin multi-hollow extruded aluminum side sills with sacrificial bolt-on front crush cans.
+  - Lower thermal and protection tier (separated downward along vertical datum lines): The serpentine liquid-cooling ribbon cold plate and woven composite ballistic underbody skid shield.
+  - Front and rear megacast suspension modules (separated axially forward and aft along longitudinal datum lines):
+     - Front module (highlighted with a crisp anodized-cobalt selection outline): Single-piece high-pressure vacuum die-cast aluminum front megacasting with deep web stiffening ribs, integral hollow cast shock towers, electric steering rack, front coaxial drive unit, and complete left and right forged aluminum double-wishbone suspension assemblies with coilover air struts and cross-drilled brake rotors.
+     - Rear module: Single-piece die-cast aluminum rear megacasting with integral shock-tower bridge, rear dual-inverter electric drive unit, and multi-link independent rear suspension corners with cast knuckles and hubs.
+
+LEADER LABELS & VISIBLE DIMENSION RULERS ON THE 3D STAGE:
+- Orthogonal dark-ink leader lines with pinpoint dots label six separated mechanical sub-assemblies around the perimeter of the 3D explosion:
+  - Upper-left leader label: "Boron Torque Ring"
+  - Upper-right leader label: "Top Shear Plate"
+  - Mid-left leader label: "Front HPDC Megacasting"
+  - Center-right leader label: "800V Cell Array · 108 kWh"
+  - Lower-left leader label: "6082-T6 Side Sill"
+  - Lower-right leader label: "Rear HPDC Megacasting"
+- Along the lower isometric datum edges of the stage sit two precision graduated millimeter engineering rulers with fine tick marks and crisp dark-ink measurement readouts:
+  - Longitudinal dimension ruler along the lower-left axis labeled "4990 mm Overall · 3080 mm Wheelbase".
+  - Lateral dimension ruler along the lower-right axis labeled "1480 mm Pack Bay · 1710 mm Track".
+
+RESTRAINED RIGHT INSPECTOR & PARAMETER COLUMN (floating at mid-right on the pale ash canvas with clean hairline rules):
+- Top block — Selected Item Inspector (inspecting the highlighted front casting module):
+  - Monospace section eyebrow: "Selected item"
+  - Bold dark-ink component title: "Front HPDC Megacasting"
+  - Secondary specification line: "AlSi7Mg · 3.4 mm wall"
+  - Tabular property line: "42.6 kg · 1 piece"
+- Middle block — Engineering Parameters (separated by a thin horizontal hairline rule):
+  - Section title in dark ink: "Parameters"
+  - First slider control: label "Wall gauge" on the left, tabular value "3.4 mm" on the right, over a slim track filled in anodized cobalt.
+  - Second slider control: label "Sill height" on the left, tabular value "200 mm" on the right, over a slim track filled in anodized cobalt.
+  - Third slider control: label "Adhesive bond" on the left, tabular value "61.0 m" on the right, over a slim track filled in anodized cobalt.
+- Bottom block — Concept Result Readout (compact light-ash inset card with a thin hairline border directly beside the parameters, no page-wide warning banner):
+  - Top row: label "Structural mass" on the left beside a compact outlined disclosure badge reading "Concept estimate".
+  - Primary metric readout in large tabular monospace dark ink: "338.0 kg"
+  - Bottom explicit stiffness and deflection line in warm copper monospace: "Bending 20.4 kN/mm · Sag 1.57 mm"
+
+DOCKED BOTTOM ASSEMBLY SCRUBBER & CAMERA TOOLBAR (clean horizontal architectural bar centered along the bottom of the stage):
+- Left and center section of the bar: Label "Assembly separation" beside a wide, precision horizontal scrubber track with graduation ticks set to a dark thumb labeled "68%", flanked by compact action pills "Axial X/Y/Z" and "Collapse".
+- Right section of the bar (separated by a vertical hairline): Camera toolbar with four tactile buttons: "Orbit", "Pan", "Zoom", and "Reset".
+
+AVOID: outer painted car body doors or roof glass, disconnected floating gears, sci-fi holograms, military helmets, tactical gear, weapons, real automaker logos, schematic wireframe cubes, giant top-of-page warning banners, multi-column SaaS KPI card walls, smoky blur, browser frames, or any unquoted text, hex codes, or pixel numbers.

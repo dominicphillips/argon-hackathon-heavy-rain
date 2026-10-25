@@ -1,0 +1,52 @@
+%% Heavy Rain sandbox build state machine & smoky blur visual semantics
+%% Separates run progress, schedule state, and visual veil opacity so motion never fakes completion.
+%% Render with: mmdc -i build-states.mmd -c /Users/dominicphillips/.codex/skills/ux-flow/assets/mermaid-theme.json
+
+flowchart TB
+    subgraph Inputs["Independent state inputs (never merged into one status)"]
+        sched["Weekly schedule state: Active | Paused"]
+        run_mode["Execution mode: Live sandbox | Fixture replay (Sample data)"]
+        motion_pref["Motion preference: Standard | Reduced motion (prefers-reduced-motion)"]
+    end
+
+    subgraph BuildLifecycle["Central artifact canvas · Build & visual veil states"]
+        s_queued["Queued · Spec & evidence locked\nPreview: Wireframe outline · Veil: Static ash matte (blur 16px, opacity 0.85)\nControls sharp: Start build · Cancel"]
+        s_s1["Stage 1/3 Running · Schema & data contract\nPreview: Structural skeleton · Veil: Dense smoky blur (blur 14px, opacity 0.75)\nControls sharp: Pause build · Inspect worker activity"]
+        s_s2["Stage 2/3 Running · UI & 3D scene assembly\nPreview: Live component/mesh layout · Veil: Thinning smoky blur (blur 8px, opacity 0.48)\nControls sharp: Pause build · Inspect worker activity"]
+        s_s3["Stage 3/3 Running · Automated sandbox checks\nPreview: Interactive candidate · Veil: Light translucent mist (blur 3px, opacity 0.22)\nControls sharp: Pause build · Inspect check log"]
+        s_paused["Paused at checkpoint (1, 2, or 3)\nPreview: Frozen at last verified frame · Veil: Static frost border (no drift)\nControls sharp: Resume from checkpoint · Cancel build; keep draft"]
+        s_failed["Needs attention · Sandbox check failed\nPreview: Frozen at failing step + amber callout · Veil: Static matte\nControls sharp: Inspect failure evidence · Retry from checkpoint · Edit spec"]
+        s_ready["Artifact ready for review\nPreview: 100% sharp interactive app / 3D chassis · Veil: Cleared (blur 0px, opacity 0)\nControls sharp: Approve for release · Request changes · Open full preview"]
+    end
+
+    subgraph AlwaysSharp["Layers that NEVER blur in any state"]
+        sharp_nav["Left vertical navigation (System, Work, Apps, Activity) & Org switcher"]
+        sharp_hud["Top run header, fixture replay disclosure, checkpoint rail, Pause/Resume/Cancel buttons"]
+        sharp_insp["Right secondary inspector (Evidence, Worker activity trace, Decision summary)"]
+    end
+
+    s_queued -->|"Builder claims task"| s_s1
+    s_s1 -->|"Checkpoint 1 verified (schema valid)"| s_s2
+    s_s2 -->|"Checkpoint 2 verified (components/geometry compiled)"| s_s3
+    s_s3 -->|"Checkpoint 3 verified (all checks pass)"| s_ready
+
+    %% Pause & resume transitions preserve exact checkpoint
+    s_s1 -->|"Operator clicks Pause build"| s_paused
+    s_s2 -->|"Operator clicks Pause build"| s_paused
+    s_s3 -->|"Operator clicks Pause build"| s_paused
+    s_paused -->|"Resume from checkpoint (restores exact stage 1, 2, or 3)"| s_s2
+
+    %% Failure & recovery transitions
+    s_s1 -->|"Schema or fixture error"| s_failed
+    s_s2 -->|"Build or asset error"| s_failed
+    s_s3 -->|"Verification check fails"| s_failed
+    s_failed -->|"Retry from last verified checkpoint"| s_s2
+    s_failed -->|"Request changes / adjust scope"| s_queued
+
+    %% Review loop
+    s_ready -->|"Request changes (re-applies veil to affected stage only)"| s_s2
+
+    %% Input bindings
+    sched -.->|"Pausing schedule stops future weekly runs; does not kill active build"| s_s1
+    run_mode -.->|"Drives identical checkpoint events; Replay blocks external writes"| s_queued
+    motion_pref -.->|"Reduced motion: replaces drifting smoke shader with discrete step opacity fade"| s_s1

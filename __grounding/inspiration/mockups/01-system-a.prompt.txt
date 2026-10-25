@@ -1,0 +1,28 @@
+High-fidelity product UI mockup: a crisp, pixel-sharp desktop screenshot (no browser chrome, no device frame), 16:9, of a 1440 by 900 pixel viewport rendered at 2K. Warm architectural ash theme in the visual language of Heavy Rain. Space Grotesk display headings, Inter UI controls, JetBrains Mono technical labels, tabular figures for every number, carbon-black primary text #141517, slate secondary text #4A4D55, muted text #737780, warm ash canvas #E2E2E4, dark graphite build chamber #14171C, 1px #C8CAD0 borders, 8px panel radius, 36px tactile buttons with 6px corners, no drop shadows. Flat, precise, calm and mechanical; real product proportions, not a stock SaaS dashboard.
+
+Variant A: an ash topographic control room following the attached reference's sparse perimeter, clicky left vertical navigation and commanding central focus, where the central specimen is a dark smoky build chamber housing the emerging application.
+
+TEXT RULE. Every readable word in the image comes from the double-quoted strings in this prompt. Render each quoted string exactly as written (spelling, capitalization, punctuation, symbols, spacing), once, or twice only where this prompt places it in two named spots. Add no other text anywhere: no extra labels, numbers, scale values, legends, tooltips, logos, wordmarks, badges, placeholder text, lorem ipsum or watermarks. Hex codes, pixel sizes, percentages, section names and the words TEXT RULE, BACKDROP, DIALOG and AVOID are instructions to you and are never drawn. The attached image shows chrome, spacing and type only; none of its words or content appear in the output.
+
+top bar (full width, 64px tall, transparent over the ash canvas, 40px horizontal padding):
+On the left, a flat #141517 mark formed by three parallel diagonal rain strokes above a horizontal base bar, followed by 15px semibold #141517 "Heavy Rain", and a 28px outlined pill (1px #B8BBC2 border, #DADCE0 fill, 12px medium #4A4D55) reading "Rookmere Capital". On the right, a 36px tactile button (1px #141517 border, #E2E2E4 fill, 13px semibold #141517) reading "Pause build".
+
+background canvas (1440 by 900 viewport):
+Matte warm ash #E2E2E4 etched with quiet organic topographic contour lines in #D3D5DA and generous negative space. No blur on the ash background, navigation, or right inspector.
+
+left navigation rail (mid-left at x=48px, vertically centered, 156px wide, directly on the ash topography like the reference):
+Four stacked vertical navigation rows with 18px spacing. First row is active: a sharp 2px #141517 left vertical bar and 15px semibold #141517 "System". Below sit three inactive rows in 15px regular #737780: "Work", "Apps", and "Activity". Below sits a tiny 2-by-10 #9EA2AC dot-matrix ornament.
+
+central build stage (centered horizontally, 660px wide, vertically centered):
+Centered above the chamber, a 12px monospace #4A4D55 eyebrow "Cairn", and 8px beneath it the centered 44px semibold #141517 headline "Portfolio variance".
+Directly below sits the central build chamber: a 660px by 410px viewport with 10px radius, 1.5px #141517 frame, corner crosshair ticks, and deep graphite #14171C interior. Pinned sharply to the chamber's upper-left inside corner is a crisp status pill (#1E242B fill, 1px #2E3742 border, 6px solid mint #10B981 dot, 12px medium #F3F4F6) reading "Building".
+Strictly inside this 660px by 410px chamber and nowhere else, the emerging application preview is veiled in a smoky 16px gaussian blur and soft slate-and-mint #10B981 fog over faint ghost shapes of a multi-column financial variance table and bar waterfall taking shape, with zero readable characters inside.
+
+right worker column (mid-right at x=1140px, vertically centered, 252px wide, directly on the ash canvas):
+Four horizontal worker rows separated by 1px #CFD1D7 hairlines, 52px tall each.
+Row 1: 14px semibold #141517 "Builder" left; 6px solid #10B981 dot and 12px monospace #141517 "Running" right.
+Row 2: 14px medium #4A4D55 "Connector" left; 6px solid #4A4D55 dot and 12px monospace #4A4D55 "Completed" right.
+Row 3: 14px medium #4A4D55 "Researcher" left; 6px solid #4A4D55 dot and 12px monospace #4A4D55 "Completed" right.
+Row 4: 14px regular #737780 "Notifier" left; 6px hollow #737780 ring and 12px monospace #737780 "Queued" right.
+
+AVOID: sparkles, stars, robots, brains, chat bubbles, stock photos, people, helmets, military gear, weapons, neon glow, purple gradients, bokeh, emoji, fabricated completion percentages, browser frames, device frames, or any text not quoted above.

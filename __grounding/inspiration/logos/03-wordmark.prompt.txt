@@ -1,0 +1,11 @@
+Flat 2D vector brand identity sheet on a 16:9 landscape artboard (1600 by 1000 pixels at 2K). Monochrome deep charcoal ink #141517 on a matte pale ash surface #E2E2E4 with generous open negative space. No 3D mockup, no paper texture, no drop shadows, no gradients.
+
+Direction 03 — Wider architectural wordmark with tiny round rain-signal instrument mark:
+At the optical center of the artboard sits a calm, wider architectural uppercase wordmark reading "HEAVY RAIN" in solid matte charcoal #141517. The geometric grotesk letterforms use balanced proportions, crisp vertical strokes, high horizontal crossbars on H and E, and deliberate architectural tracking (+0.08em) that gives each character clean breathing room on the pale ash field. Positioned just to the left of the wordmark is a small round instrument mark in #141517: a thin geometric ring bisected by a horizontal datum hairline with three tiny vertical rain-pulse ticks inside the upper half.
+
+Corner usage specimen (bottom-left corner, 48px inset from bottom and left edges):
+A minimal 240px-wide UI perimeter bar specimen under a 1px #C8CAD0 horizontal hairline, showing the tiny round instrument mark and "HEAVY RAIN" wordmark locked up at 13px header scale.
+
+TEXT RULE: Every readable character in the image comes strictly from the quoted string "HEAVY RAIN", rendered once large at center and once small in the bottom-left corner usage specimen. Render no other letters, numbers, words, captions, dimensions, font names, or hex codes anywhere.
+
+AVOID: registered trademark symbols (®), TM or copyright marks, diagonal slash icons, three-bar rain conduits, raindrops, clouds, umbrellas, helmets, military or tactical gear, people, device frames, angled perspective mockups, embossing, or filler slogans.

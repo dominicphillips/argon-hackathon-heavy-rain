@@ -1,0 +1,67 @@
+%% Heavy Rain full UX wireflow (editable source of truth)
+%% Render with: mmdc -i full-flow.mmd -c /Users/dominicphillips/.codex/skills/ux-flow/assets/mermaid-theme.json
+%% Card numbers 01-07 match the 4K overview board (__grounding/inspiration/ux/full-flow.prompt.txt).
+
+flowchart TB
+    subgraph Employee["Employee host client & portal (Rookmere Capital / AUGI)"]
+        c01_draft["01 Employee capture · Outgoing review (Draft)"]
+        c01_saved["01 Employee capture · Saved draft"]
+        c01_receipt["01 Submission receipt · Queued for weekly cutoff"]
+        emp_notify["Release or routing notice · Employee inbox"]
+        org_app["Organization app · Live workspace (Rookmere / AUGI)"]
+    end
+
+    subgraph OperatorWork["Heavy Rain Operator UI · Work & Apps"]
+        c02_triage["02 Work · Weekly run grouping (Active)"]
+        c06_evidence["06 Work · Needs evidence (Needs attention)"]
+        policy_scope["Work · Policy & connector scope check"]
+        c05_apps["05 Apps · Released organization app (Complete)"]
+    end
+
+    subgraph OperatorSystem["Heavy Rain Operator UI · System & Activity"]
+        c03_build["03 System · Sandbox build running (Smoky blur)"]
+        c07_paused["07 System · Build paused or failed (Checkpoint saved)"]
+        act_inspect["Activity · Worker trace & evidence inspector"]
+        c04_ready["04 System · Artifact ready for review (Sharp preview)"]
+    end
+
+    %% Employee capture & consent flow
+    c01_draft -->|"Save draft; keep local edits"| c01_saved
+    c01_saved -->|"Reopen draft; restore fields"| c01_draft
+    c01_draft -->|"Submit work report (exact outgoing payload confirmed)"| c01_receipt
+    c01_receipt -->|"Withdraw or edit before cutoff"| c01_draft
+    c01_receipt -->|"Weekly cutoff (or Replay weekly run in demo)"| c02_triage
+
+    %% Weekly recurrence grouping & three-way triage branch
+    c02_triage -->|"1. Match approved catalog app (no new scope)"| c05_apps
+    c02_triage -->|"2. Missing sample or unclear constraint"| c06_evidence
+    c02_triage -->|"3. New scope needed before build"| policy_scope
+    c02_triage -->|"3a. Start sandbox build (scope already authorized)"| c03_build
+
+    %% Missing evidence loop
+    c06_evidence -->|"Send evidence request to reporting employee"| c01_draft
+    c06_evidence -->|"Defer item to next weekly run; keep others moving"| c02_triage
+
+    %% Policy & connector scope branch
+    policy_scope -->|"Admin approves read-only sandbox scope"| c03_build
+    policy_scope -->|"Decline scope; return to triage with reason"| c02_triage
+
+    %% Sandbox build, smoky blur, pause/fail/resume, and activity inspection
+    c03_build -->|"Inspect worker activity (preserve selected run)"| act_inspect
+    act_inspect -->|"Return to System stage; restore selection"| c03_build
+    c03_build -->|"Pause build (or sandbox check fails)"| c07_paused
+    c07_paused -->|"Resume from last verified checkpoint"| c03_build
+    c07_paused -->|"Cancel build; keep grouped task draft"| c02_triage
+    c03_build -->|"All sandbox checks pass; clear smoky blur"| c04_ready
+
+    %% Release review & deployment verification
+    c04_ready -->|"Request changes; rerun affected stage"| c03_build
+    c04_ready -->|"Save review draft; return to Work list"| c02_triage
+    c04_ready -->|"Approve for release (verified sandbox artifact)"| c05_apps
+
+    %% Post-release notification, app use, and return feedback loop
+    c05_apps -->|"Notifier sends access-checked link"| emp_notify
+    c05_apps -->|"Open organization app"| org_app
+    emp_notify -->|"Open app (access verified)"| org_app
+    org_app -->|"Report issue or suggest change -> 01"| c01_draft
+    c05_apps -->|"Inspect post-release usage & feedback in next cycle"| c02_triage

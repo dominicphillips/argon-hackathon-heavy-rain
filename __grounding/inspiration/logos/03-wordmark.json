@@ -1,0 +1,18 @@
+{
+  "name": "03-wordmark",
+  "operation": "generate",
+  "model": "gemini-3-pro-image-preview",
+  "provider": "google",
+  "aspect": "16:9",
+  "size": "2K",
+  "prompt_file": "03-wordmark.prompt.txt",
+  "source_prompt": "/Users/dominicphillips/heavyrain/__grounding/inspiration/logos/03-wordmark.prompt.txt",
+  "output": "/Users/dominicphillips/heavyrain/__grounding/inspiration/logos/03-wordmark.png",
+  "sha256": "1ccfd9ee7d6ec5fa761af6da6bbaefc26f390eba366217292c2ad9b187f972d3",
+  "elapsed_s": 55,
+  "exit_code": 0,
+  "reference": null,
+  "edit_of": null,
+  "generated_at": "2026-10-25T11:35:46-07:00",
+  "host": "mac-max.local"
+}

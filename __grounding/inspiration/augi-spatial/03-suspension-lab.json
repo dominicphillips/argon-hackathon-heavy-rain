@@ -1,0 +1,18 @@
+{
+  "name": "03-suspension-lab",
+  "operation": "generate",
+  "model": "gemini-3-pro-image-preview",
+  "provider": "google",
+  "aspect": "16:9",
+  "size": "4K",
+  "prompt_file": "03-suspension-lab.prompt.txt",
+  "source_prompt": "/Users/dominicphillips/heavyrain/__grounding/inspiration/augi-spatial/03-suspension-lab.prompt.txt",
+  "output": "/Users/dominicphillips/heavyrain/__grounding/inspiration/augi-spatial/03-suspension-lab.png",
+  "sha256": "0a1ca40fcf64bac0193c9a4d2ee2eadce94e1099dcd73320af7aa2ac2a7e9f11",
+  "elapsed_s": 78,
+  "exit_code": 0,
+  "reference": "/Users/dominicphillips/heavyrain/__grounding/inspiration/references/dribbble/09-tactical-gear-landing-page-anorent.png",
+  "edit_of": null,
+  "generated_at": "2026-10-25T11:48:06-07:00",
+  "host": "mac-max.local"
+}

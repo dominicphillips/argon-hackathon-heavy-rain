@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32" height="32" fill="none" role="img" aria-label="AUGI mark">
+  <title>AUGI</title>
+  <!-- Original geometric mark: chamfered hexagonal spaceframe ring bisecting a horizontal structural axle bar with hub ticks -->
+  <path d="M10 5H22L28 16L22 27H10L4 16L10 5ZM11.8 8L7.4 16L11.8 24H20.2L24.6 16L20.2 8H11.8Z" fill="currentColor" />
+  <rect x="2" y="14.75" width="28" height="2.5" rx="0.75" fill="currentColor" />
+  <rect x="14.75" y="10" width="2.5" height="12" rx="0.75" fill="currentColor" />
+</svg>

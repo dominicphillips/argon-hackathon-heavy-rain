@@ -1,0 +1,18 @@
+{
+  "name": "01-suv-cutaway",
+  "operation": "generate",
+  "model": "gemini-3-pro-image-preview",
+  "provider": "google",
+  "aspect": "16:9",
+  "size": "4K",
+  "prompt_file": "01-suv-cutaway.prompt.txt",
+  "source_prompt": "/Users/dominicphillips/heavyrain/__grounding/inspiration/augi-spatial/01-suv-cutaway.prompt.txt",
+  "output": "/Users/dominicphillips/heavyrain/__grounding/inspiration/augi-spatial/01-suv-cutaway.png",
+  "sha256": "69a9e65a330e2b7fbf7a97925525dabc4a173d78e5bfbb3a07740dee5bbeba2d",
+  "elapsed_s": 69,
+  "exit_code": 0,
+  "reference": "/Users/dominicphillips/heavyrain/__grounding/inspiration/references/dribbble/09-tactical-gear-landing-page-anorent.png",
+  "edit_of": null,
+  "generated_at": "2026-10-25T11:47:57-07:00",
+  "host": "mac-max.local"
+}

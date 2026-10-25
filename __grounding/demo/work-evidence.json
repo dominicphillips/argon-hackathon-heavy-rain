@@ -1,0 +1,1180 @@
+{
+  "fixture_metadata": {
+    "dataset_id": "fixture_weekly_work_evidence_2026_10_25",
+    "schema_version": "1.0.0",
+    "created_at": "2026-10-25T11:52:00Z",
+    "synthetic_provenance_notice": "All assistant chat excerpts, MCP work reports, local hook manifests, attachment digests, financial figures, and 3D engineering calculations in this file are synthetic demonstration fixtures created for Heavy Rain. They do not represent private employee communications, real automaker or private equity records, undisclosed host vendor integrations, certified finite-element analysis (FEA), or measured production time savings.",
+    "mcp_privacy_invariant": "Model Context Protocol (MCP) hosts (Claude, Gemini, ChatGPT) retain full conversation history. Heavy Rain receives only employee-selected excerpts, approved schema attachments, or policy-scoped local hook summaries after the employee inspects and confirms the exact outgoing manifest."
+  },
+  "reusable_derivation_chain_schema": {
+    "ordered_stages": [
+      "1_user_value_pattern_across_weeks",
+      "2_recurring_manual_workflow_and_excerpts",
+      "3_outgoing_manifest_review_and_redaction",
+      "4_clustering_cue_and_existing_catalog_search",
+      "5_reuse_gap_and_counterevidence",
+      "6_minimal_app_capabilities_and_evidence_mapping",
+      "7_reusable_packages_and_3d_tools_with_roadmap_status",
+      "8_testable_acceptance_and_release_feedback_loop"
+    ],
+    "prohibited_claims": [
+      "Never claim passive or invisible scraping of host assistant chat history.",
+      "Never derive an application from a single unrepeated prompt without multi-week recurrence evidence.",
+      "Never fabricate production deployment metrics, hours saved, or certified FEA/crashworthiness results.",
+      "Always distinguish implemented prototype features from exploratory mockup/roadmap proposals."
+    ]
+  },
+  "examples": [
+    {
+      "example_id": "ex_rm_01",
+      "organization_id": "org_rookmere",
+      "organization_name": "Rookmere Capital",
+      "pattern_id": "pat_rm_01",
+      "weekly_batch_id": "batch_rm_2026_w43",
+      "title": "Monthly Portfolio Budget-vs-Actual Variance & Covenant Normalization",
+      "disposition": "build_in_sandbox",
+      "target_app_id": "app_rm_variance_workbench",
+      "target_app_name": "Rookmere Portfolio Variance Workbench",
+      "user_value_pattern": "Between business days 5 and 10 of every monthly close, Investment Team principals, Operating Partners, and Fund Controllers independently prompt assistants to map heterogeneous ERP exports into Rookmere's standard P&L bridge, separate SEK/NOK/GBP FX translation effects from operational volume/price variance, and check maintenance leverage covenant headroom across 8 portfolio companies.",
+      "user_intent": "Produce a consistent, auditable monthly EBITDA, revenue, and net-leverage bridge across RIG-III (EUR 480m) and RIG-IV (EUR 720m) portfolio companies before the Monday Investment Committee review without re-prompting account mappings and FX formulas in chat.",
+      "dated_weekly_excerpts": [
+        {
+          "excerpt_id": "xcp_rm_01_w39",
+          "week_label": "2026-W39 (August Close)",
+          "captured_at": "2026-09-24T15:42:10Z",
+          "employee_id": "emp_rm_02",
+          "employee_name": "Lukas Weber",
+          "employee_role": "Principal, DACH Investments (role_deal_team)",
+          "assistant_host": "Claude Desktop",
+          "capture_mechanism": "employee_selected_excerpt_via_mcp_tool",
+          "mcp_tool": "heavyrain_submit_work_report",
+          "synthetic_chat_excerpt": {
+            "user_turn": "Here is the semicolon-delimited German HGB trial balance export for Kelvion Flow Systems GmbH (accounts 4000-4999 revenue, 5000-5999 material cost). Map it to the RIG-III board P&L lines and explain why EBITDA missed budget by EUR 190k.",
+            "assistant_turn_summary": "Generated a one-off Python mapping script; initially misclassified HGB account 5420 (external stainless-steel casting scrap) under SG&A instead of COGS until corrected manually by Lukas Weber."
+          },
+          "repeated_manual_steps": [
+            "Re-uploading the 68-row HGB-to-RIG-III account mapping table into a fresh chat context.",
+            "Manually checking sign inversions on German HGB credit balances.",
+            "Re-typing the 3.75x net leverage covenant limit for Kelvion Flow Systems."
+          ]
+        },
+        {
+          "excerpt_id": "xcp_rm_01_w43a",
+          "week_label": "2026-W43 (September Close)",
+          "captured_at": "2026-10-21T16:14:22Z",
+          "employee_id": "emp_rm_02",
+          "employee_name": "Lukas Weber",
+          "employee_role": "Principal, DACH Investments (role_deal_team)",
+          "assistant_host": "Claude Desktop",
+          "capture_mechanism": "employee_selected_excerpt_via_mcp_tool",
+          "mcp_tool": "heavyrain_submit_work_report",
+          "evidence_report_id": "rep_rm_20261021_001",
+          "receipt_id": "rcpt_rm_8841a",
+          "synthetic_chat_excerpt": {
+            "user_turn": "Same monthly task for Kelvion Flow Systems September close: HGB trial balance CSV attached. Revenue is EUR 6,420k vs EUR 6,850k budget (-EUR 430k from two delayed chemical-plant valve skids), EBITDA is EUR 1,180k vs EUR 1,410k budget, and stainless casting scrap rose 140 bps. Re-run the RIG-III bridge and check net leverage on EUR 41.2m net debt / EUR 13.1m LTM EBITDA.",
+            "assistant_turn_summary": "Produced the September variance table and calculated 3.15x net leverage (0.60x headroom below the 3.75x covenant), requiring manual re-attachment of rig_iii_standard_pnl_mapping.json."
+          },
+          "repeated_manual_steps": [
+            "Re-attaching rig_iii_standard_pnl_mapping.json for the fourth consecutive month.",
+            "Manually reconciling skid-commissioning timing commentary against trial balance deltas."
+          ]
+        },
+        {
+          "excerpt_id": "xcp_rm_01_w43b",
+          "week_label": "2026-W43 (September Close)",
+          "captured_at": "2026-10-22T11:05:09Z",
+          "employee_id": "emp_rm_08",
+          "employee_name": "Nina Kovacs",
+          "employee_role": "Senior Fund Controller (role_fund_finance)",
+          "assistant_host": "ChatGPT Enterprise",
+          "capture_mechanism": "employee_selected_excerpt_via_mcp_tool",
+          "mcp_tool": "heavyrain_submit_work_report",
+          "evidence_report_id": "rep_rm_20261022_002",
+          "receipt_id": "rcpt_rm_8849c",
+          "synthetic_chat_excerpt": {
+            "user_turn": "Convert September management accounts for Varn Precision Optics AB (SEK budget 11.20, actual 11.48) and Nordic ColdChain Logistics AS (NOK budget 11.50, actual 11.79) into EUR. Separate constant-currency operational EBITDA variance from FX translation and check Nordic ColdChain's net debt (EUR 39.8m) against LTM EBITDA (EUR 11.05m) and its 3.75x covenant.",
+            "assistant_turn_summary": "Computed Varn Optics constant-currency revenue beat (+7.8%) with -EUR 33k SEK translation drag on EBITDA, and flagged Nordic ColdChain at 3.60x net leverage (within 0.15x of its 3.75x maintenance covenant)."
+          },
+          "repeated_manual_steps": [
+            "Manually entering budget vs actual ECB closing FX rates for SEK, NOK, and GBP each month.",
+            "Verifying that the assistant applies budget FX to the operational bridge and isolates the cross-term FX effect consistently."
+          ]
+        },
+        {
+          "excerpt_id": "xcp_rm_01_w43c",
+          "week_label": "2026-W43 (September Close)",
+          "captured_at": "2026-10-22T14:48:31Z",
+          "employee_id": "emp_rm_07",
+          "employee_name": "Gareth Jenkins",
+          "employee_role": "Head of Fund Finance & Valuation (role_fund_finance)",
+          "assistant_host": "Gemini Workspace",
+          "capture_mechanism": "policy_scoped_export_hook_with_user_review",
+          "mcp_tool": "heavyrain_submit_work_report",
+          "evidence_report_id": "rep_rm_20261022_003",
+          "receipt_id": "rcpt_rm_8854d",
+          "synthetic_chat_excerpt": {
+            "user_turn": "Merge the September variance outputs from Lukas (Kelvion, Ostmark), Nina (Varn, Nordic ColdChain), and Clara (Solvay Grid, Brenthal) into our standard 12-column Monday Partner IC summary table, sorted by covenant headroom.",
+            "assistant_turn_summary": "Combined four separate assistant exports into one table, requiring manual column-header alignment because each deal team prompt used slightly different FX variance column labels."
+          },
+          "repeated_manual_steps": [
+            "Re-normalizing column names across deal-team and finance chat exports every month.",
+            "Manually re-computing covenant headroom badges for the Monday IC deck."
+          ]
+        }
+      ],
+      "outgoing_manifest_and_provenance": {
+        "employee_inspected_exact_payload": true,
+        "ambient_chat_history_transmitted": false,
+        "redaction_applied": "Portfolio customer contract names and individual employee payroll lines stripped locally before submission; only GL account headers, mapping rules, and aggregate monthly EUR/SEK/NOK figures included.",
+        "data_scope": "portfolio_financials",
+        "schema_version": "rookmere.mcp.report.v1",
+        "approved_attachments": [
+          {
+            "evidence_id": "ev_rm_01_tb_headers",
+            "filename": "kelvion_2026_09_tb_headers.csv",
+            "source_report_id": "rep_rm_20261021_001",
+            "sha256": "8f2a9c41d0e8b71249a01c33d78e1b092341a88c7f12e390b1d2e3f4a5b6c7d8",
+            "fields_exposed": [
+              "hgb_account_code",
+              "account_label",
+              "period_actual_eur",
+              "period_budget_eur"
+            ]
+          },
+          {
+            "evidence_id": "ev_rm_01_pnl_map",
+            "filename": "rig_iii_standard_pnl_mapping.json",
+            "source_report_id": "rep_rm_20261021_001",
+            "sha256": "2c91b4e7f1a09833d21048b7c651e290a1b2c3d4e5f60718293a4b5c6d7e8f90",
+            "fields_exposed": [
+              "source_erp",
+              "account_range",
+              "rookmere_bridge_line",
+              "sign_multiplier"
+            ]
+          },
+          {
+            "evidence_id": "ev_rm_01_fx_spec",
+            "filename": "varn_nordic_fx_bridge_spec.json",
+            "source_report_id": "rep_rm_20261022_002",
+            "sha256": "4d18e2a9c7b65012f3e4d5c6b7a890123456789abcdef0123456789abcdef012",
+            "fields_exposed": [
+              "local_currency",
+              "fx_rate_to_eur_budget",
+              "fx_rate_to_eur_actual",
+              "constant_currency_delta_formula",
+              "fx_translation_impact_formula"
+            ]
+          },
+          {
+            "evidence_id": "ev_rm_01_ic_columns",
+            "filename": "ic_monthly_variance_table_columns.json",
+            "source_report_id": "rep_rm_20261022_003",
+            "sha256": "7a8b9c0d1e2f3a4b5c6d7e8f9a0b1c2d3e4f5a6b7c8d9e0f1a2b3c4d5e6f7a8b",
+            "fields_exposed": [
+              "company_id",
+              "fund_id",
+              "monthly_revenue_actual_eur",
+              "monthly_revenue_budget_eur",
+              "monthly_ebitda_actual_eur",
+              "monthly_ebitda_budget_eur",
+              "net_leverage_ratio",
+              "covenant_max_net_leverage"
+            ]
+          }
+        ]
+      },
+      "clustering_cue": {
+        "orchestrator": "Cairn (google-antigravity 0.1.22, gemini-4-argon, high thinking)",
+        "signals_matched": [
+          "7 reports from 5 distinct staff (emp_rm_02, emp_rm_03, emp_rm_05, emp_rm_07, emp_rm_08) across 3 assistant hosts within the monthly close window.",
+          "Shared output schema targeting ic_monthly_variance_table_columns.json and portfolio_financials scope.",
+          "Repeated transformations: ERP GL account mapping + constant-currency FX decomposition (SEK/NOK/GBP -> EUR) + net_debt/ltm_ebitda covenant headroom check."
+        ]
+      },
+      "catalog_evaluation_and_counterevidence": {
+        "searched_catalog_ids": [
+          "app_rm_kpi_ingest",
+          "app_rm_valuation_bridge",
+          "app_rm_diligence_tracker",
+          "app_rm_expert_call_log"
+        ],
+        "closest_catalog_app_id": "app_rm_kpi_ingest",
+        "closest_catalog_app_name": "Monthly Portfolio KPI Collector v1.1.4",
+        "reuse_gap": "app_rm_kpi_ingest accepts 6 manually typed headline totals from portfolio CFOs; it cannot ingest ERP trial balances, isolate constant-currency vs FX translation variance, or compute maintenance covenant headroom.",
+        "counterevidence_against_staying_in_chat": "In W39, ad-hoc chat prompting misclassified HGB account 5420 (casting scrap) under SG&A and produced inconsistent column headers across deal teams (`rep_rm_20261022_003`).",
+        "scope_decision": "Authorized within existing portfolio_financials read-only fixture scope by Gareth Jenkins (emp_rm_07, role_fund_finance)."
+      },
+      "proposed_ui_features_tied_to_evidence": [
+        {
+          "feature_id": "feat_rm_var_fund_filter",
+          "ui_component": "Fund & Portfolio Filter Bar (@heavy-rain/organization-ui)",
+          "derived_from_evidence_ids": [
+            "ev_rm_01_ic_columns"
+          ],
+          "derived_from_excerpt_ids": [
+            "xcp_rm_01_w43c"
+          ],
+          "behavior": "Filters between All Funds (EUR 1.2bn), RIG-III (EUR 480m), and RIG-IV (EUR 720m) across the 4 detailed and 4 summary portfolio fixtures.",
+          "implementation_status": "implemented_in_prototype"
+        },
+        {
+          "feature_id": "feat_rm_var_fx_bridge",
+          "ui_component": "Constant-Currency vs FX Translation Variance Table",
+          "derived_from_evidence_ids": [
+            "ev_rm_01_tb_headers",
+            "ev_rm_01_pnl_map",
+            "ev_rm_01_fx_spec"
+          ],
+          "derived_from_excerpt_ids": [
+            "xcp_rm_01_w39",
+            "xcp_rm_01_w43a",
+            "xcp_rm_01_w43b"
+          ],
+          "behavior": "Displays Revenue and EBITDA Actual vs Budget in EUR alongside local-currency (SEK 11.48 vs 11.20, NOK 11.79 vs 11.50) operational vs FX translation breakdown.",
+          "implementation_status": "implemented_in_prototype"
+        },
+        {
+          "feature_id": "feat_rm_var_covenant_watch",
+          "ui_component": "Maintenance Covenant Headroom Inspector & Watchlist Callout",
+          "derived_from_evidence_ids": [
+            "ev_rm_01_fx_spec",
+            "ev_rm_01_ic_columns"
+          ],
+          "derived_from_excerpt_ids": [
+            "xcp_rm_01_w43a",
+            "xcp_rm_01_w43b"
+          ],
+          "behavior": "Computes Net Debt / LTM EBITDA against each company's covenant cap and highlights Nordic ColdChain Logistics AS (3.60x vs 3.75x cap, 0.15x headroom) for IC attention.",
+          "implementation_status": "implemented_in_prototype"
+        }
+      ],
+      "verification_and_release_feedback": {
+        "builder_runtime": "antigravity-preview-09-2026 (environment=remote, model=gemini-4-argon, background=True, store=True) simulated deterministically in local prototype",
+        "testable_acceptance_criteria": [
+          "Checkpoint 1 (Schema check): Validates all 4 detailed company fixtures (Kelvion, Varn, Solvay Grid, Nordic ColdChain) and rejects unmapped currency columns (as demonstrated in the GBP/EUR failure recovery scenario).",
+          "Checkpoint 2 (UI assembly): Renders the Rookmere theme (@heavy-rain/organization-ui rookmere-ash-ledger) without importing @heavy-rain/system-ui (verified via npm run check:boundaries).",
+          "Checkpoint 3 (Verification): Reconciles Varn Optics (-EUR 33k FX impact) and Nordic ColdChain (3.60x vs 3.75x covenant) with zero production writes."
+        ],
+        "approvers": [
+          "emp_rm_07 (Gareth Jenkins, Head of Fund Finance & Valuation)",
+          "emp_rm_12 (Marcus Thorne, Head of Technology & Data Operations)"
+        ],
+        "post_release_feedback_loop": "Operating Partner Dr. Stefan Kroll (emp_rm_05) requested adding DSO/DIO/DPO working-capital aging columns (`pat_rm_07`) as a phase-2 extension in the next weekly cutoff."
+      }
+    },
+    {
+      "example_id": "ex_rm_02",
+      "organization_id": "org_rookmere",
+      "organization_name": "Rookmere Capital",
+      "pattern_id": "pat_rm_02",
+      "weekly_batch_id": "batch_rm_2026_w43",
+      "title": "Commercial & Financial Diligence Request List Deduplication",
+      "disposition": "reuse_existing_app",
+      "target_app_id": "app_rm_diligence_tracker",
+      "target_app_name": "Diligence Request List & Q&A Tracker v2.4.1",
+      "user_value_pattern": "Deal associates working on active RIG-IV buyout screens repeatedly paste external advisor Information Request Lists (IRLs) into chat sessions to merge duplicate questions across commercial, financial, and tax workstreams before sending a unified VDR request sheet to seller management.",
+      "user_intent": "Eliminate duplicate VDR document requests and assign seller management owners with aging tracking.",
+      "dated_weekly_excerpts": [
+        {
+          "excerpt_id": "xcp_rm_02_w41",
+          "week_label": "2026-W41",
+          "captured_at": "2026-10-09T18:20:05Z",
+          "employee_id": "emp_rm_03",
+          "employee_name": "Henrik Lindqvist",
+          "employee_role": "Senior Associate, Investment Team (role_deal_team)",
+          "assistant_host": "Claude Desktop",
+          "capture_mechanism": "employee_selected_excerpt_via_mcp_tool",
+          "mcp_tool": "heavyrain_submit_work_report",
+          "synthetic_chat_excerpt": {
+            "user_turn": "Attached are the commercial advisor IRL (82 rows) and financial QoE advisor IRL (94 rows) for Project Alpine. Deduplicate overlapping customer-churn and backlog questions and output a clean CSV with seller owner columns.",
+            "assistant_turn_summary": "Merged 29 overlapping rows into a markdown table, but dropped the advisor priority codes and VDR folder indices."
+          },
+          "repeated_manual_steps": [
+            "Re-formatting advisor XLSX request lists into CSV for chat upload.",
+            "Manually restoring VDR index numbers after assistant deduplication."
+          ]
+        },
+        {
+          "excerpt_id": "xcp_rm_02_w43",
+          "week_label": "2026-W43",
+          "captured_at": "2026-10-23T09:32:18Z",
+          "employee_id": "emp_rm_04",
+          "employee_name": "Maya Patel",
+          "employee_role": "Associate, Investment Team (role_deal_team)",
+          "assistant_host": "Claude Desktop",
+          "capture_mechanism": "employee_selected_excerpt_via_mcp_tool",
+          "mcp_tool": "heavyrain_submit_work_report",
+          "evidence_report_id": "rep_rm_20261023_004",
+          "receipt_id": "rcpt_rm_8862f",
+          "synthetic_chat_excerpt": {
+            "user_turn": "I have 140 financial and commercial diligence questions from two advisor workstreams on the Castel Analytical Instruments add-on screen. Merge duplicates, keep the highest priority flag, and group by seller CFO vs VP Sales.",
+            "assistant_turn_summary": "Grouped 140 questions into 108 unique requests; Maya submitted the schema headers via MCP to ask for a reusable deduplication tool."
+          },
+          "repeated_manual_steps": [
+            "Prompting chat to reconcile overlapping advisor IRL spreadsheets on every new deal screen.",
+            "Manually tracking which seller responses are overdue >5 business days."
+          ]
+        }
+      ],
+      "outgoing_manifest_and_provenance": {
+        "employee_inspected_exact_payload": true,
+        "ambient_chat_history_transmitted": false,
+        "redaction_applied": "Target company codenames and seller executive personal emails stripped; only column header schema irl_column_headers_sample.csv transmitted.",
+        "data_scope": "deal_confidential",
+        "schema_version": "rookmere.mcp.report.v1",
+        "approved_attachments": [
+          {
+            "evidence_id": "ev_rm_02_irl_headers",
+            "filename": "irl_column_headers_sample.csv",
+            "source_report_id": "rep_rm_20261023_004",
+            "sha256": "9e0f1a2b3c4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f9a0b1c2d3e4f5a6b7c8d9e0f",
+            "fields_exposed": [
+              "workstream",
+              "vdr_section_code",
+              "request_text",
+              "priority_tier",
+              "seller_owner_role",
+              "days_open"
+            ]
+          }
+        ]
+      },
+      "clustering_cue": {
+        "orchestrator": "Cairn (google-antigravity 0.1.22, gemini-4-argon, high thinking)",
+        "signals_matched": [
+          "4 reports from 2 deal-team associates (emp_rm_03, emp_rm_04) across Claude Desktop and ChatGPT Enterprise.",
+          "Input schema irl_column_headers_sample.csv matches the VDR IRL importer contract in app_rm_diligence_tracker."
+        ]
+      },
+      "catalog_evaluation_and_counterevidence": {
+        "searched_catalog_ids": [
+          "app_rm_diligence_tracker",
+          "app_rm_expert_call_log"
+        ],
+        "closest_catalog_app_id": "app_rm_diligence_tracker",
+        "closest_catalog_app_name": "Diligence Request List & Q&A Tracker v2.4.1",
+        "reuse_gap": "None. app_rm_diligence_tracker v2.4.1 already supports multi-advisor XLSX/CSV ingestion, question deduplication, seller owner routing, and response aging.",
+        "counterevidence_against_new_build": "Commissioning a sandbox Builder would duplicate an approved catalog application owned by Lukas Weber (emp_rm_02) and waste sandbox token budget.",
+        "scope_decision": "Both emp_rm_03 and emp_rm_04 already hold role_deal_team with deal_confidential permission. Direct routing requires zero additional approval gates."
+      },
+      "proposed_ui_features_tied_to_evidence": [
+        {
+          "feature_id": "feat_rm_diligence_direct_route",
+          "ui_component": "Direct Catalog Match Routing Action (apps/system Work & Apps views)",
+          "derived_from_evidence_ids": [
+            "ev_rm_02_irl_headers"
+          ],
+          "derived_from_excerpt_ids": [
+            "xcp_rm_02_w41",
+            "xcp_rm_02_w43"
+          ],
+          "behavior": "Displays badge 'Existing app match · No new scope required' and triggers Notifier to send an access-checked deep link to app_rm_diligence_tracker with a pre-mapped IRL CSV template.",
+          "implementation_status": "implemented_in_prototype"
+        }
+      ],
+      "verification_and_release_feedback": {
+        "builder_runtime": "Not invoked (Catalog reuse path bypasses sandbox build).",
+        "testable_acceptance_criteria": [
+          "Clicking 'Route to existing app' on pat_rm_02 transitions cluster status to 'Routed to approved app' without opening a sandbox build stage.",
+          "Activity log records Notifier delivery to emp_rm_03 and emp_rm_04 referencing app_rm_diligence_tracker v2.4.1."
+        ],
+        "approvers": [
+          "Pre-authorized under existing role_deal_team scope (no redundant operator gate)"
+        ],
+        "post_release_feedback_loop": "Associates opened app_rm_diligence_tracker directly via the notification link; future IRL submissions use the built-in CSV importer."
+      }
+    },
+    {
+      "example_id": "ex_rm_03",
+      "organization_id": "org_rookmere",
+      "organization_name": "Rookmere Capital",
+      "pattern_id": "pat_rm_03",
+      "weekly_batch_id": "batch_rm_2026_w43",
+      "title": "LP Side-Letter MFN & Co-Invest Allocation Obligation Matrix",
+      "disposition": "request_missing_evidence",
+      "target_app_id": null,
+      "target_app_name": "Proposed LP Side-Letter Obligation Checker (Held Pending Legal Schema)",
+      "user_value_pattern": "Before every portfolio follow-on equity tranche or co-investment offer, Investor Relations and Compliance staff review RIG-III and RIG-IV LP side-letter clauses to verify right-of-first-offer (ROFO) notice windows, Most-Favored-Nation (MFN) fee tiers, and ESG sector exclusions.",
+      "user_intent": "Verify all LP side-letter notice windows and fee/exclusion covenants before issuing co-investment allocation notices without exposing restricted LP legal identities in general chat tools.",
+      "dated_weekly_excerpts": [
+        {
+          "excerpt_id": "xcp_rm_03_w41",
+          "week_label": "2026-W41",
+          "captured_at": "2026-10-08T14:11:30Z",
+          "employee_id": "emp_rm_10",
+          "employee_name": "Jonas Bergmann",
+          "employee_role": "Investor Relations Manager (role_investor_relations)",
+          "assistant_host": "Gemini Workspace",
+          "capture_mechanism": "employee_selected_excerpt_via_mcp_tool",
+          "mcp_tool": "heavyrain_submit_work_report",
+          "synthetic_chat_excerpt": {
+            "user_turn": "I paraphrased 14 anonymized LP side-letter co-investment clauses from RIG-IV below. Group them by required notice business days (3 days, 5 days, 10 days) and commitment size threshold.",
+            "assistant_turn_summary": "Produced a summary table from the paraphrased text, but Jonas noted that manual paraphrasing of 38 LP side letters per fund is error-prone."
+          },
+          "repeated_manual_steps": [
+            "Manually paraphrasing side-letter clauses to avoid pasting restricted LP names into chat.",
+            "Cross-checking MFN commitment tiers against fund closing schedules by hand."
+          ]
+        },
+        {
+          "excerpt_id": "xcp_rm_03_w43a",
+          "week_label": "2026-W43",
+          "captured_at": "2026-10-23T17:19:44Z",
+          "employee_id": "emp_rm_09",
+          "employee_name": "Sophie Albers",
+          "employee_role": "Director of Investor Relations (role_investor_relations)",
+          "assistant_host": "Claude Desktop",
+          "capture_mechanism": "employee_selected_excerpt_via_mcp_tool",
+          "mcp_tool": "heavyrain_submit_work_report",
+          "evidence_report_id": "rep_rm_20261023_005",
+          "receipt_id": "rcpt_rm_8870b",
+          "synthetic_chat_excerpt": {
+            "user_turn": "We are allocating the EUR 12m Solvay Grid Controls follow-on co-investment tranche next week. Which RIG-IV LPs require a <5 business-day ROFO notice or hold grid/defense telemetry ESG opt-out clauses?",
+            "assistant_turn_summary": "Could not verify completeness because raw side-letter schedules are restricted under lp_restricted_side_letters; Sophie submitted an MCP work report requesting an approved obligation matrix tool."
+          },
+          "repeated_manual_steps": [
+            "Manually reviewing PDF side-letter binders with Legal before every follow-on allocation.",
+            "Withholding attachments at MCP submission time because unredacted side letters require General Counsel clearance."
+          ]
+        },
+        {
+          "excerpt_id": "xcp_rm_03_w43b",
+          "week_label": "2026-W43",
+          "captured_at": "2026-10-24T10:04:12Z",
+          "employee_id": "emp_rm_11",
+          "employee_name": "Evelyn Shaw",
+          "employee_role": "General Counsel & Chief Compliance Officer (role_compliance)",
+          "assistant_host": "Claude Desktop",
+          "capture_mechanism": "employee_selected_excerpt_via_mcp_tool",
+          "mcp_tool": "heavyrain_submit_work_report",
+          "synthetic_chat_excerpt": {
+            "user_turn": "Draft a checklist of the 6 standard side-letter obligation categories (MFN fee tier, co-invest ROFO window, advisory committee seat, ESG exclusion list, excuse right, custom tax reporting) for RIG-III and RIG-IV.",
+            "assistant_turn_summary": "Drafted prose category descriptions, but no structured JSON Schema or redacted sample schedule was attached to the MCP report."
+          },
+          "repeated_manual_steps": [
+            "Answering repetitive ad-hoc IR slack/email queries on side-letter notice periods."
+          ]
+        }
+      ],
+      "outgoing_manifest_and_provenance": {
+        "employee_inspected_exact_payload": true,
+        "ambient_chat_history_transmitted": false,
+        "redaction_applied": "Client MCP policy blocked LP_tracker_macro.xlsm (macro-enabled workbook outside policy) and prevented attachment of unredacted LP side-letter PDFs under lp_restricted_side_letters.",
+        "data_scope": "lp_summary_commitments (requesting elevation to lp_restricted_side_letters)",
+        "schema_version": "rookmere.mcp.report.v1",
+        "approved_attachments": [],
+        "missing_evidence_specification": {
+          "missing_evidence_id": "ev_rm_03_missing_redacted_schema",
+          "required_from_employee_id": "emp_rm_11",
+          "required_role": "role_compliance",
+          "required_artifact": "Anonymized LP obligation schedule (.xlsx or .csv without macros) and JSON Schema defining clause_type, notice_business_days, commitment_threshold_eur, and esg_exclusion_codes."
+        }
+      },
+      "clustering_cue": {
+        "orchestrator": "Cairn (google-antigravity 0.1.22, gemini-4-argon, high thinking)",
+        "signals_matched": [
+          "3 reports from 3 staff across IR and Compliance (emp_rm_09, emp_rm_10, emp_rm_11).",
+          "Shared task topic: RIG-III/RIG-IV LP side-letter MFN, ROFO notice window, and ESG exclusion checks.",
+          "Zero approved schema attachments (`attached_evidence_artifacts: []`) and restricted scope boundary (`lp_restricted_side_letters`)."
+        ]
+      },
+      "catalog_evaluation_and_counterevidence": {
+        "searched_catalog_ids": [
+          "app_rm_expert_call_log",
+          "app_rm_diligence_tracker",
+          "app_rm_valuation_bridge",
+          "app_rm_kpi_ingest"
+        ],
+        "closest_catalog_app_id": "app_rm_expert_call_log",
+        "closest_catalog_app_name": "Compliance Expert Network Call Register v1.3.2",
+        "reuse_gap": "app_rm_expert_call_log tracks expert network MNPI cooling-off rules only and has no LP fund formation or side-letter schema.",
+        "counterevidence_against_immediate_build": "Commissioning a sandbox Builder without an approved, redacted obligation schema would force the Builder to guess legal clause fields and violate the lp_restricted_side_letters consent gate.",
+        "scope_decision": "Hold build (`request_missing_evidence`). Queue targeted request to Evelyn Shaw (emp_rm_11) while allowing pat_rm_01 and pat_rm_02 in the same W43 batch to proceed unblocked."
+      },
+      "proposed_ui_features_tied_to_evidence": [
+        {
+          "feature_id": "feat_rm_missing_evidence_card",
+          "ui_component": "Needs Evidence Recovery Card & Request Action (apps/system Work view)",
+          "derived_from_evidence_ids": [
+            "ev_rm_03_missing_redacted_schema"
+          ],
+          "derived_from_excerpt_ids": [
+            "xcp_rm_03_w41",
+            "xcp_rm_03_w43a",
+            "xcp_rm_03_w43b"
+          ],
+          "behavior": "Shows exact missing artifact ('Needs 1 redacted sample obligation schedule from Legal') and provides 'Send evidence request' and 'Defer to next weekly run' actions without blocking other weekly clusters.",
+          "implementation_status": "implemented_in_prototype"
+        }
+      ],
+      "verification_and_release_feedback": {
+        "builder_runtime": "Blocked prior to sandbox dispatch (0 builder tokens spent).",
+        "testable_acceptance_criteria": [
+          "Clicking 'Request missing evidence' transitions pat_rm_03 to 'Needs evidence · Request sent to Legal' while pat_rm_01 ('Portfolio variance report') continues building in System.",
+          "Macro attachment error state ('LP_tracker_macro.xlsm') names the exact file constraint and advises exporting a plain .xlsx or .csv file."
+        ],
+        "approvers": [
+          "emp_rm_11 (Evelyn Shaw, General Counsel & CCO — pending schema attachment)"
+        ],
+        "post_release_feedback_loop": "Once Evelyn Shaw attaches the anonymized obligation schedule in W44, pat_rm_03 re-enters weekly triage with verified schema evidence."
+      }
+    },
+    {
+      "example_id": "ex_augi_01",
+      "organization_id": "org_augi",
+      "organization_name": "AUGI",
+      "pattern_id": "wf_augi_01",
+      "weekly_batch_id": "batch_augi_2026_w43",
+      "title": "AUGI Sable Parametric Chassis Dimension, Gauge & Material Comparison",
+      "disposition": "build_in_sandbox",
+      "target_app_id": "app_augi_sable_chassis_3d",
+      "target_app_name": "AUGI Sable 3D Chassis Architecture Comparator",
+      "user_value_pattern": "Leading up to Concept Architecture Freeze (Gate C2) for the 800V AUGI Sable SUV, Body-in-White (BIW) architects, extrusion engineers, and mass analysts repeatedly prompt assistants to re-evaluate closed-box beam/torsion equations and structural mass deltas whenever wheelbase, track width, sill wall gauge, or alloy selections change across the three candidate skateboard architectures (SABLE-A, SABLE-B, SABLE-C).",
+      "user_intent": "Interactively sweep wheelbase (2920-3160 mm), front/rear track (1640-1750 mm), rocker wall gauge (2.2-4.5 mm), and structural material options in a real 3D browser viewport while comparing SABLE-A, SABLE-B, and SABLE-C side-by-side.",
+      "dated_weekly_excerpts": [
+        {
+          "excerpt_id": "xcp_augi_01_w41",
+          "week_label": "2026-W41",
+          "captured_at": "2026-10-07T10:18:40Z",
+          "employee_id": "emp_augi_01",
+          "employee_name": "Lukas Lindner",
+          "employee_role": "Lead Chassis & BIW Architect, AUGI Sable (role_biw_structures)",
+          "assistant_host": "Claude Desktop",
+          "capture_mechanism": "employee_selected_excerpt_via_mcp_tool",
+          "mcp_tool": "heavyrain_submit_work_report",
+          "synthetic_chat_excerpt": {
+            "user_turn": "Using our Bredt-Batho closed-section torsion approximation for the AUGI Sable skateboard, compare SABLE-A (modular 6082-T6 extrusion + bolt-in pack, 3040 mm wheelbase, 1690/1700 mm track, 3.2 mm wall) against SABLE-B (Cell-to-Body 82% pack shear coupling + 22MnB5 boron torque rings, 3.0 mm wall). What happens if we stretch wheelbase to 3120 mm?",
+            "assistant_turn_summary": "Computed SABLE-A at 384 kg and 34.2 kN·m/deg vs SABLE-B at 356 kg and 44.6 kN·m/deg at 3040 mm, and showed a -2.2% stiffness dip at 3120 mm—as a static text table with no 3D spatial overlay."
+          },
+          "repeated_manual_steps": [
+            "Pasting the 3-configuration section-property JSON block into chat every time packaging changes wheelbase or track by 10-20 mm.",
+            "Mentally translating 1D tabular stiffness deltas onto 3D sill and crossmember geometry."
+          ]
+        },
+        {
+          "excerpt_id": "xcp_augi_01_w42",
+          "week_label": "2026-W42",
+          "captured_at": "2026-10-14T16:05:19Z",
+          "employee_id": "emp_augi_05",
+          "employee_name": "Kenji Takahashi",
+          "employee_role": "Senior Sill Extrusion & Underbody Load-Path Engineer (role_biw_structures)",
+          "assistant_host": "Claude Desktop",
+          "capture_mechanism": "employee_selected_excerpt_via_mcp_tool",
+          "mcp_tool": "heavyrain_submit_work_report",
+          "synthetic_chat_excerpt": {
+            "user_turn": "Sweep the 6-chamber AA 6082-T6 rocker extrusion wall gauge from 2.2 mm to 4.5 mm in 0.2 mm steps on SABLE-B (195x135 mm section) and SABLE-C (200x135 mm section with AlSi7Mg C611 megacastings). Plot structural mass (kg) vs torsional stiffness (kN·m/deg).",
+            "assistant_turn_summary": "Generated a static CSV table for the 12 gauge steps; Kenji had to re-run the prompt when Vehicle Dynamics asked to widen rear track from 1700 mm to 1720 mm."
+          },
+          "repeated_manual_steps": [
+            "Re-running whole chat scripts whenever a single parameter (wall gauge or rear track) is adjusted during design reviews."
+          ]
+        },
+        {
+          "excerpt_id": "xcp_augi_01_w43",
+          "week_label": "2026-W43",
+          "captured_at": "2026-10-21T09:40:55Z",
+          "employee_id": "emp_augi_06",
+          "employee_name": "Claire Dubois",
+          "employee_role": "BIW Mass Properties & BoM Architecture Analyst (role_materials_joining)",
+          "assistant_host": "ChatGPT Enterprise",
+          "capture_mechanism": "employee_selected_excerpt_via_mcp_tool",
+          "mcp_tool": "heavyrain_submit_work_report",
+          "receipt_id": "rcpt_augi_9102a",
+          "synthetic_chat_excerpt": {
+            "user_turn": "Reconcile the lower-chassis part count, SPR count, structural adhesive length, and CoG Z-height across SABLE-A (142 parts, 384 kg, Z=248 mm), SABLE-B (86 parts, 356 kg, Z=234 mm), and SABLE-C (31 parts, 338 kg, Z=229 mm) for the Gate C2 architecture deck.",
+            "assistant_turn_summary": "Formatted a comparison table; Claire submitted the parametric envelope and mass-scaling equations via MCP so teams could inspect the 3D geometry and mass/stiffness tradeoffs in one shared tool."
+          },
+          "repeated_manual_steps": [
+            "Manually synchronizing spreadsheet mass rollups with BIW stiffness scripts after each geometry tweak."
+          ]
+        }
+      ],
+      "outgoing_manifest_and_provenance": {
+        "employee_inspected_exact_payload": true,
+        "ambient_chat_history_transmitted": false,
+        "redaction_applied": "Native CATIA/NX solid CAD files remained on Munich/Gothenburg workstations per cad_ip_boundary policy; only parametric section envelopes, nominal dimensions, and material card constants were transmitted.",
+        "data_scope": "sable_parametric_geometry, material_cards, bom_mass_targets",
+        "schema_version": "augi.mcp.report.v1",
+        "approved_attachments": [
+          {
+            "evidence_id": "ev_augi_01_param_envelope",
+            "filename": "sable_gate_c2_parametric_envelopes.json",
+            "source_report_id": "rcpt_augi_9102a",
+            "sha256": "1a2b3c4d5e6f708192a3b4c5d6e7f8091a2b3c4d5e6f708192a3b4c5d6e7f809",
+            "fields_exposed": [
+              "config_id",
+              "wheelbase_mm",
+              "front_track_mm",
+              "rear_track_mm",
+              "sill_section_height_mm",
+              "sill_section_width_mm",
+              "nominal_wall_gauge_mm",
+              "lower_chassis_part_count",
+              "lower_chassis_structural_mass_kg",
+              "center_of_gravity_z_mm"
+            ]
+          },
+          {
+            "evidence_id": "ev_augi_01_material_cards",
+            "filename": "sable_structural_material_cards.json",
+            "source_report_id": "rcpt_augi_9102a",
+            "sha256": "3c4d5e6f708192a3b4c5d6e7f8091a2b3c4d5e6f708192a3b4c5d6e7f8091a2b",
+            "fields_exposed": [
+              "material_id",
+              "youngs_modulus_gpa",
+              "shear_modulus_gpa",
+              "density_kg_m3",
+              "yield_strength_mpa"
+            ]
+          }
+        ]
+      },
+      "clustering_cue": {
+        "orchestrator": "Cairn (google-antigravity 0.1.22, gemini-4-argon, high thinking)",
+        "signals_matched": [
+          "Part of 9 weekly reports from 6 distinct engineers (emp_augi_01..05, emp_augi_07) referencing prog_augi_sable and Gate C2 chassis tradeoffs.",
+          "Identical parametric axes (wheelbase_mm 2920-3160, track_mm 1640-1750, rocker_wall_gauge_mm 2.2-4.5) and analytical Bredt-Batho / Euler-Bernoulli scaling formulas."
+        ]
+      },
+      "catalog_evaluation_and_counterevidence": {
+        "searched_catalog_ids": [
+          "app_augi_bom_mass_ledger",
+          "app_augi_fastener_weld_matrix",
+          "app_augi_pack_thermal_clearance"
+        ],
+        "closest_catalog_app_id": "app_augi_bom_mass_ledger",
+        "closest_catalog_app_name": "Sable Subsystem Mass & Center-of-Gravity Ledger v3.1.0",
+        "reuse_gap": "app_augi_bom_mass_ledger tracks static tabular part masses only; it has no interactive 3D WebGL geometry, no parametric dimension/gauge sliders, and no torsional/bending stiffness calculations.",
+        "counterevidence_against_staying_in_chat": "Static chat tables cannot show spatial 3D proportion changes (wheelbase stretch, track widening, sill gauge thickening) or maintain synchronized Baseline vs Candidate comparisons during live Gate C2 engineering reviews.",
+        "scope_decision": "Authorized for sandbox build by Lukas Lindner (emp_augi_01, role_biw_structures) and Devendra Rao (emp_augi_08, role_engineering_it)."
+      },
+      "proposed_ui_features_tied_to_evidence": [
+        {
+          "feature_id": "feat_augi_3d_viewport_nav",
+          "ui_component": "Interactive 3D Chassis Viewport & 6 Camera Presets (@heavy-rain/organization-3d)",
+          "derived_from_evidence_ids": [
+            "ev_augi_01_param_envelope"
+          ],
+          "derived_from_excerpt_ids": [
+            "xcp_augi_01_w41"
+          ],
+          "behavior": "Real-time Three.js / WebGL procedural chassis mesh with Orbit, Pan, Zoom, Tilt, Reset View, and 6 one-click presets (Isometric, Side profile, Top plan, Front bay, Underbody, Reset view).",
+          "implementation_status": "implemented_in_prototype"
+        },
+        {
+          "feature_id": "feat_augi_parametric_sliders",
+          "ui_component": "Parametric Geometry & Material Control Dock (@heavy-rain/organization-ui)",
+          "derived_from_evidence_ids": [
+            "ev_augi_01_param_envelope",
+            "ev_augi_01_material_cards"
+          ],
+          "derived_from_excerpt_ids": [
+            "xcp_augi_01_w41",
+            "xcp_augi_01_w42"
+          ],
+          "behavior": "Sliders and validated numeric inputs for Wheelbase, Track width, Wall gauge, and Material alloy with out-of-range recovery.",
+          "implementation_status": "implemented_in_prototype"
+        },
+        {
+          "feature_id": "feat_augi_config_compare_overlay",
+          "ui_component": "Baseline vs Candidate 3D Wireframe Overlay & Delta Table",
+          "derived_from_evidence_ids": [
+            "ev_augi_01_param_envelope"
+          ],
+          "derived_from_excerpt_ids": [
+            "xcp_augi_01_w41",
+            "xcp_augi_01_w43"
+          ],
+          "behavior": "Compares SABLE-A, SABLE-B, and SABLE-C (or custom candidate edits) side-by-side in the right dock and overlays a ghost reference wireframe in 3D space.",
+          "implementation_status": "implemented_in_prototype"
+        }
+      ],
+      "reusable_tools_and_components_requested": [
+        {
+          "tool_id": "tool_org3d_viewport_camera",
+          "package": "packages/organization-3d",
+          "capability": "3D WebGL renderer, coordinate triad, ground grid, orbit/pan/zoom/tilt navigation, and keyboard camera controls",
+          "status": "implemented_in_prototype"
+        },
+        {
+          "tool_id": "tool_org3d_measurement_overlay",
+          "package": "packages/organization-3d",
+          "capability": "Spatial dimension callouts (wheelbase, track width, CoG Z-height) and ghost wireframe comparison overlay",
+          "status": "implemented_in_prototype"
+        }
+      ],
+      "approximate_engineering_data_and_provenance": {
+        "source_fixture": "__grounding/demo/augi.json",
+        "analytical_equations": "M_total scaled linearly with component envelope lengths, wall gauge (t/t_nom), and alloy density (rho/rho_nom); K_t = K_t0 * (G/G_nom) * (t/t_nom)^1.15 * (W_track/W_nom)^1.4 * (L_nom/L_wheelbase)^0.85 * C_pack_coupling.",
+        "inline_limitation_notice": "Concept beam-and-shell approximation (units: mm, kg, kN·m/deg). Analytical scaling for architecture comparison only—not a finite-element solver, physical rig test, or crashworthiness certification."
+      },
+      "verification_and_release_feedback": {
+        "builder_runtime": "antigravity-preview-09-2026 (environment=remote, model=gemini-4-argon, background=True, store=True) simulated deterministically in local prototype; local workspace verified via npm run test and npm run build.",
+        "testable_acceptance_criteria": [
+          "Unit tests in apps/augi-engineering/src/model/chassisModel.test.ts verify directional monotonicity of mass, torsional stiffness, and bending deflection across parameter sweeps.",
+          "UI boundary check (npm run check:boundaries) confirms zero imports from @heavy-rain/system-ui.",
+          "Out-of-bounds numeric input (e.g., 3900 mm wheelbase) preserves the last valid 3D mesh while displaying a specific recovery message."
+        ],
+        "approvers": [
+          "emp_augi_01 (Lukas Lindner, Lead Chassis & BIW Architect)",
+          "emp_augi_08 (Devendra Rao, Head of Engineering Tooling & Sandbox Operations)"
+        ],
+        "post_release_feedback_loop": "Saved study snapshots in apps/augi-engineering sync back to the operator review inspector in apps/system."
+      }
+    },
+    {
+      "example_id": "ex_augi_02",
+      "organization_id": "org_augi",
+      "organization_name": "AUGI",
+      "pattern_id": "wf_augi_01",
+      "weekly_batch_id": "batch_augi_2026_w43",
+      "title": "AUGI Sable Underbody Exploded Assembly & Pack-to-Sill Clearance Review",
+      "disposition": "build_in_sandbox",
+      "target_app_id": "app_augi_sable_chassis_3d",
+      "target_app_name": "AUGI Sable 3D Chassis Architecture Comparator (Exploded & Subassembly Inspection)",
+      "user_value_pattern": "Battery enclosure, megacasting, and BIW engineers repeatedly ask assistants to generate ad-hoc 3D/2D exploded diagrams separating the 5 lower-chassis subsystems (front subframe, rear megacasting, side sill extrusions, crossmember ladder, and 800V battery pack tray) so they can review seal-flange interfaces, part consolidation (142 parts -> 86 parts -> 31 parts), and fastener tool access.",
+      "user_intent": "Separate the 5 major chassis subassemblies interactively along axial vectors (0%-100% exploded timeline), select individual subsystems to inspect their mass/material/joining contribution, and check cross-sectional clearances.",
+      "dated_weekly_excerpts": [
+        {
+          "excerpt_id": "xcp_augi_02_w41",
+          "week_label": "2026-W41",
+          "captured_at": "2026-10-08T13:22:11Z",
+          "employee_id": "emp_augi_03",
+          "employee_name": "Matteo Conti",
+          "employee_role": "800V Structural Battery Enclosure Lead (role_battery_pack_integration)",
+          "assistant_host": "Claude Desktop",
+          "capture_mechanism": "employee_selected_excerpt_via_mcp_tool",
+          "mcp_tool": "heavyrain_submit_work_report",
+          "synthetic_chat_excerpt": {
+            "user_turn": "Generate a Three.js snippet that explodes the AUGI Sable lower skateboard along X, Y, and Z: drop the 108 kWh 800V battery pack downward (-Z), push the left and right 6082-T6 side sills outward (±Y), lift the crossmember ladder (+Z), and translate the front and rear subframes along ±X so we can explain the SABLE-A bolt-in tray vs SABLE-B Cell-to-Body top-cover shear seal.",
+            "assistant_turn_summary": "Produced an uncalibrated snippet where the sill extrusions overlapped the front shock towers because subassembly bounding boxes were not tied to the parametric wheelbase."
+          },
+          "repeated_manual_steps": [
+            "Hand-editing translation offsets in one-off Three.js scripts whenever wheelbase or track width changes.",
+            "Manually annotating part counts and adhesive bond lengths (48.5 m vs 74.0 m vs 61.0 m) on static screenshots."
+          ]
+        },
+        {
+          "excerpt_id": "xcp_augi_02_w43",
+          "week_label": "2026-W43",
+          "captured_at": "2026-10-22T15:12:47Z",
+          "employee_id": "emp_augi_02",
+          "employee_name": "Dr. Astrid Vestergaard",
+          "employee_role": "Principal High-Pressure Die-Casting Specialist (role_materials_joining)",
+          "assistant_host": "Gemini Workspace",
+          "capture_mechanism": "employee_selected_excerpt_via_mcp_tool",
+          "mcp_tool": "heavyrain_submit_work_report",
+          "receipt_id": "rcpt_augi_9108c",
+          "synthetic_chat_excerpt": {
+            "user_turn": "For the SABLE-C review, we need to isolate the single-piece HPDC AlSi7Mg rear megacasting (with integral shock towers and variable 2.6-4.8 mm ribs) from the extruded 6082-T6 side sills and bolt-on outer crush cans, showing how it replaces 38 stamped/welded rear cradle parts from SABLE-A.",
+            "assistant_turn_summary": "Listed the consolidated part breakdown in text; Astrid submitted the subassembly explosion vectors and part-group metadata via MCP to include interactive exploded-view and part selection in the 3D comparator."
+          },
+          "repeated_manual_steps": [
+            "Exporting static subassembly screenshots for every Gate C2 design review.",
+            "Switching between the 2D pack clearance checker and separate BoM spreadsheets to explain subassembly interfaces."
+          ]
+        }
+      ],
+      "outgoing_manifest_and_provenance": {
+        "employee_inspected_exact_payload": true,
+        "ambient_chat_history_transmitted": false,
+        "redaction_applied": "Proprietary die-casting runner geometry and internal battery cell chemistry excluded; only 5-subassembly bounding envelopes, explosion vectors, and fastener/adhesive totals included.",
+        "data_scope": "sable_parametric_geometry, pack_envelope_clearances, joining_schedules",
+        "schema_version": "augi.mcp.report.v1",
+        "approved_attachments": [
+          {
+            "evidence_id": "ev_augi_02_subassembly_tree",
+            "filename": "sable_5group_exploded_vectors.json",
+            "source_report_id": "rcpt_augi_9108c",
+            "sha256": "5e6f708192a3b4c5d6e7f8091a2b3c4d5e6f708192a3b4c5d6e7f8091a2b3c4d",
+            "fields_exposed": [
+              "subassembly_id",
+              "label",
+              "explode_vector_xyz_mm",
+              "part_count_by_config",
+              "mass_share_pct",
+              "joining_method_summary"
+            ]
+          }
+        ]
+      },
+      "clustering_cue": {
+        "orchestrator": "Cairn (google-antigravity 0.1.22, gemini-4-argon, high thinking)",
+        "signals_matched": [
+          "Co-clustered into wf_augi_01 because reports share the exact SABLE-A / SABLE-B / SABLE-C parametric geometry tree and target the same 3D browser inspection workbench."
+        ]
+      },
+      "catalog_evaluation_and_counterevidence": {
+        "searched_catalog_ids": [
+          "app_augi_pack_thermal_clearance",
+          "app_augi_bom_mass_ledger"
+        ],
+        "closest_catalog_app_id": "app_augi_pack_thermal_clearance",
+        "closest_catalog_app_name": "800V Pack Envelope & Skid-Plate Clearance Checker v1.4.2",
+        "reuse_gap": "app_augi_pack_thermal_clearance validates static 2D cross-section tolerance tables only; it cannot render 3D subassemblies, animate axial exploded separation, or highlight individual structural subsystems.",
+        "counterevidence_against_separate_app": "Building a standalone exploded viewer separate from the 3D stiffness comparator would force engineers to maintain two duplicate 3D chassis scene graphs.",
+        "scope_decision": "Included as an integrated capability inside app_augi_sable_chassis_3d (apps/augi-engineering)."
+      },
+      "proposed_ui_features_tied_to_evidence": [
+        {
+          "feature_id": "feat_augi_exploded_timeline",
+          "ui_component": "5-Subassembly Exploded View Slider (0%-100%) & Leader Labels",
+          "derived_from_evidence_ids": [
+            "ev_augi_02_subassembly_tree"
+          ],
+          "derived_from_excerpt_ids": [
+            "xcp_augi_02_w41",
+            "xcp_augi_02_w43"
+          ],
+          "behavior": "Smoothly translates Front Cradle (+X), Rear Megacasting (-X), Left/Right Sill Extrusions (±Y), Crossmember Ladder (+Z), and 800V Structural Battery Tray (-Z) in proportion to the explosion slider (or steps discretely under reduced motion).",
+          "implementation_status": "implemented_in_prototype"
+        },
+        {
+          "feature_id": "feat_augi_subsystem_selection",
+          "ui_component": "Interactive 3D Part / Subassembly Selection & Inspector Readout",
+          "derived_from_evidence_ids": [
+            "ev_augi_02_subassembly_tree"
+          ],
+          "derived_from_excerpt_ids": [
+            "xcp_augi_02_w43"
+          ],
+          "behavior": "Allows selecting a subassembly in the 3D viewport or inspector to inspect its alloy, part count consolidation (142 -> 86 -> 31), adhesive length, and SPR count.",
+          "implementation_status": "implemented_in_prototype"
+        },
+        {
+          "feature_id": "feat_augi_section_clipping_roadmap",
+          "ui_component": "Arbitrary 3D Plane Section Clipping & Seal-Bead Cross-Section Slicer",
+          "derived_from_evidence_ids": [
+            "ev_augi_02_subassembly_tree"
+          ],
+          "derived_from_excerpt_ids": [
+            "xcp_augi_02_w41"
+          ],
+          "behavior": "Exploratory proposal shown in advanced 3D design mockups for slicing arbitrary X/Y/Z planes through the sill-to-pack adhesive flange; documented on the packages/organization-3d roadmap while the current prototype implements camera presets (Front bay, Underbody) and axial exploded separation.",
+          "implementation_status": "exploratory_roadmap_proposal"
+        }
+      ],
+      "reusable_tools_and_components_requested": [
+        {
+          "tool_id": "tool_org3d_exploded_rig",
+          "package": "packages/organization-3d",
+          "capability": "Parametric axial exploded-view rig (0%-100%) with reduced-motion static pose support",
+          "status": "implemented_in_prototype"
+        },
+        {
+          "tool_id": "tool_org3d_part_selection",
+          "package": "packages/organization-3d",
+          "capability": "Subassembly selection, highlight shading, and metadata binding",
+          "status": "implemented_in_prototype"
+        },
+        {
+          "tool_id": "tool_org3d_clipping_plane",
+          "package": "packages/organization-3d",
+          "capability": "Interactive arbitrary stencil clipping plane and 2D cross-section contour extractor",
+          "status": "exploratory_roadmap_proposal"
+        }
+      ],
+      "approximate_engineering_data_and_provenance": {
+        "source_fixture": "__grounding/demo/augi.json",
+        "quantities": "SABLE-A: 142 lower-chassis parts, 48.5 m adhesive, 620 SPRs; SABLE-B: 86 parts, 74.0 m adhesive, 490 SPRs; SABLE-C: 31 parts, 61.0 m adhesive, 215 SPRs.",
+        "inline_limitation_notice": "Subassembly geometry represents simplified parametric envelopes, not manufacturing tooling CAD surfaces."
+      },
+      "verification_and_release_feedback": {
+        "builder_runtime": "antigravity-preview-09-2026 (environment=remote, model=gemini-4-argon) simulated in local prototype.",
+        "testable_acceptance_criteria": [
+          "Adjusting the Exploded View control separates the 5 subassembly groups along their defined ±X, ±Y, ±Z vectors without corrupting wheelbase or track dimensions.",
+          "Enabling Reduced Motion disables continuous oscillation while preserving direct exploded pose inspection."
+        ],
+        "approvers": [
+          "emp_augi_03 (Matteo Conti, 800V Structural Battery Enclosure Lead)",
+          "emp_augi_01 (Lukas Lindner, Lead Chassis & BIW Architect)"
+        ],
+        "post_release_feedback_loop": "Engineers requested adding interactive arbitrary clipping planes in a future iteration (`tool_org3d_clipping_plane`), tracked as an explicit roadmap item."
+      }
+    },
+    {
+      "example_id": "ex_augi_03",
+      "organization_id": "org_augi",
+      "organization_name": "AUGI",
+      "pattern_id": "wf_augi_01",
+      "weekly_batch_id": "batch_augi_2026_w43",
+      "title": "Suspension Hardpoint Load-Case & Twist/Bending Deformation Comparison",
+      "disposition": "build_in_sandbox",
+      "target_app_id": "app_augi_sable_chassis_3d",
+      "target_app_name": "AUGI Sable 3D Chassis Architecture Comparator (Load-Case & Deformation Inspector)",
+      "user_value_pattern": "Vehicle dynamics and NVH engineers repeatedly prompt assistants to evaluate how static axle-twist torsion (18,000 N·m couple), 3-point vertical curb bending (32,000 N pack/cabin load), and quasi-static cornering shear (24,000 N lateral load) deform the chassis along the wheelbase, and how visual amplification should be scaled so millimeter-level elastic deflections are legible in design reviews.",
+      "user_intent": "Switch between Torsion, Vertical Bending, and Lateral Cornering load cases, animate exaggerated elastic deformation with an explicit amplification badge (e.g., 45x-60x), and inspect unscaled physical engineering values (deg, mm, kN·m/deg, Hz) beside a clear model-limitations notice.",
+      "dated_weekly_excerpts": [
+        {
+          "excerpt_id": "xcp_augi_03_w41",
+          "week_label": "2026-W41",
+          "captured_at": "2026-10-09T11:30:14Z",
+          "employee_id": "emp_augi_04",
+          "employee_name": "Hannah Bergström",
+          "employee_role": "Principal Engineer, Torsional Stiffness & Ride Dynamics (role_vehicle_dynamics)",
+          "assistant_host": "ChatGPT Enterprise",
+          "capture_mechanism": "employee_selected_excerpt_via_mcp_tool",
+          "mcp_tool": "heavyrain_submit_work_report",
+          "synthetic_chat_excerpt": {
+            "user_turn": "Apply an opposing vertical wheel couple of 18,000 N·m (±10.65 kN across the 1690 mm front track) with the rear shock towers pinned. Compute the twist angle profile theta(x) from rear axle to front axle for SABLE-A (34.2 kN·m/deg), SABLE-B (44.6 kN·m/deg), and SABLE-C (49.8 kN·m/deg), and also compute mid-span vertical sag under a 32,000 N distributed load.",
+            "assistant_turn_summary": "Returned peak twist angles (0.526 deg, 0.404 deg, 0.361 deg) and mid-span sag (2.16 mm, 1.69 mm, 1.57 mm), plus a 2D matplotlib chart that had to be regenerated whenever sill gauge changed."
+          },
+          "repeated_manual_steps": [
+            "Re-generating static 2D deflection plots in chat every time BIW updates rocker wall gauge or wheelbase.",
+            "Adding manual slide footnotes explaining that visual mesh deformation is amplified 45x-60x while numbers stay in physical units."
+          ]
+        },
+        {
+          "excerpt_id": "xcp_augi_03_w43",
+          "week_label": "2026-W43",
+          "captured_at": "2026-10-23T08:50:33Z",
+          "employee_id": "emp_augi_07",
+          "employee_name": "Viktor Novak",
+          "employee_role": "Body Modal Frequency & Subframe Mount Engineer (role_vehicle_dynamics)",
+          "assistant_host": "Gemini Workspace",
+          "capture_mechanism": "employee_selected_excerpt_via_mcp_tool",
+          "mcp_tool": "heavyrain_submit_work_report",
+          "receipt_id": "rcpt_augi_9114e",
+          "synthetic_chat_excerpt": {
+            "user_turn": "Estimate the first global body torsion mode frequency (f_1 approx proportional to sqrt(K_t / M_eff)) and lateral subframe compliance under a 24,000 N cornering load (52% front / 48% rear) across SABLE-A, SABLE-B, and SABLE-C. Make sure the summary states this is a lumped-beam concept approximation and not a Nastran normal-modes FEA run.",
+            "assistant_turn_summary": "Calculated concept modal frequencies (36.5 Hz, 42.1 Hz, 45.4 Hz) and lateral cradle deflections (1.42 mm, 1.08 mm, 0.89 mm); Viktor submitted the load-case definitions and required limitation wording via MCP."
+          },
+          "repeated_manual_steps": [
+            "Manually copying limitation disclaimers onto every concept stiffness table so program management does not confuse beam approximations with Nastran/LS-DYNA crash or modal solver sign-off."
+          ]
+        }
+      ],
+      "outgoing_manifest_and_provenance": {
+        "employee_inspected_exact_payload": true,
+        "ambient_chat_history_transmitted": false,
+        "redaction_applied": "Physical proving-ground K&C rig telemetry excluded; only synthetic analytical load-case formulas and boundary conditions transmitted.",
+        "data_scope": "load_case_targets, sable_parametric_geometry",
+        "schema_version": "augi.mcp.report.v1",
+        "approved_attachments": [
+          {
+            "evidence_id": "ev_augi_03_load_cases",
+            "filename": "sable_concept_load_cases_and_scaling.json",
+            "source_report_id": "rcpt_augi_9114e",
+            "sha256": "708192a3b4c5d6e7f8091a2b3c4d5e6f708192a3b4c5d6e7f8091a2b3c4d5e6f",
+            "fields_exposed": [
+              "load_case_id",
+              "applied_load_label",
+              "boundary_conditions",
+              "analytical_scaling_law",
+              "default_visual_amplification_factor",
+              "inline_ui_disclosure_text"
+            ]
+          }
+        ]
+      },
+      "clustering_cue": {
+        "orchestrator": "Cairn (google-antigravity 0.1.22, gemini-4-argon, high thinking)",
+        "signals_matched": [
+          "Co-clustered into wf_augi_01: links directly to the SABLE-A/B/C parametric model and supplies the 3 load-case formulas (`lc_torsion_axle_twist`, `lc_bending_curb_sag`, `lc_lateral_subframe_shear`) and inline limitation notice."
+        ]
+      },
+      "catalog_evaluation_and_counterevidence": {
+        "searched_catalog_ids": [
+          "app_augi_bom_mass_ledger",
+          "app_augi_fastener_weld_matrix",
+          "app_augi_pack_thermal_clearance"
+        ],
+        "closest_catalog_app_id": null,
+        "closest_catalog_app_name": null,
+        "reuse_gap": "No approved catalog app computes static torsion/bending/lateral load cases or renders 3D deformed meshes and strain color ramps.",
+        "counterevidence_against_unqualified_numbers": "Displaying stiffness or deflection numbers without an adjacent analytical scope notice risks misinterpretation as certified FEA; hence the inline disclosure requirement from emp_augi_07 is mandatory.",
+        "scope_decision": "Included in app_augi_sable_chassis_3d with mandatory inline limitation block."
+      },
+      "proposed_ui_features_tied_to_evidence": [
+        {
+          "feature_id": "feat_augi_load_case_deformation",
+          "ui_component": "Load-Case Selector, Force Vectors & Animated 3D Elastic Deformation",
+          "derived_from_evidence_ids": [
+            "ev_augi_03_load_cases"
+          ],
+          "derived_from_excerpt_ids": [
+            "xcp_augi_03_w41",
+            "xcp_augi_03_w43"
+          ],
+          "behavior": "Switches between Static Axle-Twist Torsion (18,000 N·m), Symmetric 3-Point Vertical Bending (32,000 N), and Cornering Subframe Shear (24,000 N), rendering directional load arrows, relative strain shading, and explicit visual amplification badges (e.g., 45x, 60x, 50x or user-selected scale).",
+          "implementation_status": "implemented_in_prototype"
+        },
+        {
+          "feature_id": "feat_augi_inline_limitations_notice",
+          "ui_component": "Adjacent Concept Approximation Scope & Non-Claims Notice",
+          "derived_from_evidence_ids": [
+            "ev_augi_03_load_cases"
+          ],
+          "derived_from_excerpt_ids": [
+            "xcp_augi_03_w43"
+          ],
+          "behavior": "Placed directly beside the stiffness and deflection readouts in the right dock, stating units (mm, kg, kN·m/deg) and clarifying that outputs are analytical beam/shell approximations—never FEA solver validation or crashworthiness certification.",
+          "implementation_status": "implemented_in_prototype"
+        },
+        {
+          "feature_id": "feat_augi_spanwise_plotting",
+          "ui_component": "Spanwise Deflection / Twist Profile Curve & KPI Delta Readout",
+          "derived_from_evidence_ids": [
+            "ev_augi_03_load_cases"
+          ],
+          "derived_from_excerpt_ids": [
+            "xcp_augi_03_w41"
+          ],
+          "behavior": "Displays quantitative twist/sag/compliance readouts and comparative profile charts across longitudinal chassis stations (full multi-axis modal frequency waterfall plots seen in exploratory mockups remain on the future roadmap).",
+          "implementation_status": "implemented_in_prototype_with_advanced_plots_on_roadmap"
+        }
+      ],
+      "reusable_tools_and_components_requested": [
+        {
+          "tool_id": "tool_org3d_deformation_animator",
+          "package": "packages/organization-3d",
+          "capability": "Vertex/group elastic displacement shader/updater, load-vector arrows, strain color ramp, and visual scale multiplier with reduced-motion static step mode",
+          "status": "implemented_in_prototype"
+        },
+        {
+          "tool_id": "tool_orgui_engineering_readout",
+          "package": "packages/organization-ui",
+          "capability": "Metric/Imperial unit readout cards, Baseline vs Candidate delta table, and inline analytical limitation disclosure block",
+          "status": "implemented_in_prototype"
+        }
+      ],
+      "approximate_engineering_data_and_provenance": {
+        "source_fixture": "__grounding/demo/augi.json",
+        "quantities": "At nominal dimensions: SABLE-A (K_t = 34.2 kN·m/deg, twist = 0.526 deg, K_b = 14.8 kN/mm, sag = 2.16 mm, lateral = 1.42 mm, mode = 36.5 Hz); SABLE-B (K_t = 44.6 kN·m/deg, twist = 0.404 deg, K_b = 18.9 kN/mm, sag = 1.69 mm, lateral = 1.08 mm, mode = 42.1 Hz); SABLE-C (K_t = 49.8 kN·m/deg, twist = 0.361 deg, K_b = 20.4 kN/mm, sag = 1.57 mm, lateral = 0.89 mm, mode = 45.4 Hz).",
+        "inline_limitation_notice": "Does not solve nonlinear elasto-plastic yield, local buckling, weld nugget fracture, or crash energy absorption."
+      },
+      "verification_and_release_feedback": {
+        "builder_runtime": "antigravity-preview-09-2026 (environment=remote, model=gemini-4-argon) simulated in local prototype; analytical formulas tested via npm run test.",
+        "testable_acceptance_criteria": [
+          "Switching load cases updates the 3D force vectors, strain shading, and numerical readouts deterministically.",
+          "The inline Concept Approximation Scope disclosure is rendered directly adjacent to the numerical metrics in the right dock."
+        ],
+        "approvers": [
+          "emp_augi_04 (Hannah Bergström, Principal Engineer, Torsional Stiffness & Ride Dynamics)",
+          "emp_augi_08 (Devendra Rao, Head of Engineering Tooling & Sandbox Operations)"
+        ],
+        "post_release_feedback_loop": "Dynamics engineers requested coupling the static lateral compliance output to bush-stiffness sensitivity tables in a subsequent cycle."
+      }
+    },
+    {
+      "example_id": "ex_augi_04",
+      "organization_id": "org_augi",
+      "organization_name": "AUGI",
+      "pattern_id": "wf_augi_02",
+      "weekly_batch_id": "batch_augi_2026_w43",
+      "title": "Aluminum-to-Boron Flange Joining & Supplier Material Certificate Reuse",
+      "disposition": "reuse_existing_app",
+      "target_app_id": "app_augi_fastener_weld_matrix",
+      "target_app_name": "BIW Mixed-Material Joining & Adhesive Registry v2.0.3",
+      "user_value_pattern": "Materials, casting, and BIW engineers repeatedly paste supplier alloy mill-certificate parameters (AA 6082-T6, AlSi7Mg C611, 22MnB5 hot-stamped boron steel) and mixed-material flange thickness pairs into chat to check approved self-piercing rivet (SPR) die combinations, flow-drill screw (FDS) stackups, and galvanic structural epoxy bead rules.",
+      "user_intent": "Verify approved SPR/FDS fastener codes, galvanic isolation adhesive thickness, and supplier alloy yield/elongation bounds for mixed aluminum-to-boron-steel joints.",
+      "dated_weekly_excerpts": [
+        {
+          "excerpt_id": "xcp_augi_04_w41",
+          "week_label": "2026-W41",
+          "captured_at": "2026-10-10T09:15:02Z",
+          "employee_id": "emp_augi_05",
+          "employee_name": "Kenji Takahashi",
+          "employee_role": "Senior Sill Extrusion & Underbody Load-Path Engineer (role_biw_structures)",
+          "assistant_host": "Claude Desktop",
+          "capture_mechanism": "employee_selected_excerpt_via_mcp_tool",
+          "mcp_tool": "heavyrain_submit_work_report",
+          "synthetic_chat_excerpt": {
+            "user_turn": "We are joining a 3.0 mm AA 6082-T6 top sill flange to a 1.8 mm 22MnB5 boron steel B-pillar torque ring on SABLE-B. Which self-piercing rivet (SPR) or flow-drill screw (FDS) stackup and structural epoxy bond-line thickness prevent galvanic corrosion and die cracking?",
+            "assistant_turn_summary": "Suggested a generic semi-tubular rivet that cannot pierce 1,500 MPa hot-stamped 22MnB5 boron steel without a pre-punched pilot hole or bush transition."
+          },
+          "repeated_manual_steps": [
+            "Prompting general chat models on mixed-material joining rules and having to manually correct UHSS boron steel piercing constraints."
+          ]
+        },
+        {
+          "excerpt_id": "xcp_augi_04_w43",
+          "week_label": "2026-W43",
+          "captured_at": "2026-10-23T14:02:19Z",
+          "employee_id": "emp_augi_02",
+          "employee_name": "Dr. Astrid Vestergaard",
+          "employee_role": "Principal High-Pressure Die-Casting Specialist (role_materials_joining)",
+          "assistant_host": "Gemini Workspace",
+          "capture_mechanism": "employee_selected_excerpt_via_mcp_tool",
+          "mcp_tool": "heavyrain_submit_work_report",
+          "receipt_id": "rcpt_augi_9121f",
+          "synthetic_chat_excerpt": {
+            "user_turn": "Check supplier heat-batch certificate spec AlSi7Mg-C611-F (0.2% proof stress >= 195 MPa, elongation A5 >= 10%) for the SABLE-C rear megacasting flange where it bonds and rivets to the 3.4 mm 6082-T6 rocker extrusion.",
+            "assistant_turn_summary": "Validated the alloy batch numbers against the pasted prompt text; Astrid submitted the flange stackup query via MCP to route engineers to the authoritative registry."
+          },
+          "repeated_manual_steps": [
+            "Pasting alloy certificate tables and flange thickness pairs into chat instead of querying the internal joining & material registry."
+          ]
+        }
+      ],
+      "outgoing_manifest_and_provenance": {
+        "employee_inspected_exact_payload": true,
+        "ambient_chat_history_transmitted": false,
+        "redaction_applied": "Supplier commercial pricing and proprietary foundry runner telemetry (`wf_augi_03`) excluded; only standard alloy specification codes and flange thickness pairs transmitted.",
+        "data_scope": "material_cards, joining_schedules",
+        "schema_version": "augi.mcp.report.v1",
+        "approved_attachments": [
+          {
+            "evidence_id": "ev_augi_04_flange_query",
+            "filename": "sable_al_boron_flange_stackup_sample.csv",
+            "source_report_id": "rcpt_augi_9121f",
+            "sha256": "92a3b4c5d6e7f8091a2b3c4d5e6f708192a3b4c5d6e7f8091a2b3c4d5e6f7081",
+            "fields_exposed": [
+              "joint_id",
+              "top_sheet_alloy",
+              "top_sheet_gauge_mm",
+              "bottom_sheet_alloy",
+              "bottom_sheet_gauge_mm",
+              "adhesive_spec_code"
+            ]
+          }
+        ]
+      },
+      "clustering_cue": {
+        "orchestrator": "Cairn (google-antigravity 0.1.22, gemini-4-argon, high thinking)",
+        "signals_matched": [
+          "4 reports from 2 engineers (emp_augi_02, emp_augi_05) matching joining_schedules and material_cards scopes.",
+          "Distinct from wf_augi_03 (rear megacasting vacuum-assist runner porosity, which requires NDA-restricted foundry thermal sensor logs and is held under request_missing_evidence)."
+        ]
+      },
+      "catalog_evaluation_and_counterevidence": {
+        "searched_catalog_ids": [
+          "app_augi_fastener_weld_matrix",
+          "app_augi_bom_mass_ledger",
+          "app_augi_pack_thermal_clearance"
+        ],
+        "closest_catalog_app_id": "app_augi_fastener_weld_matrix",
+        "closest_catalog_app_name": "BIW Mixed-Material Joining & Adhesive Registry v2.0.3",
+        "reuse_gap": "None. app_augi_fastener_weld_matrix v2.0.3 already catalogs approved SPR die sets, pre-hole FDS rules for 22MnB5 boron steel, structural epoxy bead tolerances, and supplier alloy certificate acceptance windows.",
+        "counterevidence_against_new_build": "General chat prompts hallucinated unworkable direct SPR piercing through hot-stamped 22MnB5 boron steel (`xcp_augi_04_w41`), whereas the approved catalog registry (`app_augi_fastener_weld_matrix`) already enforces validated BIW joining rules.",
+        "scope_decision": "Both emp_augi_02 (`role_materials_joining`) and emp_augi_05 (`role_biw_structures`) already hold access to `app_augi_fastener_weld_matrix`. Route directly with no extra approval gate."
+      },
+      "proposed_ui_features_tied_to_evidence": [
+        {
+          "feature_id": "feat_augi_joining_direct_route",
+          "ui_component": "Direct Catalog Reuse Routing Action (apps/system Work & Apps views)",
+          "derived_from_evidence_ids": [
+            "ev_augi_04_flange_query"
+          ],
+          "derived_from_excerpt_ids": [
+            "xcp_augi_04_w41",
+            "xcp_augi_04_w43"
+          ],
+          "behavior": "Routes reporting engineers directly to app_augi_fastener_weld_matrix v2.0.3 with pre-populated SABLE-B and SABLE-C flange stackup filters, while keeping wf_augi_03 (foundry porosity) held separately for missing NDA schema evidence.",
+          "implementation_status": "implemented_in_prototype"
+        }
+      ],
+      "verification_and_release_feedback": {
+        "builder_runtime": "Not invoked (Catalog reuse path bypasses sandbox build).",
+        "testable_acceptance_criteria": [
+          "Clicking 'Route to existing app' on the AUGI reuse cluster transitions status to 'Routed to approved app' and logs a Notifier delivery event in Activity without spawning a Builder run."
+        ],
+        "approvers": [
+          "Pre-authorized under existing role_biw_structures and role_materials_joining scopes"
+        ],
+        "post_release_feedback_loop": "Engineers linked joint IDs from app_augi_fastener_weld_matrix back to the 5 subassembly groups in app_augi_sable_chassis_3d."
+      }
+    }
+  ]
+}

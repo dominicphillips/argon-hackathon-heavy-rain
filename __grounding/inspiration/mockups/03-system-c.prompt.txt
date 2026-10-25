@@ -1,0 +1,26 @@
+High-fidelity product UI mockup: a crisp, pixel-sharp desktop screenshot (no browser chrome, no device frame), 16:9, of a 1440 by 900 pixel viewport rendered at 2K. Neutral stone-ash workbench theme in the visual language of Heavy Rain. Space Grotesk display headings, Inter UI controls, JetBrains Mono technical labels, tabular figures for every number, carbon-black primary text #121417, slate secondary text #494E57, muted text #747982, stone-ash canvas #DCDFE3, 1px #C2C6CE borders, dark slate build chamber #11151A, mint status signal #10B981, no drop shadows. Flat, precise, calm and mechanical; real product proportions, not a stock SaaS template.
+
+Variant C: a centered artifact-first build workbench emphasizing the application taking shape inside a wide architectural frame, paired with the reference's clicky left vertical navigation and a docked four-stage horizontal worker pipeline bar below the chamber.
+
+TEXT RULE. Every readable word in the image comes from the double-quoted strings in this prompt. Render each quoted string exactly as written (spelling, capitalization, punctuation, symbols, spacing), once, or twice only where this prompt places it in two named spots. Add no other text anywhere: no extra labels, numbers, scale values, legends, tooltips, logos, wordmarks, badges, placeholder text, lorem ipsum or watermarks. Hex codes, pixel sizes, percentages, section names and the words TEXT RULE, BACKDROP, DIALOG and AVOID are instructions to you and are never drawn. The attached image shows chrome, spacing and type only; none of its words or content appear in the output.
+
+top bar (full width, 60px tall, 40px horizontal padding, over the stone-ash canvas):
+On the left, a flat #121417 mark of three parallel diagonal rain strokes above a horizontal base bar, followed by 15px semibold #121417 "Heavy Rain", and a 28px outlined pill (1px #B6BAC2 border, #D2D5DA fill, 12px medium #494E57) reading "Rookmere Capital".
+
+background canvas (1440 by 900 viewport):
+Stone-ash #DCDFE3 surface etched with subtle topographic contour lines in #CDD1D7 and a 1px #C8CCD4 perimeter datum frame inset 20px from the viewport edges.
+
+left navigation rail (mid-left at x=48px, vertically centered, 148px wide, floating on the topographic ash surface like the reference):
+Four vertical navigation items with 18px spacing. Top active item has a crisp 2px #121417 left vertical bar and 15px semibold #121417 "System". Below sit three inactive items in 15px regular #747982: "Work", "Apps", and "Activity". Below sits a compact 2-by-10 #999EA8 dot-matrix block.
+
+central artifact workbench (from x=260px to x=1340px, 1080px wide, vertically centered):
+A unified 1080px wide architectural assembly divided into three stacked horizontal bands:
+1. Top workbench header bar (64px tall, #E6E8EC fill, 1px #B8BDC6 border, 24px padding): Left side shows 12px monospace #494E57 "Cairn" beside a vertical hairline and 28px semibold #121417 "Portfolio variance". Right side shows a sharp status pill (#DDF5EC fill, 1px #10B981 border, 6px solid #10B981 dot, 12px semibold #0D6848) reading "Building", followed by a 36px dark graphite button (#121417 fill, 13px semibold #F3F5F7) reading "Pause build".
+2. Middle artifact build chamber (1080px by 440px, deep slate #11151A interior, 1px #121417 border): Emphasizes the Rookmere portfolio variance application taking shape. Strictly inside this chamber and nowhere else, a localized smoky 14px gaussian blur and cool ash-and-mint vapor veil surrounds a layered UI wireframe emerging from the fog: crisp structural outlines of a left filter rail, a central variance waterfall chart, and a multi-row financial ledger grid assembling in stages, with zero text inside.
+3. Bottom docked worker pipeline bar (1080px by 68px, #E6E8EC fill, 1px #B8BDC6 border, divided by 1px vertical hairlines into four 270px cells):
+Cell 1: 14px medium #494E57 "Researcher" left, 6px solid #494E57 dot and 12px monospace #494E57 "Completed" right.
+Cell 2: 14px medium #494E57 "Connector" left, 6px solid #494E57 dot and 12px monospace #494E57 "Completed" right.
+Cell 3 (active, 3px #10B981 top border, #F2F4F7 fill): 14px semibold #121417 "Builder" left, 6px solid #10B981 dot and 12px monospace #121417 "Running" right.
+Cell 4: 14px regular #747982 "Notifier" left, 6px hollow #747982 ring and 12px monospace #747982 "Queued" right.
+
+AVOID: sparkles, stars, robots, brains, chat bubbles, stock photos, people, helmets, military gear, weapons, neon purple gradients, bokeh, emoji, fabricated completion percentages, browser frames, device frames, or any text not quoted above.

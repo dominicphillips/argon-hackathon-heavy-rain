@@ -1,0 +1,36 @@
+High-fidelity product UI mockup: a crisp, pixel-sharp desktop screenshot (no browser chrome, no device frame), 16:9, of a 1440 by 900 pixel viewport rendered at 2K. Light ceramic-ash engineering theme in the visual language of AUGI. Space Grotesk display headings, Inter UI controls, JetBrains Mono engineering readouts, tabular figures for every number, carbon-black primary text #111317, slate secondary text #4B525C, muted text #767E8A, light ceramic ash canvas #E6E8EB, 1px #C8CCD4 technical borders, copper stress accent #D97706, anodized cobalt control accent #2563EB, no drop shadows. Mechanically beautiful, calm, sharp and useful; real engineering workbench proportions, no blur anywhere on the canvas.
+
+Variant A: an engineering workbench following the attached reference's clicky left vertical navigation, commanding central 3D specimen, and restrained right parameter inspector, showcasing the exposed 3D AUGI Sable electric SUV chassis under a concept torsion load test.
+
+TEXT RULE. Every readable word in the image comes from the double-quoted strings in this prompt. Render each quoted string exactly as written (spelling, capitalization, punctuation, symbols, spacing), once, or twice only where this prompt places it in two named spots. Add no other text anywhere: no extra labels, numbers, scale values, legends, tooltips, logos, wordmarks, badges, placeholder text, lorem ipsum or watermarks. Hex codes, pixel sizes, percentages, section names and the words TEXT RULE, BACKDROP, DIALOG and AVOID are instructions to you and are never drawn. The attached image shows chrome, spacing and type only; none of its words or content appear in the output.
+
+top bar (full width, 64px tall, 40px horizontal padding, transparent over the ceramic-ash canvas):
+On the left, a flat #111317 mark formed by a chamfered hexagonal frame bisecting a horizontal axle bar, followed by 15px semibold #111317 "AUGI", and a crisp outlined disclosure pill (1px #B8BEC8 border, #DCE0E5 fill, 12px monospace #4B525C) reading "Concept estimate". On the right, a 34px tactile button (1px #B8BEC8 border, #F2F4F7 fill, 13px medium #111317) reading "Reset view".
+
+background canvas (1440 by 900 viewport):
+Matte light ceramic ash #E6E8EB etched with subtle topographic contour lines in #D6D9E0 and a thin circular turntable datum ring with degree ticks centered beneath the chassis.
+
+left navigation rail (mid-left at x=48px, vertically centered, 156px wide, floating directly on the ash canvas like the reference):
+Four vertical navigation items with 18px spacing.
+Row 1 in 15px regular #767E8A: "Chassis".
+Row 2 (active) with a sharp 2px #111317 left vertical bar and 15px semibold #111317: "Torsion".
+Row 3 in 15px regular #767E8A: "Materials".
+Row 4 in 15px regular #767E8A: "Compare".
+Below sits a tiny 2-by-10 #9BA2AE dot-matrix block.
+
+central 3D specimen (centered horizontally, occupying a 720px by 560px stage):
+Centered at the top is the crisp 42px semibold #111317 headline "AUGI Sable".
+Directly below, floating in three-quarter isometric perspective over the turntable ring with no border and no blur, is a mechanically detailed, exposed 3D electric SUV skateboard chassis and spaceframe: machined brushed aluminum front and rear cast subframes, twin hydroformed longitudinal side rails, a structural battery floor enclosure with lateral cross-members, double-wishbone suspension with coilover dampers and ventilated brake rotors (no outer body shell, no glass, no tires). Subtle torsion contour shading in warm copper #D97706 highlights the twist load along the central rockers and front shock towers.
+
+right parameter inspector (mid-right at x=1116px, vertically centered, 276px wide, directly on the ash canvas like the reference's right column):
+Top 13px semibold #111317 section title "Parameters" above a 1px #C8CCD4 rule.
+Below sit three parameter control blocks with 18px spacing:
+Block 1: 13px medium #4B525C "Wheelbase" left and 13px monospace semibold #111317 "2980 mm" right, above a 4px #CFD4DC slider track filled #2563EB to a 14px round #111317 thumb.
+Block 2: 13px medium #4B525C "Wall gauge" left and 13px monospace semibold #111317 "2.4 mm" right, above a 4px #CFD4DC slider track filled #2563EB to a 14px round #111317 thumb.
+Block 3: 13px medium #4B525C "Peak torque" left and 13px monospace semibold #111317 "18.0 kNm" right, above a 4px #CFD4DC slider track filled #D97706 to a 14px round #111317 thumb.
+Beneath a 1px dotted #B8BEC8 rule sits the torsion result card (#F2F4F7 fill, 1px #C8CCD4 border, 8px radius, 16px padding):
+Top line 12px medium #4B525C: "Torsional stiffness".
+Middle line 26px monospace semibold #111317: "41,200 Nm/deg".
+Bottom line 12px monospace #D97706: "Peak twist 0.44 deg".
+
+AVOID: outer car body shell, windshields, seats, steering wheels, helmets, military gear, weapons, people, roads, neon glow, smoky blur, glassmorphism, stock SaaS charts, browser frames, device frames, or any text not quoted above.

@@ -1,0 +1,125 @@
+Create a readable desktop web-app wireflow for Heavy Rain's weekly work-to-application lifecycle in UX Flow dark, using the fixed tokens and component rules below. This board is an overview only (7 screen cards maximum). Keep all text legible at 4K (3840 x 2160, 16:9), route orthogonal arrows cleanly outside cards with at least 128 px outer margins and a 32 px grid, and use both text labels and color on every connector. Do not add screens, decorative gradients, glass effects, glow, 3D marketing chrome, or invented metrics.
+
+Fixed top-left two-line disclaimer (place above the board title, clear of all cards and connectors):
+"UX flow mockup"
+"Low fidelity · Not final design"
+
+Board title (88-104 px, top left below disclaimer):
+"Heavy Rain · Weekly work report to reviewed organization app (Proposal)"
+
+Fixed UX Flow dark tokens:
+- Canvas background: #0B0F14
+- Screen/card fill: #121923 (24 px corner radius, 2 px solid border #344256)
+- Raised control / card header bar: #1A2432
+- Border / divider: #344256
+- Primary text: #F3F6FA (neutral system sans-serif, regular and semibold, minimum 28 px)
+- Secondary text: #A9B6C8
+- Main action / normal path connector & primary button fill: #66DFC2 (dark button text #0B0F14)
+- Return / edit path connector: #8FAEFF
+- Needs attention / conditional path connector & badge: #F2C57C
+- Failed / destructive connector & badge: #FF929B
+- Neutral / inactive badge: #A9B6C8
+
+Layout structure:
+Arrange 7 wide desktop viewport cards across two horizontal rows, with a compact 3-column behavior strip across the bottom margin.
+- Top row (left to right): Cards 01, 02, 03, 04 (main capture, weekly triage, smoky sandbox build, and ready review).
+- Bottom row (left to right beneath corresponding top cards): Cards 06 (below 02), 07 (below 03), 05 (below 04).
+
+Exact screen cards and quoted labels:
+
+Card 01 (top-left):
+- Header title: "01 Employee capture · Outgoing review"
+- Status badge: "Draft" (#A9B6C8)
+- Body rows:
+  - Field: "Organization: Rookmere Capital (Sample fixture)"
+  - Field: "Repeated task: Monthly portfolio EBITDA variance reconciliation"
+  - Outgoing payload box: "Included attachments: Q3_variance_template.xlsx (redacted) · Full chat transcript excluded"
+  - Scope line: "Policy scope: Approved finance templates only"
+- Controls:
+  - Primary button (#66DFC2): "Submit work report"
+  - Secondary button: "Save draft"
+
+Card 02 (top-center-left):
+- Header title: "02 Work · Weekly run grouping"
+- Status badge: "Active" (#66DFC2)
+- Left vertical rail: "System", "Work" (selected), "Apps", "Activity"
+- Center canvas rows:
+  - Run header: "Weekly run · Cutoff Sun 18:00 UTC · 14 reports grouped"
+  - Row A: "Diligence request tracker · Existing app match" -> Action: "Route to existing app"
+  - Row B: "Portfolio variance report · 6 reports · Authorized scope" -> Primary button (#66DFC2): "Start sandbox build"
+  - Row C: "LP side-letter obligations · Missing sample schedule" -> Action: "Request missing evidence"
+- Secondary right inspector: "Evidence & policy summary"
+
+Card 03 (top-center-right):
+- Header title: "03 System · Sandbox build running"
+- Status badge: "Running" (#66DFC2)
+- Left vertical rail: "System" (selected), "Work", "Apps", "Activity"
+- Center topographic stage:
+  - Central build frame with flat schematic stipple/hatched veil representing smoky blur: "Preview obscured while sandbox builds"
+  - Sharp overlay checkpoint rail: "1. Schema check (Complete) -> 2. UI assembly (Running) -> 3. Verification (Queued)"
+- Secondary right inspector: "Active worker: Builder · Checkpoints saved"
+- Controls (sharp above veil):
+  - Secondary button: "Pause build"
+  - Secondary button: "Inspect worker activity"
+
+Card 04 (top-right):
+- Header title: "04 System · Artifact ready for review"
+- Status badge: "Ready" (#66DFC2)
+- Left vertical rail: "System" (selected), "Work", "Apps", "Activity"
+- Center stage (unblurred, clear preview):
+  - Preview header: "Portfolio variance report · Sandbox preview" (or "AUGI Sable chassis study · 3D concept preview")
+  - Verification summary: "Sandbox checks passed · Read-only sample data · 0 production writes"
+- Controls:
+  - Primary button (#66DFC2): "Approve for release"
+  - Secondary button: "Request changes"
+
+Card 06 (bottom-left, below Card 02):
+- Header title: "06 Work · Needs evidence"
+- Status badge: "Needs attention" (#F2C57C)
+- Body rows:
+  - Blocked item: "LP side-letter obligations"
+  - Missing item: "Needs 1 redacted sample obligation schedule from Legal"
+  - Preserved state: "Other weekly tasks continue without block"
+- Controls:
+  - Primary button (#66DFC2): "Send evidence request"
+  - Secondary button: "Defer to next weekly run"
+
+Card 07 (bottom-center, below Card 03):
+- Header title: "07 System · Build paused or failed"
+- Status badge: "Paused" (#F2C57C) and "Failed" (#FF929B)
+- Body rows:
+  - State note: "Last verified checkpoint preserved: 1. Schema check"
+  - Reason line: "Paused by operator or sandbox check failed on column mapping"
+- Controls:
+  - Primary button (#66DFC2): "Resume from checkpoint"
+  - Destructive text action (#FF929B): "Cancel build; keep draft"
+
+Card 05 (bottom-right, below Card 04):
+- Header title: "05 Apps · Released organization app"
+- Status badge: "Complete" (#66DFC2)
+- Left vertical rail: "System", "Work", "Apps" (selected), "Activity"
+- Body rows:
+  - Notification banner: "Notifier sent release link to 6 reporting employees"
+  - Live app card: "Portfolio variance report · Organization theme applied"
+  - Secondary app card: "AUGI Sable chassis study · Interactive 3D concept viewer"
+- Controls:
+  - Primary button (#66DFC2): "Open organization app"
+  - Secondary button: "Report issue or suggest change"
+- External return tag outside card right edge: "Submit follow-up -> 01"
+
+Required labeled connectors (3-4 px orthogonal lines with clear arrowheads, routed in gutters outside cards):
+1. Solid teal (#66DFC2) from Card 01 to Card 02: "Submit work report; receipt issued"
+2. Dashed teal (#66DFC2) from Card 02 to Card 05: "Match approved app; route directly"
+3. Solid teal (#66DFC2) from Card 02 to Card 03: "Start sandbox build"
+4. Dashed amber (#F2C57C) from Card 02 to Card 06: "Missing evidence"
+5. Solid blue (#8FAEFF) from Card 06 to Card 01: "Employee supplies requested sample"
+6. Solid teal (#66DFC2) from Card 03 to Card 04: "Checks pass; reveal artifact"
+7. Dashed amber/red (#F2C57C) from Card 03 to Card 07: "Pause build or check fails"
+8. Solid blue (#8FAEFF) from Card 07 to Card 03: "Resume from checkpoint"
+9. Solid blue (#8FAEFF) from Card 04 to Card 03: "Request changes; rerun stage"
+10. Solid teal (#66DFC2) from Card 04 to Card 05: "Approve for release; notify users"
+
+Bottom behavior strip (3 solid #121923 boxes with #344256 borders spanning the bottom margin):
+- Box 1: "Consent & scope: Employees inspect exact outgoing report text and attachments before sending. Host chat history remains local."
+- Box 2: "Independent states: Weekly schedule, current run progress, sandbox checkpoints, and released apps have separate statuses."
+- Box 3: "Demo replay notice: Rookmere Capital and AUGI fixtures replay real state transitions without executing production writes."

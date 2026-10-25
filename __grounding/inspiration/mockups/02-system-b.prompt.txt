@@ -1,0 +1,26 @@
+High-fidelity product UI mockup: a crisp, pixel-sharp desktop screenshot (no browser chrome, no device frame), 16:9, of a 1440 by 900 pixel viewport rendered at 2K. Rain-dark theme in the visual language of Heavy Rain. Space Grotesk display headings, Inter UI controls, JetBrains Mono technical labels, tabular figures for every number, off-white primary text #F3F5F7, slate secondary text #94A0B0, muted text #5E6877, rain-dark obsidian canvas #0C0F14, elevated slate node plates #131820, thin bright frames #263140, active mint signal #34D399, no drop shadows. Flat, precise, calm and architectural; real product proportions, not a stock SaaS metric grid.
+
+Variant B: a rain-dark spatial orchestration canvas with a clicky left navigation rail, a central-left stepped worker handoff graph with directional signal conduits, and a central-right smoky build preview chamber.
+
+TEXT RULE. Every readable word in the image comes from the double-quoted strings in this prompt. Render each quoted string exactly as written (spelling, capitalization, punctuation, symbols, spacing), once, or twice only where this prompt places it in two named spots. Add no other text anywhere: no extra labels, numbers, scale values, legends, tooltips, logos, wordmarks, badges, placeholder text, lorem ipsum or watermarks. Hex codes, pixel sizes, percentages, section names and the words TEXT RULE, BACKDROP, DIALOG and AVOID are instructions to you and are never drawn. The attached image shows chrome, spacing and type only; none of its words or content appear in the output.
+
+top bar (full width, 64px tall, 40px horizontal padding, 1px #1B222D bottom hairline):
+On the left, a flat #F3F5F7 mark of three parallel diagonal rain strokes above a horizontal base bar, followed by 15px semibold #F3F5F7 "Heavy Rain", and a 28px outlined pill (1px #263140 border, #131820 fill, 12px medium #94A0B0) reading "Rookmere Capital". On the right, a sharp status pill (1px #1E3A34 border, #102420 fill, 6px solid mint #34D399 dot, 12px medium #34D399) reading "Building", beside a 36px tactile button (1px #2E3B4E border, #161C26 fill, 13px semibold #F3F5F7) reading "Pause build".
+
+background canvas (1440 by 900 viewport):
+Deep rain-dark #0C0F14 surface etched with subtle topographic contour lines in #151B24 and sparse crosshair ticks. Every navigation label, node card, and conduit line is razor-sharp; blur exists only inside the build preview viewport.
+
+left navigation rail (mid-left at x=48px, vertically centered, 148px wide, directly over the rain-dark topography like the reference):
+Four vertical navigation items with 18px spacing. Active top item has a 2px vertical mint #34D399 left bar and 15px semibold #F3F5F7 "System". Below sit three inactive items in 15px regular #5E6877: "Work", "Apps", and "Activity". Below sits a tiny 2-by-10 #263140 dot-matrix ornament.
+
+central spatial stage (spanning x=240px to x=1380px, vertically centered):
+Top left-aligned header: a 12px monospace #34D399 eyebrow "Cairn", and 6px below it the 38px semibold #F3F5F7 headline "Portfolio variance".
+Beneath the header, the stage splits into two connected zones:
+Left zone (440px wide, spatial worker handoff graph): Four rectangular node plates (200px by 68px, #131820 fill, 6px radius) in a stepped cascade linked by orthogonal 1px #263140 routing lines carrying glowing mint #34D399 handoff ticks rightward into the build chamber.
+Top-left node (1px #263140 border): 14px semibold #F3F5F7 "Researcher" above a 6px solid #94A0B0 dot and 12px monospace #94A0B0 "Completed".
+Middle-left node (1px #263140 border): 14px semibold #F3F5F7 "Connector" above a 6px solid #94A0B0 dot and 12px monospace #94A0B0 "Completed".
+Center active node (1.5px #34D399 border, #142223 fill): 14px semibold #F3F5F7 "Builder" above a 6px glowing #34D399 dot and 12px monospace #34D399 "Running". Two mint conduits exit its right edge into the preview viewport.
+Bottom-left node (1px #1D2530 dashed border): 14px medium #5E6877 "Notifier" above a 6px hollow #5E6877 ring and 12px monospace #5E6877 "Queued".
+Right zone (640px by 430px recessed preview viewport, 8px radius, crisp 1px #2E3B4E frame): Strictly inside this viewport and nowhere else, the emerging application is veiled in a smoky 16px gaussian blur and dark rain-mist with a subtle mint #34D399 vapor bloom over soft ghost shapes of a variance table and waterfall chart.
+
+AVOID: sparkles, stars, robots, brains, chat bubbles, stock photos, people, helmets, military gear, weapons, neon purple glow, tilted 3D cards, bokeh, emoji, fabricated completion percentages, browser frames, device frames, or any text not quoted above.

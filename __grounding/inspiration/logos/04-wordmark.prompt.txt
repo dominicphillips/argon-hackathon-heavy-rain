@@ -1,0 +1,11 @@
+Flat 2D vector brand identity sheet on a 16:9 landscape artboard (1600 by 1000 pixels at 2K). Monochrome deep charcoal ink #141517 on a matte pale ash surface #E2E2E4 with generous open negative space. No 3D mockup, no paper texture, no drop shadows, no gradients.
+
+Direction 04 — Graceful lightweight geometric grotesk with subtle AV ligature:
+At the optical center of the artboard sits a refined, lightweight uppercase wordmark reading "HEAVY RAIN" in solid matte charcoal #141517. The letterforms are a slender, narrow geometric grotesk with fine monolinear strokes, open counters, calm tracking (+0.02em), and a subtle structural ligature in "HEAVY" where the right diagonal stem of A joins the left diagonal stem of V at a clean flat-top miter while keeping every letter immediately legible. To the right of "RAIN", aligned to the optical midline, sits a tiny concentric double-ring rain-ripple instrument mark in #141517.
+
+Corner usage specimen (top-left corner, 48px inset from top and left edges):
+A minimal 220px-wide UI corner specimen over a single faint 1px #D2D4D9 topographic contour curve and a 1px #C8CAD0 bottom rule, showing the lightweight "HEAVY RAIN" wordmark and concentric ring mark at compact 14px header scale.
+
+TEXT RULE: Every readable character in the image comes strictly from the quoted string "HEAVY RAIN", rendered once large at center and once small in the top-left corner usage specimen. Render no other letters, numbers, words, captions, dimensions, font names, or hex codes anywhere.
+
+AVOID: registered trademark symbols (®), TM or copyright marks, diagonal slash icons, three-bar rain conduits, raindrops, clouds, umbrellas, helmets, military or tactical gear, people, device frames, angled perspective mockups, embossing, or filler slogans.

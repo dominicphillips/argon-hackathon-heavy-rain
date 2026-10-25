@@ -1,0 +1,43 @@
+%% AUGI Sable 3D Concept Chassis Engineering Study UX Flow
+%% Built with packages/organization-ui (AUGI theme); opened from Heavy Rain System preview or Apps.
+%% Render with: mmdc -i augi-flow.mmd -c /Users/dominicphillips/.codex/skills/ux-flow/assets/mermaid-theme.json
+
+flowchart LR
+    subgraph Entry["Entry & context preservation"]
+        hr_sys["Heavy Rain · System or Apps\nSelect 'Open organization app'"]
+        augi_init["01 AUGI Sable Study · Baseline A loaded\n3D Viewport: Isometric preset · Units: Metric (mm, kN, deg)"]
+    end
+
+    subgraph Viewport3D["Center 3D chassis stage (Three.js / R3F)"]
+        cam_free["Interactive 3D camera\nOrbit / Pan / Zoom / Tilt (Pointer + Keyboard)"]
+        cam_preset["Quick camera presets\nIsometric · Front · Side · Top · Underbody · Reset view"]
+        view_mode["Assembly & load visualization\nAssembled · Exploded view (slider) · Force & deformation animation"]
+    end
+
+    subgraph Controls["Left & right engineering controls (AUGI theme)"]
+        param_edit["02 Geometry & material editor (Unsaved edits)\nWheelbase (mm) · Track width (mm) · Wall gauge (mm) · Alloy/composite selection"]
+        load_case["03 Load case selector\nTorsional twist (kNm/deg) · Vertical beam bending (kN) · Combined cornering"]
+        compare_mode["04 Configuration compare (Baseline A vs Candidate B)\nSide-by-side or overlay wireframe diff + delta table"]
+        saved_state["05 Saved study snapshot\nConfiguration persisted to study workspace; ready for review handoff"]
+    end
+
+    hr_sys -->|"Open AUGI Sable chassis study (preserve selected run context)"| augi_init
+    augi_init -->|"Drag / WASD / Arrow keys"| cam_free
+    cam_free -->|"Select preset or press R (Reset view)"| cam_preset
+    cam_preset -->|"Camera smoothly snaps (instant snap in Reduced Motion)"| augi_init
+
+    augi_init -->|"Adjust wheelbase, track, gauge, or material"| param_edit
+    param_edit -->|"Valid range check passes; recompute concept approximation"| load_case
+    param_edit -->|"Out-of-bounds value: inline field constraint + Reset parameter"| param_edit
+    param_edit -->|"Discard edits; restore Baseline A"| augi_init
+
+    load_case -->|"Toggle Exploded view or Play deformation"| view_mode
+    view_mode -->|"Pause / scrub animation or Reset deformation"| load_case
+
+    load_case -->|"Pin as Candidate B & open Compare"| compare_mode
+    compare_mode -->|"Swap active configuration or Clear comparison"| load_case
+    compare_mode -->|"Save configuration to study"| saved_state
+    load_case -->|"Save configuration to study"| saved_state
+
+    saved_state -->|"Return to Heavy Rain review (if opened from System/Apps)"| hr_sys
+    saved_state -->|"Continue editing as new candidate"| param_edit

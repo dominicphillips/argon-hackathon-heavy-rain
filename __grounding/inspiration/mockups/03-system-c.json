@@ -1,0 +1,18 @@
+{
+  "name": "03-system-c",
+  "operation": "generate",
+  "model": "gemini-3-pro-image-preview",
+  "provider": "google",
+  "aspect": "16:9",
+  "size": "2K",
+  "prompt_file": "03-system-c.prompt.txt",
+  "source_prompt": "/Users/dominicphillips/heavyrain/__grounding/inspiration/mockups/03-system-c.prompt.txt",
+  "output": "/Users/dominicphillips/heavyrain/__grounding/inspiration/mockups/03-system-c.png",
+  "sha256": "f7c2121d4985faf523c20f6306c39b72fe60afcc08d517eae2ba5572e4240786",
+  "elapsed_s": 30,
+  "exit_code": 0,
+  "reference": "/Users/dominicphillips/heavyrain/__grounding/inspiration/references/dribbble/09-tactical-gear-landing-page-anorent.png",
+  "edit_of": null,
+  "generated_at": "2026-10-25T11:24:04-07:00",
+  "host": "mac-max.local"
+}

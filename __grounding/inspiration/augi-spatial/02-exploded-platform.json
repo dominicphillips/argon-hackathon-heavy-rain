@@ -1,0 +1,18 @@
+{
+  "name": "02-exploded-platform",
+  "operation": "generate",
+  "model": "gemini-3-pro-image-preview",
+  "provider": "google",
+  "aspect": "16:9",
+  "size": "4K",
+  "prompt_file": "02-exploded-platform.prompt.txt",
+  "source_prompt": "/Users/dominicphillips/heavyrain/__grounding/inspiration/augi-spatial/02-exploded-platform.prompt.txt",
+  "output": "/Users/dominicphillips/heavyrain/__grounding/inspiration/augi-spatial/02-exploded-platform.png",
+  "sha256": "9e77fd0493bb902e43a508980f157efb6af9198389dbd9d03cd629b13d4b5320",
+  "elapsed_s": 92,
+  "exit_code": 0,
+  "reference": "/Users/dominicphillips/heavyrain/__grounding/inspiration/references/dribbble/09-tactical-gear-landing-page-anorent.png",
+  "edit_of": null,
+  "generated_at": "2026-10-25T11:48:20-07:00",
+  "host": "mac-max.local"
+}

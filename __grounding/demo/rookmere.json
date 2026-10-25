@@ -1,0 +1,1026 @@
+{
+  "fixture_metadata": {
+    "fixture_id": "fixture_rookmere_2026_10_25",
+    "scope_notice": "Synthetic demonstration dataset representing a fictional lower mid-market private equity firm (Rookmere Capital). All employees, funds, portfolio companies, financial figures, URLs (.example), and workflow timings are invented fixtures for interface development and deterministic replay. No real personal data, live client credentials, or measured time-savings claims are included.",
+    "schema_version": "1.0.0",
+    "created_at": "2026-10-25T09:00:00Z"
+  },
+  "organization": {
+    "org_id": "org_rookmere",
+    "name": "Rookmere Capital",
+    "legal_entity": "Rookmere Capital Partners LLP",
+    "sector": "Lower Mid-Market Industrial & B2B Technology Private Equity",
+    "primary_domain": "rookmere.example",
+    "portal_url": "https://apps.rookmere.example",
+    "relay_endpoint": "https://relay.rookmere.example/v1/mcp",
+    "headquarters": [
+      "London, United Kingdom",
+      "Frankfurt am Main, Germany"
+    ],
+    "reporting_currency": "EUR",
+    "total_staff_count": 32,
+    "named_fixture_roster_count": 12,
+    "staff_headcount_by_department": {
+      "investment_team": {
+        "total_staff": 12,
+        "named_in_fixture": 4,
+        "unnamed_staff_summary": "2 Partners, 2 Principals, 4 Associates/Analysts not individually enumerated in demo paths"
+      },
+      "operating_partners": {
+        "total_staff": 5,
+        "named_in_fixture": 2,
+        "unnamed_staff_summary": "3 sector operating advisors (supply chain, ERP migration, talent)"
+      },
+      "fund_finance_and_valuation": {
+        "total_staff": 6,
+        "named_in_fixture": 2,
+        "unnamed_staff_summary": "4 fund accountants and treasury analysts"
+      },
+      "investor_relations": {
+        "total_staff": 4,
+        "named_in_fixture": 2,
+        "unnamed_staff_summary": "2 investor reporting associates"
+      },
+      "compliance_and_legal": {
+        "total_staff": 3,
+        "named_in_fixture": 1,
+        "unnamed_staff_summary": "2 compliance and legal counsel analysts"
+      },
+      "technology_and_data": {
+        "total_staff": 2,
+        "named_in_fixture": 1,
+        "unnamed_staff_summary": "1 workplace systems engineer"
+      }
+    },
+    "theme_id": "rookmere-ash-ledger"
+  },
+  "funds": [
+    {
+      "fund_id": "fund_rm_iii",
+      "name": "Rookmere Industrial Growth III",
+      "short_code": "RIG-III",
+      "vintage_year": 2021,
+      "committed_capital_eur": 480000000,
+      "committed_capital_label": "EUR 480m",
+      "lifecycle_stage": "Value creation & selective realization",
+      "target_ev_range_eur": "EUR 35m - EUR 95m",
+      "active_portfolio_count": 4,
+      "active_portfolio_company_ids": [
+        "port_kelvion_flow",
+        "port_varn_optics",
+        "port_brenthal_pack",
+        "port_ostmark_med"
+      ]
+    },
+    {
+      "fund_id": "fund_rm_iv",
+      "name": "Rookmere Industrial Growth IV",
+      "short_code": "RIG-IV",
+      "vintage_year": 2024,
+      "committed_capital_eur": 720000000,
+      "committed_capital_label": "EUR 720m",
+      "lifecycle_stage": "Active deployment & initial integration",
+      "target_ev_range_eur": "EUR 50m - EUR 140m",
+      "active_portfolio_count": 4,
+      "active_portfolio_company_ids": [
+        "port_solvay_grid",
+        "port_nordic_cold",
+        "port_therma_rail",
+        "port_castel_lab"
+      ]
+    }
+  ],
+  "portfolio_companies": [
+    {
+      "company_id": "port_kelvion_flow",
+      "detail_level": "full",
+      "name": "Kelvion Flow Systems GmbH",
+      "fund_id": "fund_rm_iii",
+      "acquisition_date": "2022-03-14",
+      "headquarters": "Mannheim, Germany",
+      "subsector": "Precision cryogenic and industrial process valves",
+      "local_currency": "EUR",
+      "erp_system": "SAP Business ByDesign",
+      "monthly_submission_format": "German HGB trial balance CSV (semicolon-delimited) + management commentary PDF",
+      "deal_lead_employee_id": "emp_rm_02",
+      "operating_lead_employee_id": "emp_rm_05",
+      "finance_reviewer_employee_id": "emp_rm_07",
+      "latest_period": "2026-09",
+      "financial_snapshot": {
+        "monthly_revenue_actual_eur": 6420000,
+        "monthly_revenue_budget_eur": 6850000,
+        "monthly_ebitda_actual_eur": 1180000,
+        "monthly_ebitda_budget_eur": 1410000,
+        "net_debt_eur": 41200000,
+        "ltm_ebitda_eur": 13100000,
+        "net_leverage_ratio": 3.15,
+        "covenant_max_net_leverage": 3.75,
+        "primary_variance_driver": "Delayed commissioning of two chemical-plant valve skids shifted EUR 430k revenue into October; stainless-steel casting scrap rose 140 bps."
+      }
+    },
+    {
+      "company_id": "port_varn_optics",
+      "detail_level": "full",
+      "name": "Varn Precision Optics AB",
+      "fund_id": "fund_rm_iii",
+      "acquisition_date": "2022-11-02",
+      "headquarters": "Linköping, Sweden",
+      "subsector": "Short-wave infrared (SWIR) lenses for automated semiconductor & battery inspection",
+      "local_currency": "SEK",
+      "fx_rate_to_eur_budget": 11.2,
+      "fx_rate_to_eur_actual": 11.48,
+      "erp_system": "Monitor ERP G5",
+      "monthly_submission_format": "Multi-tab XLSX management pack in SEK with unmapped custom cost-center codes",
+      "deal_lead_employee_id": "emp_rm_03",
+      "operating_lead_employee_id": "emp_rm_06",
+      "finance_reviewer_employee_id": "emp_rm_08",
+      "latest_period": "2026-09",
+      "financial_snapshot": {
+        "monthly_revenue_actual_eur": 4890000,
+        "monthly_revenue_budget_eur": 4650000,
+        "monthly_ebitda_actual_eur": 1340000,
+        "monthly_ebitda_budget_eur": 1210000,
+        "net_debt_eur": 24500000,
+        "ltm_ebitda_eur": 14200000,
+        "net_leverage_ratio": 1.73,
+        "covenant_max_net_leverage": 3.5,
+        "primary_variance_driver": "Constant-currency revenue beat budget by +7.8% on OEM inline inspection orders; SEK depreciation reduced EUR-translated EBITDA by EUR 33k."
+      }
+    },
+    {
+      "company_id": "port_solvay_grid",
+      "detail_level": "full",
+      "name": "Solvay Grid Controls B.V.",
+      "fund_id": "fund_rm_iv",
+      "acquisition_date": "2024-06-19",
+      "headquarters": "Eindhoven, Netherlands",
+      "subsector": "Medium-voltage substation protection relays and grid-edge telemetry",
+      "local_currency": "EUR",
+      "erp_system": "Exact Online Manufacturing",
+      "monthly_submission_format": "Exact Online GL export CSV + SaaS recurring telemetry ARR schedule XLSX",
+      "deal_lead_employee_id": "emp_rm_01",
+      "operating_lead_employee_id": "emp_rm_05",
+      "finance_reviewer_employee_id": "emp_rm_07",
+      "latest_period": "2026-09",
+      "financial_snapshot": {
+        "monthly_revenue_actual_eur": 7910000,
+        "monthly_revenue_budget_eur": 7600000,
+        "monthly_ebitda_actual_eur": 1920000,
+        "monthly_ebitda_budget_eur": 1850000,
+        "net_debt_eur": 58000000,
+        "ltm_ebitda_eur": 21400000,
+        "net_leverage_ratio": 2.71,
+        "covenant_max_net_leverage": 4.0,
+        "primary_variance_driver": "Municipal DSO grid retrofit deliveries pulled forward; firmware engineering contractor spend ran EUR 65k above monthly budget."
+      }
+    },
+    {
+      "company_id": "port_nordic_cold",
+      "detail_level": "full",
+      "name": "Nordic ColdChain Logistics AS",
+      "fund_id": "fund_rm_iv",
+      "acquisition_date": "2025-01-28",
+      "headquarters": "Oslo, Norway",
+      "subsector": "GDP-compliant active temperature-controlled pharmaceutical freight and depot storage",
+      "local_currency": "NOK",
+      "fx_rate_to_eur_budget": 11.5,
+      "fx_rate_to_eur_actual": 11.79,
+      "erp_system": "Visma.net ERP",
+      "monthly_submission_format": "Visma trial balance export + fleet fuel surcharge reconciliation XLSX",
+      "deal_lead_employee_id": "emp_rm_04",
+      "operating_lead_employee_id": "emp_rm_06",
+      "finance_reviewer_employee_id": "emp_rm_08",
+      "latest_period": "2026-09",
+      "financial_snapshot": {
+        "monthly_revenue_actual_eur": 5580000,
+        "monthly_revenue_budget_eur": 5920000,
+        "monthly_ebitda_actual_eur": 890000,
+        "monthly_ebitda_budget_eur": 1140000,
+        "net_debt_eur": 39800000,
+        "ltm_ebitda_eur": 11050000,
+        "net_leverage_ratio": 3.6,
+        "covenant_max_net_leverage": 3.75,
+        "primary_variance_driver": "Two biologicals distribution contracts paused lane expansion in Q3; net leverage is within 0.15x of the 3.75x maintenance covenant threshold."
+      }
+    },
+    {
+      "company_id": "port_brenthal_pack",
+      "detail_level": "summary",
+      "name": "Brenthal Protective Packaging Ltd",
+      "fund_id": "fund_rm_iii",
+      "acquisition_date": "2021-09-30",
+      "headquarters": "Manchester, United Kingdom",
+      "subsector": "Custom moulded-fibre industrial transit packaging",
+      "local_currency": "GBP",
+      "erp_system": "Microsoft Dynamics 365 Business Central",
+      "deal_lead_employee_id": "emp_rm_01",
+      "operating_lead_employee_id": "emp_rm_05",
+      "latest_period": "2026-09",
+      "summary_status": "On plan; +2.1% YTD EBITDA vs budget"
+    },
+    {
+      "company_id": "port_ostmark_med",
+      "detail_level": "summary",
+      "name": "Ostmark Sterile Components GmbH",
+      "fund_id": "fund_rm_iii",
+      "acquisition_date": "2023-04-12",
+      "headquarters": "Graz, Austria",
+      "subsector": "Cleanroom elastomer stoppers and plungers for injectable vials",
+      "local_currency": "EUR",
+      "erp_system": "proALPHA ERP",
+      "deal_lead_employee_id": "emp_rm_02",
+      "operating_lead_employee_id": "emp_rm_05",
+      "latest_period": "2026-09",
+      "summary_status": "Slightly ahead of plan; cleanroom Line 4 qualification completed in September"
+    },
+    {
+      "company_id": "port_therma_rail",
+      "detail_level": "summary",
+      "name": "ThermaRail HVAC SAS",
+      "fund_id": "fund_rm_iv",
+      "acquisition_date": "2024-10-15",
+      "headquarters": "Lyon, France",
+      "subsector": "Low-GWP refrigerant HVAC modules for regional passenger rail",
+      "local_currency": "EUR",
+      "erp_system": "Sage X3",
+      "deal_lead_employee_id": "emp_rm_03",
+      "operating_lead_employee_id": "emp_rm_06",
+      "latest_period": "2026-09",
+      "summary_status": "Watchlist on working capital; compressor supplier lead times extended by 3 weeks"
+    },
+    {
+      "company_id": "port_castel_lab",
+      "detail_level": "summary",
+      "name": "Castel Analytical Instruments S.r.l.",
+      "fund_id": "fund_rm_iv",
+      "acquisition_date": "2025-05-08",
+      "headquarters": "Modena, Italy",
+      "subsector": "Automated headspace and liquid-chromatography sample handlers",
+      "local_currency": "EUR",
+      "erp_system": "TeamSystem Enterprise",
+      "deal_lead_employee_id": "emp_rm_04",
+      "operating_lead_employee_id": "emp_rm_06",
+      "latest_period": "2026-09",
+      "summary_status": "First 100-day integration; chart-of-accounts mapping to Rookmere standard in progress"
+    }
+  ],
+  "roles_and_access": {
+    "capture_policy": {
+      "mode": "explicit_mcp_submission_and_scoped_hooks",
+      "passive_chat_scraping": false,
+      "outgoing_payload_preview_required": true,
+      "employee_revocation_window_hours": 72,
+      "redaction_rules": [
+        "LP individual personal identifiers and wire instructions are blocked at client MCP validation.",
+        "Unredacted LP side-letter PDFs require role_compliance sign-off before sandbox ingestion."
+      ]
+    },
+    "roles": [
+      {
+        "role_id": "role_deal_team",
+        "title": "Investment Team",
+        "permitted_data_scopes": [
+          "firm_general",
+          "deal_confidential",
+          "portfolio_financials"
+        ],
+        "restricted_data_scopes": [
+          "lp_restricted_side_letters"
+        ],
+        "can_submit_mcp_reports": true,
+        "can_authorize_sandbox_build": false,
+        "can_approve_production_release": false
+      },
+      {
+        "role_id": "role_operating_partner",
+        "title": "Operating Partners",
+        "permitted_data_scopes": [
+          "firm_general",
+          "portfolio_financials"
+        ],
+        "restricted_data_scopes": [
+          "deal_confidential",
+          "lp_restricted_side_letters"
+        ],
+        "can_submit_mcp_reports": true,
+        "can_authorize_sandbox_build": false,
+        "can_approve_production_release": false
+      },
+      {
+        "role_id": "role_fund_finance",
+        "title": "Fund Finance & Valuation",
+        "permitted_data_scopes": [
+          "firm_general",
+          "portfolio_financials"
+        ],
+        "restricted_data_scopes": [
+          "deal_confidential"
+        ],
+        "can_submit_mcp_reports": true,
+        "can_authorize_sandbox_build": true,
+        "can_approve_production_release": false
+      },
+      {
+        "role_id": "role_investor_relations",
+        "title": "Investor Relations",
+        "permitted_data_scopes": [
+          "firm_general",
+          "portfolio_financials",
+          "lp_summary_commitments"
+        ],
+        "restricted_data_scopes": [
+          "lp_restricted_side_letters"
+        ],
+        "can_submit_mcp_reports": true,
+        "can_authorize_sandbox_build": false,
+        "can_approve_production_release": false
+      },
+      {
+        "role_id": "role_compliance",
+        "title": "Compliance & Legal",
+        "permitted_data_scopes": [
+          "firm_general",
+          "deal_confidential",
+          "portfolio_financials",
+          "lp_summary_commitments",
+          "lp_restricted_side_letters"
+        ],
+        "restricted_data_scopes": [],
+        "can_submit_mcp_reports": true,
+        "can_authorize_sandbox_build": true,
+        "can_approve_production_release": true
+      },
+      {
+        "role_id": "role_tech_admin",
+        "title": "Technology & System Operator",
+        "permitted_data_scopes": [
+          "firm_general",
+          "system_telemetry",
+          "sandbox_artifacts"
+        ],
+        "restricted_data_scopes": [
+          "lp_restricted_side_letters"
+        ],
+        "can_submit_mcp_reports": true,
+        "can_authorize_sandbox_build": true,
+        "can_approve_production_release": true
+      }
+    ]
+  },
+  "employees": [
+    {
+      "employee_id": "emp_rm_01",
+      "name": "Clara Vance",
+      "title": "Partner, Investment Team",
+      "department": "investment_team",
+      "role_id": "role_deal_team",
+      "office": "London",
+      "email": "c.vance@rookmere.example",
+      "assistant_clients": [
+        "Claude Desktop (MCP v2026-07-28)",
+        "Gemini Workspace"
+      ],
+      "covered_portfolio_ids": [
+        "port_solvay_grid",
+        "port_brenthal_pack"
+      ]
+    },
+    {
+      "employee_id": "emp_rm_02",
+      "name": "Lukas Weber",
+      "title": "Principal, DACH Investments",
+      "department": "investment_team",
+      "role_id": "role_deal_team",
+      "office": "Frankfurt",
+      "email": "l.weber@rookmere.example",
+      "assistant_clients": [
+        "Claude Desktop (MCP v2026-07-28)",
+        "ChatGPT Enterprise"
+      ],
+      "covered_portfolio_ids": [
+        "port_kelvion_flow",
+        "port_ostmark_med"
+      ]
+    },
+    {
+      "employee_id": "emp_rm_03",
+      "name": "Henrik Lindqvist",
+      "title": "Senior Associate, Investment Team",
+      "department": "investment_team",
+      "role_id": "role_deal_team",
+      "office": "London",
+      "email": "h.lindqvist@rookmere.example",
+      "assistant_clients": [
+        "Claude Desktop (MCP v2026-07-28)"
+      ],
+      "covered_portfolio_ids": [
+        "port_varn_optics",
+        "port_therma_rail"
+      ]
+    },
+    {
+      "employee_id": "emp_rm_04",
+      "name": "Maya Patel",
+      "title": "Associate, Investment Team",
+      "department": "investment_team",
+      "role_id": "role_deal_team",
+      "office": "London",
+      "email": "m.patel@rookmere.example",
+      "assistant_clients": [
+        "ChatGPT Enterprise",
+        "Claude Desktop (MCP v2026-07-28)"
+      ],
+      "covered_portfolio_ids": [
+        "port_nordic_cold",
+        "port_castel_lab"
+      ]
+    },
+    {
+      "employee_id": "emp_rm_05",
+      "name": "Dr. Stefan Kroll",
+      "title": "Operating Partner, Manufacturing & Supply Chain",
+      "department": "operating_partners",
+      "role_id": "role_operating_partner",
+      "office": "Frankfurt",
+      "email": "s.kroll@rookmere.example",
+      "assistant_clients": [
+        "Gemini Workspace"
+      ],
+      "covered_portfolio_ids": [
+        "port_kelvion_flow",
+        "port_solvay_grid",
+        "port_brenthal_pack",
+        "port_ostmark_med"
+      ]
+    },
+    {
+      "employee_id": "emp_rm_06",
+      "name": "Elise Moreau",
+      "title": "Operating Partner, Commercial Excellence",
+      "department": "operating_partners",
+      "role_id": "role_operating_partner",
+      "office": "London",
+      "email": "e.moreau@rookmere.example",
+      "assistant_clients": [
+        "Claude Desktop (MCP v2026-07-28)"
+      ],
+      "covered_portfolio_ids": [
+        "port_varn_optics",
+        "port_nordic_cold",
+        "port_therma_rail",
+        "port_castel_lab"
+      ]
+    },
+    {
+      "employee_id": "emp_rm_07",
+      "name": "Gareth Jenkins",
+      "title": "Head of Fund Finance & Valuation",
+      "department": "fund_finance_and_valuation",
+      "role_id": "role_fund_finance",
+      "office": "London",
+      "email": "g.jenkins@rookmere.example",
+      "assistant_clients": [
+        "Claude Desktop (MCP v2026-07-28)",
+        "Gemini Workspace"
+      ],
+      "covered_portfolio_ids": [
+        "port_kelvion_flow",
+        "port_solvay_grid",
+        "port_brenthal_pack",
+        "port_ostmark_med"
+      ]
+    },
+    {
+      "employee_id": "emp_rm_08",
+      "name": "Nina Kovacs",
+      "title": "Senior Fund Controller",
+      "department": "fund_finance_and_valuation",
+      "role_id": "role_fund_finance",
+      "office": "Frankfurt",
+      "email": "n.kovacs@rookmere.example",
+      "assistant_clients": [
+        "ChatGPT Enterprise"
+      ],
+      "covered_portfolio_ids": [
+        "port_varn_optics",
+        "port_nordic_cold",
+        "port_therma_rail",
+        "port_castel_lab"
+      ]
+    },
+    {
+      "employee_id": "emp_rm_09",
+      "name": "Sophie Albers",
+      "title": "Director of Investor Relations",
+      "department": "investor_relations",
+      "role_id": "role_investor_relations",
+      "office": "London",
+      "email": "s.albers@rookmere.example",
+      "assistant_clients": [
+        "Claude Desktop (MCP v2026-07-28)"
+      ],
+      "covered_portfolio_ids": []
+    },
+    {
+      "employee_id": "emp_rm_10",
+      "name": "Jonas Bergmann",
+      "title": "Investor Relations Manager",
+      "department": "investor_relations",
+      "role_id": "role_investor_relations",
+      "office": "Frankfurt",
+      "email": "j.bergmann@rookmere.example",
+      "assistant_clients": [
+        "Gemini Workspace"
+      ],
+      "covered_portfolio_ids": []
+    },
+    {
+      "employee_id": "emp_rm_11",
+      "name": "Evelyn Shaw",
+      "title": "General Counsel & Chief Compliance Officer",
+      "department": "compliance_and_legal",
+      "role_id": "role_compliance",
+      "office": "London",
+      "email": "e.shaw@rookmere.example",
+      "assistant_clients": [
+        "Claude Desktop (MCP v2026-07-28)"
+      ],
+      "covered_portfolio_ids": []
+    },
+    {
+      "employee_id": "emp_rm_12",
+      "name": "Marcus Thorne",
+      "title": "Head of Technology & Data Operations",
+      "department": "technology_and_data",
+      "role_id": "role_tech_admin",
+      "office": "London",
+      "email": "m.thorne@rookmere.example",
+      "assistant_clients": [
+        "Claude Desktop (MCP v2026-07-28)",
+        "Antigravity CLI (agy)"
+      ],
+      "covered_portfolio_ids": []
+    }
+  ],
+  "approved_app_catalog": [
+    {
+      "app_id": "app_rm_diligence_tracker",
+      "name": "Diligence Request List & Q&A Tracker",
+      "slug": "diligence-tracker",
+      "url": "https://apps.rookmere.example/diligence-tracker",
+      "version": "2.4.1",
+      "status": "deployed_approved",
+      "owner_employee_id": "emp_rm_02",
+      "permitted_roles": [
+        "role_deal_team",
+        "role_operating_partner",
+        "role_compliance"
+      ],
+      "data_scopes": [
+        "deal_confidential"
+      ],
+      "capabilities": [
+        "Ingests VDR request spreadsheets (XLSX/CSV) and deduplicates overlapping commercial, financial, and legal diligence questions.",
+        "Assigns seller management owners, tracks response aging, and exports weekly status packs."
+      ],
+      "non_capabilities": [
+        "Does not perform post-acquisition monthly ERP trial-balance variance mapping."
+      ]
+    },
+    {
+      "app_id": "app_rm_valuation_bridge",
+      "name": "Quarterly IPEV Valuation Bridge",
+      "slug": "valuation-bridge",
+      "url": "https://apps.rookmere.example/valuation-bridge",
+      "version": "1.9.0",
+      "status": "deployed_approved",
+      "owner_employee_id": "emp_rm_07",
+      "permitted_roles": [
+        "role_fund_finance",
+        "role_deal_team",
+        "role_investor_relations"
+      ],
+      "data_scopes": [
+        "portfolio_financials"
+      ],
+      "capabilities": [
+        "Computes quarterly enterprise-value to equity-value bridges decomposing LTM EBITDA growth, multiple expansion, net debt paydown, and FX.",
+        "Exports audited LP quarterly report tables for RIG-III and RIG-IV."
+      ],
+      "non_capabilities": [
+        "Operates on quarterly signed-off LTM totals only; does not ingest monthly ERP trial balances or covenant headroom alerts."
+      ]
+    },
+    {
+      "app_id": "app_rm_expert_call_log",
+      "name": "Compliance Expert Network Call Register",
+      "slug": "expert-call-log",
+      "url": "https://apps.rookmere.example/expert-call-log",
+      "version": "1.3.2",
+      "status": "deployed_approved",
+      "owner_employee_id": "emp_rm_11",
+      "permitted_roles": [
+        "role_deal_team",
+        "role_operating_partner",
+        "role_compliance"
+      ],
+      "data_scopes": [
+        "firm_general",
+        "deal_confidential"
+      ],
+      "capabilities": [
+        "Validates expert employer cooling-off rules, records MNPI attestations, and schedules compliance chaperones."
+      ],
+      "non_capabilities": [
+        "Does not review LP fund formation documents or side letters."
+      ]
+    },
+    {
+      "app_id": "app_rm_kpi_ingest",
+      "name": "Monthly Portfolio KPI Collector",
+      "slug": "kpi-collector",
+      "url": "https://apps.rookmere.example/kpi-collector",
+      "version": "1.1.4",
+      "status": "deployed_approved",
+      "owner_employee_id": "emp_rm_08",
+      "permitted_roles": [
+        "role_fund_finance",
+        "role_deal_team",
+        "role_operating_partner"
+      ],
+      "data_scopes": [
+        "portfolio_financials"
+      ],
+      "capabilities": [
+        "Collects 6 headline monthly metrics (Revenue, Gross Margin %, Order Backlog, Headcount, Cash, Gross Debt) entered manually by portfolio CFOs."
+      ],
+      "non_capabilities": [
+        "Does not parse ERP account-level trial balances, reconcile local-currency (SEK/NOK/GBP) budget vs actual FX effects, or compute maintenance covenant headroom."
+      ]
+    }
+  ],
+  "recurring_task_patterns": [
+    {
+      "pattern_id": "pat_rm_01",
+      "title": "Monthly Portfolio Budget-vs-Actual Variance & Covenant Normalization",
+      "weekly_batch_disposition": "build_in_sandbox",
+      "report_count_in_window": 7,
+      "distinct_employee_count": 5,
+      "participating_employee_ids": [
+        "emp_rm_02",
+        "emp_rm_03",
+        "emp_rm_05",
+        "emp_rm_07",
+        "emp_rm_08"
+      ],
+      "observed_assistant_surfaces": [
+        "Claude Desktop",
+        "ChatGPT Enterprise",
+        "Gemini Workspace"
+      ],
+      "problem_summary": "Between business days 5 and 10 each month, deal leads, operating partners, and fund controllers manually prompt assistants to map SAP/Monitor/Exact/Visma exports into Rookmere's standard P&L bridge, isolate SEK/NOK/GBP FX translation vs operational volume/price variance, and check net leverage covenant headroom across the 8 portfolio companies.",
+      "catalog_evaluation": {
+        "closest_app_id": "app_rm_kpi_ingest",
+        "fit_verdict": "insufficient_capability",
+        "gap_explanation": "app_rm_kpi_ingest stores only 6 manual headline numbers and lacks trial-balance account mapping, constant-currency FX decomposition, and covenant threshold alerts."
+      },
+      "recommended_action": "Commission sandbox build of Portfolio Variance Workbench using organization-ui baseline."
+    },
+    {
+      "pattern_id": "pat_rm_02",
+      "title": "Commercial & Financial Diligence Request List Deduplication",
+      "weekly_batch_disposition": "reuse_existing_app",
+      "report_count_in_window": 4,
+      "distinct_employee_count": 2,
+      "participating_employee_ids": [
+        "emp_rm_03",
+        "emp_rm_04"
+      ],
+      "observed_assistant_surfaces": [
+        "Claude Desktop",
+        "ChatGPT Enterprise"
+      ],
+      "problem_summary": "Associates on new RIG-IV industrial buyout screens pasted advisor IRL spreadsheets into chat to merge duplicate commercial and financial diligence questions and assign target management owners.",
+      "catalog_evaluation": {
+        "closest_app_id": "app_rm_diligence_tracker",
+        "fit_verdict": "exact_match_within_existing_scope",
+        "gap_explanation": "None. Both associates already hold role_deal_team permissions for app_rm_diligence_tracker."
+      },
+      "recommended_action": "Route directly to app_rm_diligence_tracker with pre-mapped CSV import template; no new approval gate required."
+    },
+    {
+      "pattern_id": "pat_rm_03",
+      "title": "LP Side-Letter MFN & Co-Invest Allocation Obligation Matrix",
+      "weekly_batch_disposition": "request_missing_evidence",
+      "report_count_in_window": 3,
+      "distinct_employee_count": 3,
+      "participating_employee_ids": [
+        "emp_rm_09",
+        "emp_rm_10",
+        "emp_rm_11"
+      ],
+      "observed_assistant_surfaces": [
+        "Claude Desktop",
+        "Gemini Workspace"
+      ],
+      "problem_summary": "Investor Relations and Compliance staff summarized recurring checks of RIG-III and RIG-IV LP side-letter clauses (fee breaks, co-investment notice windows, ESG exclusion covenants), but withheld sample clause structures and obligation taxonomy fields due to lp_restricted_side_letters policy.",
+      "catalog_evaluation": {
+        "closest_app_id": null,
+        "fit_verdict": "no_existing_app_and_evidence_incomplete",
+        "gap_explanation": "Cannot commission a sandbox builder without an approved anonymized clause schema and explicit role_compliance authorization for lp_restricted_side_letters."
+      },
+      "recommended_action": "Request redacted synthetic clause schema and scope sign-off from Evelyn Shaw (emp_rm_11) before scheduling sandbox work."
+    },
+    {
+      "pattern_id": "pat_rm_04",
+      "title": "Quarterly IPEV Multiple & Net-Debt Equity Bridge Formatting",
+      "weekly_batch_disposition": "reuse_existing_app",
+      "report_count_in_window": 2,
+      "distinct_employee_count": 2,
+      "participating_employee_ids": [
+        "emp_rm_07",
+        "emp_rm_08"
+      ],
+      "observed_assistant_surfaces": [
+        "Claude Desktop",
+        "ChatGPT Enterprise"
+      ],
+      "problem_summary": "Fund controllers drafted commentary around Q3 preliminary valuation bridges.",
+      "catalog_evaluation": {
+        "closest_app_id": "app_rm_valuation_bridge",
+        "fit_verdict": "exact_match_within_existing_scope",
+        "gap_explanation": "Covered by app_rm_valuation_bridge v1.9.0."
+      },
+      "recommended_action": "Route users to app_rm_valuation_bridge."
+    },
+    {
+      "pattern_id": "pat_rm_05",
+      "title": "Expert Network Call Employer Conflict & Cooling-Off Screening",
+      "weekly_batch_disposition": "reuse_existing_app",
+      "report_count_in_window": 2,
+      "distinct_employee_count": 2,
+      "participating_employee_ids": [
+        "emp_rm_04",
+        "emp_rm_11"
+      ],
+      "observed_assistant_surfaces": [
+        "Claude Desktop"
+      ],
+      "problem_summary": "Screening former industrial automation executives prior to diligence calls.",
+      "catalog_evaluation": {
+        "closest_app_id": "app_rm_expert_call_log",
+        "fit_verdict": "exact_match_within_existing_scope",
+        "gap_explanation": "Covered by app_rm_expert_call_log v1.3.2."
+      },
+      "recommended_action": "Route directly to app_rm_expert_call_log."
+    },
+    {
+      "pattern_id": "pat_rm_06",
+      "title": "DACH Add-On Acquisition Trade-Registry & Patent Landscape Triage",
+      "weekly_batch_disposition": "monitor_below_threshold",
+      "report_count_in_window": 2,
+      "distinct_employee_count": 2,
+      "participating_employee_ids": [
+        "emp_rm_01",
+        "emp_rm_02"
+      ],
+      "observed_assistant_surfaces": [
+        "Claude Desktop",
+        "Gemini Workspace"
+      ],
+      "problem_summary": "Ad-hoc synthesis of German Handelsregister filings and European patent families for Kelvion Flow bolt-on candidates.",
+      "catalog_evaluation": {
+        "closest_app_id": null,
+        "fit_verdict": "below_recurrence_threshold",
+        "gap_explanation": "High variability across subsectors; keep in interactive assistant research rather than building a fixed app."
+      },
+      "recommended_action": "Retain in weekly recurrence watch; no build triggered."
+    },
+    {
+      "pattern_id": "pat_rm_07",
+      "title": "Cross-Portfolio Working Capital (DSO / DIO / DPO) Aging Comparison",
+      "weekly_batch_disposition": "queued_next_cycle",
+      "report_count_in_window": 3,
+      "distinct_employee_count": 2,
+      "participating_employee_ids": [
+        "emp_rm_05",
+        "emp_rm_06"
+      ],
+      "observed_assistant_surfaces": [
+        "Gemini Workspace",
+        "Claude Desktop"
+      ],
+      "problem_summary": "Operating partners normalizing AR/AP aging buckets and raw-material inventory turns across Kelvion Flow, ThermaRail, and Brenthal.",
+      "catalog_evaluation": {
+        "closest_app_id": "app_rm_kpi_ingest",
+        "fit_verdict": "candidate_module_extension",
+        "gap_explanation": "Shares ERP trial-balance ingestion with pat_rm_01; scheduled as a phase-2 module once Portfolio Variance Workbench is verified."
+      },
+      "recommended_action": "Hold for next weekly cycle after pat_rm_01 release review."
+    },
+    {
+      "pattern_id": "pat_rm_08",
+      "title": "Annual SFDR Principal Adverse Impact (PAI) Portfolio Emissions Rollup",
+      "weekly_batch_disposition": "monitor_below_threshold",
+      "report_count_in_window": 1,
+      "distinct_employee_count": 1,
+      "participating_employee_ids": [
+        "emp_rm_10"
+      ],
+      "observed_assistant_surfaces": [
+        "Gemini Workspace"
+      ],
+      "problem_summary": "Early preparation of Scope 1 & 2 utility bill templates for RIG-III and RIG-IV annual ESG reporting.",
+      "catalog_evaluation": {
+        "closest_app_id": null,
+        "fit_verdict": "seasonal_low_frequency",
+        "gap_explanation": "Single submission in current window; annual cadence."
+      },
+      "recommended_action": "No action in W43 batch."
+    }
+  ],
+  "evidence_reports": [
+    {
+      "report_id": "rep_rm_20261021_001",
+      "receipt_id": "rcpt_rm_8841a",
+      "submitted_at": "2026-10-21T16:14:22Z",
+      "employee_id": "emp_rm_02",
+      "assistant_surface": "Claude Desktop",
+      "capture_method": "explicit_mcp_tool_call",
+      "mcp_tool_name": "heavyrain_submit_work_report",
+      "user_inspected_outgoing_payload": true,
+      "pattern_id": "pat_rm_01",
+      "data_scope": "portfolio_financials",
+      "task_summary": "Normalized September HGB trial balance CSV for Kelvion Flow Systems against theRIG-III board budget and isolated the EUR 430k skid-commissioning revenue timing variance.",
+      "attached_evidence_artifacts": [
+        {
+          "filename": "kelvion_2026_09_tb_headers.csv",
+          "kind": "schema_and_anonymized_sample",
+          "bytes": 4120,
+          "sha256": "8f2a9c41d0e8b71249a01c33d78e1b092341a88c7f12e390b1d2e3f4a5b6c7d8"
+        },
+        {
+          "filename": "rig_iii_standard_pnl_mapping.json",
+          "kind": "mapping_rules",
+          "bytes": 6840,
+          "sha256": "2c91b4e7f1a09833d21048b7c651e290a1b2c3d4e5f60718293a4b5c6d7e8f90"
+        }
+      ],
+      "status": "clustered_in_batch"
+    },
+    {
+      "report_id": "rep_rm_20261022_002",
+      "receipt_id": "rcpt_rm_8849c",
+      "submitted_at": "2026-10-22T11:05:09Z",
+      "employee_id": "emp_rm_08",
+      "assistant_surface": "ChatGPT Enterprise",
+      "capture_method": "explicit_mcp_tool_call",
+      "mcp_tool_name": "heavyrain_submit_work_report",
+      "user_inspected_outgoing_payload": true,
+      "pattern_id": "pat_rm_01",
+      "data_scope": "portfolio_financials",
+      "task_summary": "Converted Varn Precision Optics (SEK) and Nordic ColdChain (NOK) September management packs into EUR at budget vs actual FX rates and flagged Nordic ColdChain's 3.60x net leverage against its 3.75x covenant.",
+      "attached_evidence_artifacts": [
+        {
+          "filename": "varn_nordic_fx_bridge_spec.json",
+          "kind": "calculation_specification",
+          "bytes": 5390,
+          "sha256": "4d18e2a9c7b65012f3e4d5c6b7a890123456789abcdef0123456789abcdef012"
+        }
+      ],
+      "status": "clustered_in_batch"
+    },
+    {
+      "report_id": "rep_rm_20261022_003",
+      "receipt_id": "rcpt_rm_8854d",
+      "submitted_at": "2026-10-22T14:48:31Z",
+      "employee_id": "emp_rm_07",
+      "assistant_surface": "Gemini Workspace",
+      "capture_method": "explicit_mcp_tool_call",
+      "mcp_tool_name": "heavyrain_submit_work_report",
+      "user_inspected_outgoing_payload": true,
+      "pattern_id": "pat_rm_01",
+      "data_scope": "portfolio_financials",
+      "task_summary": "Consolidated all 8 portfolio company September EBITDA and net-debt variances into the Monday Partner Investment Committee deck table.",
+      "attached_evidence_artifacts": [
+        {
+          "filename": "ic_monthly_variance_table_columns.json",
+          "kind": "output_contract",
+          "bytes": 3180,
+          "sha256": "7a8b9c0d1e2f3a4b5c6d7e8f9a0b1c2d3e4f5a6b7c8d9e0f1a2b3c4d5e6f7a8b"
+        }
+      ],
+      "status": "clustered_in_batch"
+    },
+    {
+      "report_id": "rep_rm_20261023_004",
+      "receipt_id": "rcpt_rm_8862f",
+      "submitted_at": "2026-10-23T09:32:18Z",
+      "employee_id": "emp_rm_04",
+      "assistant_surface": "Claude Desktop",
+      "capture_method": "explicit_mcp_tool_call",
+      "mcp_tool_name": "heavyrain_submit_work_report",
+      "user_inspected_outgoing_payload": true,
+      "pattern_id": "pat_rm_02",
+      "data_scope": "deal_confidential",
+      "task_summary": "Merged 140 financial and commercial diligence questions from two advisor workstreams into a single deduplicated VDR request list.",
+      "attached_evidence_artifacts": [
+        {
+          "filename": "irl_column_headers_sample.csv",
+          "kind": "schema_only",
+          "bytes": 1240,
+          "sha256": "9e0f1a2b3c4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f9a0b1c2d3e4f5a6b7c8d9e0f"
+        }
+      ],
+      "status": "routed_to_existing_app"
+    },
+    {
+      "report_id": "rep_rm_20261023_005",
+      "receipt_id": "rcpt_rm_8870b",
+      "submitted_at": "2026-10-23T17:19:44Z",
+      "employee_id": "emp_rm_09",
+      "assistant_surface": "Claude Desktop",
+      "capture_method": "explicit_mcp_tool_call",
+      "mcp_tool_name": "heavyrain_submit_work_report",
+      "user_inspected_outgoing_payload": true,
+      "pattern_id": "pat_rm_03",
+      "data_scope": "lp_summary_commitments",
+      "task_summary": "Checked which RIG-IV LPs hold co-investment right-of-first-offer notice requirements under 5 business days before allocating the Solvay Grid follow-on tranche.",
+      "attached_evidence_artifacts": [],
+      "missing_evidence_note": "Side-letter clause text and obligation taxonomy omitted at submission time because lp_restricted_side_letters requires General Counsel redaction and schema approval.",
+      "status": "awaiting_missing_evidence"
+    }
+  ],
+  "weekly_batch": {
+    "batch_id": "batch_rm_2026_w43",
+    "organization_id": "org_rookmere",
+    "window_start": "2026-10-18T18:00:00Z",
+    "window_cutoff": "2026-10-25T18:00:00Z",
+    "orchestrator_agent": "Cairn (google-antigravity 0.1.22, gemini-4-argon, high thinking)",
+    "coordinator_service": "Relay",
+    "total_reports_ingested": 24,
+    "recurring_patterns_detected": 8,
+    "decisions": [
+      {
+        "decision_id": "dec_rm_w43_01",
+        "pattern_id": "pat_rm_01",
+        "action": "commission_sandbox_build",
+        "target_app_name": "Rookmere Portfolio Variance Workbench",
+        "proposed_app_id": "app_rm_variance_workbench",
+        "ui_library": "packages/organization-ui (theme: rookmere-ash-ledger)",
+        "sandbox_run": {
+          "run_id": "run_rm_var_01",
+          "worker_role": "Builder",
+          "runtime": "agy --sandbox --model gemini-4-argon-high --effort high --output-format stream-json",
+          "workspace_isolation": "Workspace=branch (isolated worktree)",
+          "authorized_by_employee_id": "emp_rm_07",
+          "status": "preview_ready_for_release_review",
+          "checkpoints": [
+            {
+              "step": 1,
+              "label": "Schema & FX bridge contract verified",
+              "status": "completed"
+            },
+            {
+              "step": 2,
+              "label": "Bespoke organization-ui variance table & covenant headroom inspector built",
+              "status": "completed"
+            },
+            {
+              "step": 3,
+              "label": "Static typecheck, unit tests, and 4-company fixture replay passed",
+              "status": "completed"
+            },
+            {
+              "step": 4,
+              "label": "Release review by Gareth Jenkins (Fund Finance) and Marcus Thorne (Tech Admin)",
+              "status": "pending_human_review"
+            }
+          ],
+          "artifact_bundle_path": "__grounding/demo/artifacts/run_rm_var_01/"
+        }
+      },
+      {
+        "decision_id": "dec_rm_w43_02",
+        "pattern_id": "pat_rm_02",
+        "action": "route_to_approved_app",
+        "matched_app_id": "app_rm_diligence_tracker",
+        "scope_elevation_required": false,
+        "notification_status": "sent_with_direct_launch_link",
+        "recipient_employee_ids": [
+          "emp_rm_03",
+          "emp_rm_04"
+        ]
+      },
+      {
+        "decision_id": "dec_rm_w43_03",
+        "pattern_id": "pat_rm_03",
+        "action": "request_missing_evidence",
+        "matched_app_id": null,
+        "blocking_reason": "Requires anonymized side-letter obligation JSON Schema and explicit compliance authorization for lp_restricted_side_letters scope.",
+        "assigned_reviewer_employee_id": "emp_rm_11",
+        "notification_status": "evidence_request_queued"
+      }
+    ]
+  }
+}

@@ -1,0 +1,599 @@
+{
+  "fixture_metadata": {
+    "fixture_id": "fixture_augi_2026_10_25",
+    "scope_notice": "Synthetic demonstration dataset representing a fictional electric vehicle manufacturer (AUGI) and its concept SUV program (AUGI Sable). All employees, workflows, chassis dimensions, material properties, and stiffness/deflection readouts are invented concept approximations for interactive 3D browser visualization. No real automaker data, real employees, physical test results, finite-element solver outputs, crashworthiness ratings, or regulatory certifications are represented.",
+    "schema_version": "1.0.0",
+    "created_at": "2026-10-25T09:00:00Z"
+  },
+  "organization": {
+    "org_id": "org_augi",
+    "name": "AUGI",
+    "legal_entity": "AUGI Mobility Engineering GmbH",
+    "sector": "Electric Vehicle Platform & Body-in-White Engineering",
+    "primary_domain": "augi.example",
+    "portal_url": "https://apps.augi.example",
+    "relay_endpoint": "https://relay.augi.example/v1/mcp",
+    "headquarters": [
+      "Munich, Germany",
+      "Gothenburg, Sweden"
+    ],
+    "theme_id": "augi-graphite-atelier",
+    "vehicle_program": {
+      "program_id": "prog_augi_sable",
+      "vehicle_name": "AUGI Sable",
+      "body_style": "5-Door Premium Electric SUV (E-Segment)",
+      "electrical_architecture_v": 800,
+      "pack_energy_gross_kwh": 108,
+      "target_curb_mass_kg": 2490,
+      "development_gate": "Concept Architecture Freeze (Gate C2)"
+    }
+  },
+  "roles_and_access": {
+    "capture_policy": {
+      "mode": "explicit_mcp_submission_and_scoped_hooks",
+      "passive_chat_scraping": false,
+      "outgoing_payload_preview_required": true,
+      "cad_ip_boundary": "Full native CATIA/NX solid assemblies remain on engineering workstations; MCP reports attach only parametric envelope tables, section properties, and material card IDs."
+    },
+    "roles": [
+      {
+        "role_id": "role_biw_structures",
+        "title": "Body-in-White & Lower Chassis Structures",
+        "permitted_data_scopes": [
+          "sable_parametric_geometry",
+          "material_cards",
+          "bom_mass_targets",
+          "joining_schedules"
+        ],
+        "can_submit_mcp_reports": true,
+        "can_authorize_sandbox_build": true,
+        "can_approve_production_release": false
+      },
+      {
+        "role_id": "role_battery_pack_integration",
+        "title": "Structural Battery Pack & Thermal Integration",
+        "permitted_data_scopes": [
+          "sable_parametric_geometry",
+          "pack_envelope_clearances",
+          "bom_mass_targets"
+        ],
+        "can_submit_mcp_reports": true,
+        "can_authorize_sandbox_build": false,
+        "can_approve_production_release": false
+      },
+      {
+        "role_id": "role_vehicle_dynamics",
+        "title": "Vehicle Dynamics, Stiffness & NVH",
+        "permitted_data_scopes": [
+          "sable_parametric_geometry",
+          "load_case_targets",
+          "bom_mass_targets"
+        ],
+        "can_submit_mcp_reports": true,
+        "can_authorize_sandbox_build": true,
+        "can_approve_production_release": false
+      },
+      {
+        "role_id": "role_materials_joining",
+        "title": "Materials, Megacasting & Joining Engineering",
+        "permitted_data_scopes": [
+          "material_cards",
+          "joining_schedules",
+          "bom_mass_targets"
+        ],
+        "restricted_data_scopes": [
+          "foundry_proprietary_die_profiles"
+        ],
+        "can_submit_mcp_reports": true,
+        "can_authorize_sandbox_build": false,
+        "can_approve_production_release": false
+      },
+      {
+        "role_id": "role_engineering_it",
+        "title": "CAE Systems & Sandbox Release Lead",
+        "permitted_data_scopes": [
+          "sable_parametric_geometry",
+          "material_cards",
+          "load_case_targets",
+          "bom_mass_targets",
+          "joining_schedules",
+          "sandbox_artifacts"
+        ],
+        "can_submit_mcp_reports": true,
+        "can_authorize_sandbox_build": true,
+        "can_approve_production_release": true
+      }
+    ]
+  },
+  "employees": [
+    {
+      "employee_id": "emp_augi_01",
+      "name": "Lukas Lindner",
+      "title": "Lead Chassis & BIW Architect, AUGI Sable",
+      "role_id": "role_biw_structures",
+      "location": "Munich",
+      "email": "l.lindner@augi.example",
+      "assistant_clients": [
+        "Claude Desktop (MCP v2026-07-28)",
+        "Gemini Workspace"
+      ]
+    },
+    {
+      "employee_id": "emp_augi_02",
+      "name": "Dr. Astrid Vestergaard",
+      "title": "Principal High-Pressure Die-Casting Specialist",
+      "role_id": "role_materials_joining",
+      "location": "Gothenburg",
+      "email": "a.vestergaard@augi.example",
+      "assistant_clients": [
+        "Gemini Workspace",
+        "Claude Desktop (MCP v2026-07-28)"
+      ]
+    },
+    {
+      "employee_id": "emp_augi_03",
+      "name": "Matteo Conti",
+      "title": "800V Structural Battery Enclosure Lead",
+      "role_id": "role_battery_pack_integration",
+      "location": "Munich",
+      "email": "m.conti@augi.example",
+      "assistant_clients": [
+        "Claude Desktop (MCP v2026-07-28)"
+      ]
+    },
+    {
+      "employee_id": "emp_augi_04",
+      "name": "Hannah Bergström",
+      "title": "Principal Engineer, Torsional Stiffness & Ride Dynamics",
+      "role_id": "role_vehicle_dynamics",
+      "location": "Gothenburg",
+      "email": "h.bergstrom@augi.example",
+      "assistant_clients": [
+        "ChatGPT Enterprise",
+        "Gemini Workspace"
+      ]
+    },
+    {
+      "employee_id": "emp_augi_05",
+      "name": "Kenji Takahashi",
+      "title": "Senior Sill Extrusion & Underbody Load-Path Engineer",
+      "role_id": "role_biw_structures",
+      "location": "Munich",
+      "email": "k.takahashi@augi.example",
+      "assistant_clients": [
+        "Claude Desktop (MCP v2026-07-28)"
+      ]
+    },
+    {
+      "employee_id": "emp_augi_06",
+      "name": "Claire Dubois",
+      "title": "BIW Mass Properties & BoM Architecture Analyst",
+      "role_id": "role_materials_joining",
+      "location": "Munich",
+      "email": "c.dubois@augi.example",
+      "assistant_clients": [
+        "ChatGPT Enterprise"
+      ]
+    },
+    {
+      "employee_id": "emp_augi_07",
+      "name": "Viktor Novak",
+      "title": "Body Modal Frequency & Subframe Mount Engineer",
+      "role_id": "role_vehicle_dynamics",
+      "location": "Gothenburg",
+      "email": "v.novak@augi.example",
+      "assistant_clients": [
+        "Gemini Workspace"
+      ]
+    },
+    {
+      "employee_id": "emp_augi_08",
+      "name": "Devendra Rao",
+      "title": "Head of Engineering Tooling & Sandbox Operations",
+      "role_id": "role_engineering_it",
+      "location": "Munich",
+      "email": "d.rao@augi.example",
+      "assistant_clients": [
+        "Claude Desktop (MCP v2026-07-28)",
+        "Antigravity CLI (agy)"
+      ]
+    }
+  ],
+  "approved_app_catalog": [
+    {
+      "app_id": "app_augi_bom_mass_ledger",
+      "name": "Sable Subsystem Mass & Center-of-Gravity Ledger",
+      "slug": "sable-mass-ledger",
+      "url": "https://apps.augi.example/sable-mass-ledger",
+      "version": "3.1.0",
+      "status": "deployed_approved",
+      "owner_employee_id": "emp_augi_06",
+      "permitted_roles": [
+        "role_biw_structures",
+        "role_battery_pack_integration",
+        "role_vehicle_dynamics",
+        "role_materials_joining"
+      ],
+      "capabilities": [
+        "Tracks tabular part mass budgets, front/rear axle weight split, and vertical Z-height center-of-gravity across AUGI Sable subsystems."
+      ],
+      "non_capabilities": [
+        "Provides static spreadsheet tables only; has no 3D chassis geometry, parametric dimension/gauge controls, or torsional/bending deflection calculations."
+      ]
+    },
+    {
+      "app_id": "app_augi_fastener_weld_matrix",
+      "name": "BIW Mixed-Material Joining & Adhesive Registry",
+      "slug": "biw-joining-registry",
+      "url": "https://apps.augi.example/biw-joining-registry",
+      "version": "2.0.3",
+      "status": "deployed_approved",
+      "owner_employee_id": "emp_augi_02",
+      "permitted_roles": [
+        "role_biw_structures",
+        "role_materials_joining",
+        "role_battery_pack_integration"
+      ],
+      "capabilities": [
+        "Validates self-piercing rivet (SPR) die combinations, flow-drill screw (FDS) stackups, and structural epoxy bond-line thickness rules for aluminum-to-boron-steel flanges."
+      ],
+      "non_capabilities": [
+        "Does not evaluate full-chassis global torsional or vertical bending stiffness."
+      ]
+    },
+    {
+      "app_id": "app_augi_pack_thermal_clearance",
+      "name": "800V Pack Envelope & Skid-Plate Clearance Checker",
+      "slug": "pack-clearance-checker",
+      "url": "https://apps.augi.example/pack-clearance-checker",
+      "version": "1.4.2",
+      "status": "deployed_approved",
+      "owner_employee_id": "emp_augi_03",
+      "permitted_roles": [
+        "role_battery_pack_integration",
+        "role_biw_structures"
+      ],
+      "capabilities": [
+        "Verifies 2D cross-section tolerances between 800V cell modules, cold plates, and lower ballistic shield panels."
+      ],
+      "non_capabilities": [
+        "Does not model 3D chassis subframes, wheelbase variations, or global load-case deformations."
+      ]
+    }
+  ],
+  "recurring_workflows": [
+    {
+      "workflow_id": "wf_augi_01",
+      "title": "AUGI Sable 3D Concept Chassis Architecture & Load-Case Tradeoff Review",
+      "weekly_batch_disposition": "build_in_sandbox",
+      "report_count_in_window": 9,
+      "distinct_employee_count": 6,
+      "participating_employee_ids": [
+        "emp_augi_01",
+        "emp_augi_02",
+        "emp_augi_03",
+        "emp_augi_04",
+        "emp_augi_05",
+        "emp_augi_07"
+      ],
+      "observed_assistant_surfaces": [
+        "Claude Desktop",
+        "Gemini Workspace",
+        "ChatGPT Enterprise"
+      ],
+      "problem_summary": "Ahead of Gate C2 architecture freeze, BIW, battery, casting, and vehicle dynamics engineers repeatedly write ad-hoc Python scripts in chat sessions to estimate how switching between a modular extruded frame (Config A), a structural cell-to-body boron-hybrid frame (Config B), and a front/rear megacast skateboard (Config C)—along with sweeping wheelbase (2920-3160 mm), track width, and rocker wall gauge (2.2-4.5 mm)—changes structural mass, torsional stiffness (kN·m/deg), and vertical bending sag.",
+      "catalog_evaluation": {
+        "closest_app_id": "app_augi_bom_mass_ledger",
+        "fit_verdict": "insufficient_capability",
+        "gap_explanation": "app_augi_bom_mass_ledger records static mass rows and cannot render interactive 3D skateboard geometry, compare configurations side-by-side, or compute parametric beam/shell stiffness and deformation profiles."
+      },
+      "recommended_action": "Commission sandbox build of AUGI Sable 3D Chassis Comparator (apps/augi-engineering) using packages/organization-ui and React Three Fiber."
+    },
+    {
+      "workflow_id": "wf_augi_02",
+      "title": "Aluminum-to-22MnB5 Boron Pillar Flange SPR & Epoxy Stackup Lookup",
+      "weekly_batch_disposition": "reuse_existing_app",
+      "report_count_in_window": 4,
+      "distinct_employee_count": 2,
+      "participating_employee_ids": [
+        "emp_augi_02",
+        "emp_augi_05"
+      ],
+      "observed_assistant_surfaces": [
+        "Claude Desktop",
+        "Gemini Workspace"
+      ],
+      "problem_summary": "Engineers pasted flange thickness pairs into chat to check SPR rivet length and galvanic adhesive bead width rules.",
+      "catalog_evaluation": {
+        "closest_app_id": "app_augi_fastener_weld_matrix",
+        "fit_verdict": "exact_match_within_existing_scope",
+        "gap_explanation": "Fully supported by app_augi_fastener_weld_matrix v2.0.3."
+      },
+      "recommended_action": "Route directly to app_augi_fastener_weld_matrix; no new approval gate."
+    },
+    {
+      "workflow_id": "wf_augi_03",
+      "title": "Rear Megacasting Vacuum-Assist Runner & Flow-Length Porosity Estimator",
+      "weekly_batch_disposition": "request_missing_evidence",
+      "report_count_in_window": 3,
+      "distinct_employee_count": 2,
+      "participating_employee_ids": [
+        "emp_augi_02",
+        "emp_augi_06"
+      ],
+      "observed_assistant_surfaces": [
+        "Gemini Workspace"
+      ],
+      "problem_summary": "Casting engineers requested a runner solidification check for the rear shock-tower casting, but foundry die-cavity thermal sensor logs are restricted under supplier NDA.",
+      "catalog_evaluation": {
+        "closest_app_id": null,
+        "fit_verdict": "no_existing_app_and_evidence_incomplete",
+        "gap_explanation": "Requires sanitized synthetic runner geometry schema and supplier NDA clearance for foundry_proprietary_die_profiles."
+      },
+      "recommended_action": "Request sanitized parametric runner schema from Dr. Astrid Vestergaard (emp_augi_02) and Devendra Rao (emp_augi_08)."
+    }
+  ],
+  "proposed_chassis_comparison_app": {
+    "app_id": "app_augi_sable_chassis_3d",
+    "name": "AUGI Sable 3D Chassis Architecture Comparator",
+    "target_workspace": "apps/augi-engineering",
+    "ui_library": "packages/organization-ui",
+    "theme_id": "augi-graphite-atelier",
+    "rendering_technology": "Three.js + React Three Fiber (@react-three/fiber) interactive WebGL canvas",
+    "sandbox_build_run": {
+      "run_id": "run_augi_sable_3d_01",
+      "worker_role": "Builder",
+      "runtime": "agy --sandbox --model gemini-4-argon-high --effort high --output-format stream-json",
+      "authorized_by_employee_id": "emp_augi_01",
+      "release_reviewer_employee_id": "emp_augi_08",
+      "status": "preview_ready_for_release_review"
+    },
+    "camera_and_viewport_controls": {
+      "orbit": "Left-drag or arrow keys to orbit azimuth and elevation around chassis center",
+      "pan": "Right-drag or Shift+arrow keys to pan across front cradle, battery bay, and rear casting",
+      "zoom": "Scroll wheel or +/- keys with clamped near/far clipping planes",
+      "tilt_and_presets": "Quick orthographic/perspective presets: Isometric, Top Plan, Side Elevation, Front Axle Section, Underbody Load Path",
+      "reset_view": "Single-click camera and deformation reset to nominal unloaded state",
+      "reduced_motion_mode": "Disables continuous oscillation and camera fly-to easing while preserving static deformed mesh inspection and exact tabular comparison"
+    },
+    "parametric_tuning_ranges": {
+      "wheelbase_mm": {
+        "min": 2920,
+        "max": 3160,
+        "step": 10,
+        "nominal": 3040,
+        "unit": "mm"
+      },
+      "front_track_mm": {
+        "min": 1640,
+        "max": 1740,
+        "step": 5,
+        "nominal": 1690,
+        "unit": "mm"
+      },
+      "rear_track_mm": {
+        "min": 1650,
+        "max": 1750,
+        "step": 5,
+        "nominal": 1700,
+        "unit": "mm"
+      },
+      "rocker_wall_gauge_mm": {
+        "min": 2.2,
+        "max": 4.5,
+        "step": 0.1,
+        "nominal": 3.2,
+        "unit": "mm"
+      },
+      "material_override_options": [
+        {
+          "material_id": "mat_al_6082_t6",
+          "label": "AA 6082-T6 Extruded & Stamped Aluminum",
+          "youngs_modulus_gpa": 70.0,
+          "shear_modulus_gpa": 26.3,
+          "density_kg_m3": 2700,
+          "yield_strength_mpa": 260
+        },
+        {
+          "material_id": "mat_al_c611_hpdc_hybrid",
+          "label": "AlSi7Mg (C611) Megacast Ends + 6082-T6 Sills",
+          "youngs_modulus_gpa": 71.0,
+          "shear_modulus_gpa": 26.7,
+          "density_kg_m3": 2680,
+          "yield_strength_mpa": 195
+        },
+        {
+          "material_id": "mat_uhss_boron_al_hybrid",
+          "label": "6082-T6 Sills + 22MnB5 Hot-Stamped Boron Torque Rings",
+          "youngs_modulus_gpa": 104.0,
+          "shear_modulus_gpa": 39.1,
+          "density_kg_m3": 3620,
+          "yield_strength_mpa": 480
+        }
+      ]
+    },
+    "illustrative_load_cases": [
+      {
+        "load_case_id": "lc_torsion_axle_twist",
+        "name": "Static Axle-Twist Torsion",
+        "applied_load_label": "18,000 N·m front-axle opposing vertical wheel couple (±10.65 kN at 1690 mm track)",
+        "boundary_conditions": "Rear shock tower mounts pinned in X/Y/Z; front suspension strut towers loaded with anti-symmetric vertical couple ±M_t.",
+        "primary_output_metric": "Global Torsional Stiffness K_t (kN·m/deg) and Peak Twist Angle (deg)",
+        "deformation_visualization": "Helical twist gradient along wheelbase with normalized shear-strain color map across rocker extrusions and battery floor shear web (visual amplification 45x)."
+      },
+      {
+        "load_case_id": "lc_bending_curb_sag",
+        "name": "Symmetric 3-Point Vertical Bending",
+        "applied_load_label": "32,000 N distributed battery pack + occupant vertical load (approx. 2.0 g static bump factor)",
+        "boundary_conditions": "Front and rear axle centerlines simply supported vertically; uniform line load distributed along the battery enclosure rails.",
+        "primary_output_metric": "Global Vertical Bending Stiffness K_b (kN/mm) and Mid-Span Vertical Sag delta_z (mm)",
+        "deformation_visualization": "Parabolic vertical sag curve between axles highlighting rocker bottom-flange tension and crossmember compression (visual amplification 60x)."
+      },
+      {
+        "load_case_id": "lc_lateral_subframe_shear",
+        "name": "Quasi-Static Cornering Subframe Shear",
+        "applied_load_label": "24,000 N lateral cornering force split 52% front / 48% rear at lower control-arm mounts",
+        "boundary_conditions": "Central battery tunnel constrained laterally; lateral forces applied at front and rear cradle hardpoints.",
+        "primary_output_metric": "Subframe Lateral Compliance (mm/10kN) and Cradle-to-Sill Joint Peak Stress Index",
+        "deformation_visualization": "Lateral yaw-shear displacement of front and rear subframes relative to the central battery box (visual amplification 50x)."
+      }
+    ]
+  },
+  "baseline_chassis_configurations": [
+    {
+      "config_id": "cfg_sable_a_extruded_spaceframe",
+      "code": "SABLE-A",
+      "name": "Modular Multi-Extrusion & Stamped Subframe",
+      "architecture_summary": "Conventional EV skateboard with 4-cell 6082-T6 aluminum sill extrusions, stamped 5754 aluminum floor pans, bolted multi-piece welded front/rear subframes, and a bolt-in battery pack isolated on elastomer mounts (non-structural pack).",
+      "nominal_dimensions": {
+        "wheelbase_mm": 3040,
+        "front_track_mm": 1690,
+        "rear_track_mm": 1700,
+        "overall_chassis_length_mm": 4960,
+        "battery_bay_inner_width_mm": 1440,
+        "sill_section_height_mm": 185,
+        "sill_section_width_mm": 140,
+        "nominal_wall_gauge_mm": 3.2
+      },
+      "materials_and_joining": {
+        "primary_material_id": "mat_al_6082_t6",
+        "sill_alloy": "AA 6082-T6 multi-hollow extrusion",
+        "front_rear_cradles": "Stamped & MIG-welded AA 6061-T6 sheet/tube assembly (34 parts front, 38 parts rear)",
+        "crossmembers": "4 roll-formed AA 6082-T6 seat and floor crossmembers",
+        "battery_integration": "Non-structural bolt-in tray (28 M10 mounting bolts); pack contributes 15% shear coupling",
+        "lower_chassis_part_count": 142,
+        "structural_adhesive_length_m": 48.5,
+        "self_piercing_rivet_count": 620
+      },
+      "baseline_concept_metrics": {
+        "lower_chassis_structural_mass_kg": 384.0,
+        "center_of_gravity_z_mm": 248.0,
+        "front_axle_mass_share_pct": 49.2,
+        "torsional_stiffness_knm_per_deg": 34.2,
+        "torsion_twist_at_18knm_deg": 0.526,
+        "vertical_bending_stiffness_kn_per_mm": 14.8,
+        "midspan_sag_at_32kn_mm": 2.16,
+        "lateral_cradle_deflection_at_24kn_mm": 1.42,
+        "first_global_torsion_mode_approx_hz": 36.5
+      },
+      "tradeoff_notes": {
+        "strengths": [
+          "Lowest prototype tooling investment; uses standard extrusion dies and stamped weldments.",
+          "Straightforward serviceability for rear collision repair and bolt-out battery pack removal."
+        ],
+        "weaknesses": [
+          "Highest structural mass (384 kg) and part count (142 parts) due to overlapping mounting flanges.",
+          "Lowest torsional stiffness (34.2 kN·m/deg) because the battery top cover does not act as a continuous shear web."
+        ]
+      }
+    },
+    {
+      "config_id": "cfg_sable_b_cell_to_body_hybrid",
+      "code": "SABLE-B",
+      "name": "Cell-to-Body (CTB) Extruded Rocker + 22MnB5 Boron Torque Rings",
+      "architecture_summary": "Structural Cell-to-Body integration where the 800V pack top lid doubles as the cabin floor shear panel, flanked by deep-section 6082-T6 aluminum rockers and reinforced at the A-post/dash and B-pillar cross-car bulkheads with hot-stamped 22MnB5 boron steel torque rings.",
+      "nominal_dimensions": {
+        "wheelbase_mm": 3040,
+        "front_track_mm": 1690,
+        "rear_track_mm": 1700,
+        "overall_chassis_length_mm": 4960,
+        "battery_bay_inner_width_mm": 1465,
+        "sill_section_height_mm": 195,
+        "sill_section_width_mm": 135,
+        "nominal_wall_gauge_mm": 3.0
+      },
+      "materials_and_joining": {
+        "primary_material_id": "mat_uhss_boron_al_hybrid",
+        "sill_alloy": "AA 6082-T6 6-chamber extrusion (3.0 mm nominal wall)",
+        "front_rear_cradles": "Cast-node + extruded-rail hybrid subframes with 22MnB5 boron steel dash/bulkhead rings",
+        "crossmembers": "2 integrated high-strength boron steel cross-car beams + internal battery cell-to-body shear ribs",
+        "battery_integration": "Structural CTB continuous structural adhesive + flow-drill screw perimeter flange (82% shear coupling)",
+        "lower_chassis_part_count": 86,
+        "structural_adhesive_length_m": 74.0,
+        "self_piercing_rivet_count": 490
+      },
+      "baseline_concept_metrics": {
+        "lower_chassis_structural_mass_kg": 356.0,
+        "center_of_gravity_z_mm": 234.0,
+        "front_axle_mass_share_pct": 49.8,
+        "torsional_stiffness_knm_per_deg": 44.6,
+        "torsion_twist_at_18knm_deg": 0.404,
+        "vertical_bending_stiffness_kn_per_mm": 18.9,
+        "midspan_sag_at_32kn_mm": 1.69,
+        "lateral_cradle_deflection_at_24kn_mm": 1.08,
+        "first_global_torsion_mode_approx_hz": 42.1
+      },
+      "tradeoff_notes": {
+        "strengths": [
+          "Reduces lower chassis mass by 28 kg vs SABLE-A while raising torsional stiffness by 30.4% (44.6 kN·m/deg).",
+          "Lowers cabin floor Z-height by 14 mm by eliminating the separate body floor stamping above the battery lid."
+        ],
+        "weaknesses": [
+          "Requires strict galvanic corrosion isolation and controlled SPR/adhesive curing between 6082 aluminum and 22MnB5 boron steel.",
+          "Full pack lowering requires detaching the structural perimeter seal."
+        ]
+      }
+    },
+    {
+      "config_id": "cfg_sable_c_dual_megacast_ctb",
+      "code": "SABLE-C",
+      "name": "Front & Rear HPDC Megacastings + Structural CTB Pack",
+      "architecture_summary": "Single-piece high-pressure vacuum die-cast AlSi7Mg (C611-type) front and rear underbody megacastings with integral rib-on-shell shock towers and longitudinal rails, bridged by a structural CTB 800V battery enclosure and extruded 6082-T6 side sills.",
+      "nominal_dimensions": {
+        "wheelbase_mm": 3080,
+        "front_track_mm": 1710,
+        "rear_track_mm": 1720,
+        "overall_chassis_length_mm": 4990,
+        "battery_bay_inner_width_mm": 1480,
+        "sill_section_height_mm": 200,
+        "sill_section_width_mm": 135,
+        "nominal_wall_gauge_mm": 3.4
+      },
+      "materials_and_joining": {
+        "primary_material_id": "mat_al_c611_hpdc_hybrid",
+        "sill_alloy": "AA 6082-T6 extruded side sills with sacrificial bolt-on outer crush cans",
+        "front_rear_cradles": "2 monolithic HPDC AlSi7Mg non-heat-treated megacastings (variable rib thickness 2.6 mm - 4.8 mm; 3.4 mm equivalent shell)",
+        "crossmembers": "Cast-in rear shock-tower bridge + structural CTB transverse cell-bay bulkheads",
+        "battery_integration": "Structural CTB pack bolted and bonded directly into cast front/rear bulkheads and side sills (90% shear coupling)",
+        "lower_chassis_part_count": 31,
+        "structural_adhesive_length_m": 61.0,
+        "self_piercing_rivet_count": 215
+      },
+      "baseline_concept_metrics": {
+        "lower_chassis_structural_mass_kg": 338.0,
+        "center_of_gravity_z_mm": 229.0,
+        "front_axle_mass_share_pct": 50.1,
+        "torsional_stiffness_knm_per_deg": 49.8,
+        "torsion_twist_at_18knm_deg": 0.361,
+        "vertical_bending_stiffness_kn_per_mm": 20.4,
+        "midspan_sag_at_32kn_mm": 1.57,
+        "lateral_cradle_deflection_at_24kn_mm": 0.89,
+        "first_global_torsion_mode_approx_hz": 45.4
+      },
+      "tradeoff_notes": {
+        "strengths": [
+          "Lowest structural mass (338 kg, -46 kg vs SABLE-A) and consolidates 142 lower-body stampings/extrusions into 31 components.",
+          "Highest concept torsional stiffness (49.8 kN·m/deg) and lowest lateral suspension cradle compliance due to integral cast shock towers."
+        ],
+        "weaknesses": [
+          "Highest die-casting capital expenditure (requires 9,000-ton class HPDC presses) and longest die-tuning lead time.",
+          "Moderate/severe rear rail impacts beyond the bolt-on crush cans require specialized cast-section replacement procedures."
+        ]
+      }
+    }
+  ],
+  "documented_synthetic_assumptions": {
+    "purpose": "Defines the exact analytical equations and bounds used by the browser 3D comparator so engineers can inspect how parameter sliders affect mass, stiffness, and visual deflection.",
+    "inline_ui_disclosure_text": "Concept beam-and-shell approximation (units: mm, kg, kN·m/deg). Analytical scaling for architecture comparison only—not a finite-element solver, physical rig test, or crashworthiness certification.",
+    "analytical_scaling_laws": {
+      "mass_model": "M_total = M_cradles(track, gauge, rho) + M_sills(wheelbase, gauge, rho) + M_floor_and_crossmembers(wheelbase, track, gauge, rho), scaled linearly with component envelope lengths, wall gauge (t / t_nom), and material density (rho / rho_nom).",
+      "torsional_stiffness_model": "Closed-box Bredt-Batho & subframe series-spring approximation: K_t = K_t0 * (G / G_nom) * (t / t_nom)^1.15 * (W_track / W_nom)^1.4 * (L_nom / L_wheelbase)^0.85 * C_pack_coupling.",
+      "vertical_bending_stiffness_model": "Euler-Bernoulli composite rail approximation: K_b = K_b0 * (E / E_nom) * (t / t_nom)^1.10 * (H_sill / H_nom)^1.8 * (L_nom / L_wheelbase)^2.4.",
+      "visual_deformation_amplification": "True elastic deflections under static test loads (0.36 deg twist; 1.5-2.2 mm vertical sag) are sub-pixel at whole-vehicle scale. The 3D viewport applies a user-visible display scale factor (45x for torsion, 60x for bending, 50x for lateral shear) while the inspector readout always reports unscaled physical engineering units."
+    },
+    "explicit_non_claims": [
+      "Does not solve nonlinear elasto-plastic material yield, local buckling, spot-weld nugget fracture, or crash energy absorption.",
+      "Does not substitute for LS-DYNA, Abaqus, or Nastran full-vehicle finite-element meshes or physical BIW K&C rig testing."
+    ]
+  }
+}

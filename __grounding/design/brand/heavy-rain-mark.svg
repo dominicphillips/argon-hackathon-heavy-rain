@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32" height="32" fill="none" role="img" aria-label="Heavy Rain mark">
+  <title>Heavy Rain</title>
+  <!-- Original geometric mark: three precision diagonal rain vector conduits converging above a solid datum base bar -->
+  <path d="M10.5 5L5.5 20H9.25L14.25 5H10.5Z" fill="currentColor" />
+  <path d="M18.25 5L13.25 20H17L22 5H18.25Z" fill="currentColor" />
+  <path d="M26 5L21 20H24.75L29.75 5H26Z" fill="currentColor" />
+  <rect x="4" y="24" width="24" height="3" rx="1" fill="currentColor" />
+</svg>

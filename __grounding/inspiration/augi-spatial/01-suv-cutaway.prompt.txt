@@ -1,0 +1,52 @@
+High-fidelity desktop application UI mockup, 16:9 aspect ratio at 4K UHD resolution, flat front-facing viewport screenshot with no browser chrome, no monitor bezel, and no perspective screen tilt. Visual aesthetic anchored on Reference 09: a pale ash background (#e2e2e4) etched with subtle, organic low-contrast topographic contour lines, deep carbon-black dark ink (#141517) for primary typography and active ticks, muted slate grey for secondary labels, anodized cobalt and warm copper engineering accents, crisp hairline borders, generous negative space around an immense, physically rich, photorealistic central 3D engineering artifact, a narrow floating left clickable navigation rail, and a restrained right-hand parameter and inspector column.
+
+STRICT TEXT RULE: Every visible word or number in the rendered image must come strictly from the double-quoted strings in this prompt. Render each double-quoted string with exact spelling, capitalization, units, and punctuation. Do not render any unquoted words, color hex codes, resolution labels, coordinate numbers, or random serial numbers anywhere on the canvas or on the 3D vehicle.
+
+TOP APPLICATION BAR (sparse full-width header floating cleanly across the top edge of the pale ash contour canvas):
+- Top-left brand lockup: An original geometric dark-ink AUGI emblem—a chamfered hexagonal structural spaceframe ring enclosing an isometric cube and horizontal axle bar—followed by bold dark ink "AUGI" and regular slate "Sable". (Never show a Heavy Rain wordmark.)
+- Top-center view selector: A sleek segmented pill group with thin hairline borders containing four view mode buttons: active dark-ink pill "Cutaway" in crisp light text, followed by muted clickable pills "X-Ray", "Solid", and "Orthographic".
+- Top-right program status pill: A compact outlined pill in monospace dark ink reading "SABLE-C · Gate C2".
+
+NARROW LEFT NAVIGATION RAIL (floating vertically at mid-left directly over the pale ash topographic contours, matching Reference 09):
+- Five stacked clickable navigation labels with generous vertical spacing:
+  - Active top item preceded by a sharp, high-contrast dark vertical tick bar and dark ink semibold label: "Cutaway"
+  - Inactive faded slate-grey clickable label (with no vertical tick bar): "Platform"
+  - Inactive faded slate-grey clickable label (with no vertical tick bar): "Suspension"
+  - Inactive faded slate-grey clickable label (with no vertical tick bar): "Torsion"
+  - Inactive faded slate-grey clickable label (with no vertical tick bar): "Compare"
+- Directly beneath the fifth navigation label sits a small, quiet two-by-ten rectangular grid of muted grey dots.
+
+IMMENSE CENTRAL 3D CENTERPIECE & BACKGROUND TITLE (dominating the central stage like the floating hyper-detailed artifact in Reference 09):
+- Positioned centered above the vehicle's roofline is a small tracked monospace eyebrow in muted slate reading "SABLE-C · 800V ARCHITECTURE", directly above a very large, light-weight geometric sans-serif title in dark ink reading "AUGI Sable". The upper roofline of the floating 3D SUV subtly overlaps the lower baseline of "AUGI Sable" to create commanding spatial depth.
+- Floating at the center of the viewport over a delicate circular CAD turntable ring with fine degree ticks is an immense, studio-lit, photorealistic three-quarter front-left view of the AUGI Sable—a full-size premium electric SUV of original industrial design (no real-world automaker badges or styling clichés, and zero military equipment):
+  - Far side and front nose (solid exterior): Sculpted, taut satin titanium-silver metallic bodywork with clean aerodynamic surfacing, flush door handles, darkened panoramic glass greenhouse, and a signature full-width horizontal micro-prism LED front lightbar above a grille-free aero lower splitter.
+  - Near side (longitudinal half-body translucent cutaway): Along the centerline and near-side flank, the outer body skin transitions cleanly into an optically clear smoked-glass ghost shell with crisp specular edge highlights along the front pillar, center pillar, and roof rail, revealing the complete internal skateboard architecture rendered in physically rich, realistic metals and composites (never schematic blocks):
+    - Structural Cell-to-Body skateboard battery pack nested between the axles inside a CNC-machined brushed aluminum multi-chamber side sill extrusion, exposing densely packed prismatic cell modules, copper high-voltage busbars, and anodized cobalt liquid cooling plates.
+    - Single-piece high-pressure vacuum die-cast aluminum front and rear megacast subframes with intricate hollow stiffening ribs, integrated cast shock towers, and compact coaxial front and rear electric drive units.
+    - Forged aluminum double-wishbone front and multi-link rear suspension assemblies with coaxial air-spring coilover dampers, cross-drilled carbon-ceramic brake rotors, multi-piston dark anodized calipers, and large-diameter dark-graphite aero turbine wheels wrapped in low-profile treaded EV tires (near-side front wheel partially sectioned to reveal the hub and caliper).
+    - Subtle warm-copper torsional strain shading along the exposed side sill rocker extrusion and front shock tower bridge.
+
+VISIBLE MEASUREMENT OVERLAY & CAMERA TOOLBAR (directly on the central 3D stage):
+- Crisp dark-ink engineering dimension lines with perpendicular caliper end-ticks sit aligned with the perspective ground plane and chassis hardpoints:
+  - Longitudinal dimension line spanning between the front and rear wheel centerlines labeled "Wheelbase 3080 mm".
+  - Lateral dimension line across the front axle track labeled "Track 1710 mm".
+  - Pinpoint leader line indicating the lower battery pack center-of-gravity plane labeled "CoG Z 229 mm".
+- Docked cleanly at the bottom-center of the 3D stage is a compact, sharp floating camera toolbar with four tactile buttons separated by vertical hairlines: "Orbit", "Pan", "Zoom", and "Reset".
+
+RESTRAINED RIGHT INSPECTOR & PARAMETER COLUMN (floating at mid-right on the pale ash canvas with clean hairline rules, no generic SaaS card wall):
+- Top block — Selected Item Inspector (connected by a thin leader line to the highlighted side sill and battery pack perimeter):
+  - Monospace section eyebrow: "Selected item"
+  - Bold dark-ink component title: "CTB 800V Pack & Sills"
+  - Secondary specification line: "AA 6082-T6 · 108 kWh"
+  - Tabular property line: "338 kg · 90% shear"
+- Middle block — Engineering Parameters (separated by a thin horizontal hairline rule):
+  - Section title in dark ink: "Parameters"
+  - First slider control: label "Cutaway plane" on the left, tabular value "50%" on the right, over a slim track filled in anodized cobalt to a dark circular thumb.
+  - Second slider control: label "Wheelbase" on the left, tabular value "3080 mm" on the right, over a slim track filled in anodized cobalt.
+  - Third slider control: label "Rocker gauge" on the left, tabular value "3.4 mm" on the right, over a slim track filled in anodized cobalt.
+- Bottom block — Concept Result Readout (compact light-ash inset surface with a thin hairline border, placed directly below the sliders with no page-wide warning banner):
+  - Top row: label "Torsional stiffness" on the left beside a compact outlined disclosure badge reading "Concept estimate".
+  - Primary metric readout in large tabular monospace dark ink: "49.8 kNm/deg"
+  - Bottom explicit assumption and amplification line in warm copper monospace: "Peak twist 0.36 deg · 45x scale"
+
+AVOID: military helmets, night-vision goggles, tactical gear, weapons, real automaker logos (no Tesla, Rivian, Porsche, Audi, BMW, or Mercedes badges), schematic wireframe cubes, disconnected floating fantasy gears, giant top-of-page warning banners, multi-column SaaS KPI card walls, smoky blur on controls, browser frames, or any unquoted text, hex codes, or pixel numbers.
