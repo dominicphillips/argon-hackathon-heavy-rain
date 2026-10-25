@@ -7,17 +7,11 @@
   "unavailable": "Local demo server is offline. Start the backend and try again.",
   "stopped": "Playback stopped. Run again to retry.",
   "verificationFailed": "Artifact check failed. Run again to rebuild locally.",
-  "empty": {
-    "eyebrow": "Cairn",
-    "title": "Waiting for work",
-    "body": "Run the weekly cycle to load approved work and build the app."
-  },
   "panel": {
     "eyebrow": "Background build",
     "reviewTitle": "Reviewing this week's work",
     "buildTitle": "Building {app}",
     "progress": "Progress",
-    "latest": "Latest checkpoint",
     "footer": "Your preview opens when the build is ready."
   },
   "steps": {

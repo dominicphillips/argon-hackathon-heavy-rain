@@ -2176,7 +2176,7 @@ export const App: FC = () => {
                                       ? `${copy.backend.approvedInDemo} · ${copy.backend.notDeployed} · ${copy.backend.noNotifications}`
                                       : copy.backend.noNotifications
                                     : app.notifiedEmployeeCount > 0
-                                    ? `Notifier sent release link to ${app.notifiedEmployeeCount} reporting employees`
+                                    ? `${liveCopy.workers.Notifier} sent the release link to ${app.notifiedEmployeeCount} reporting employees`
                                     : "Awaiting release approval in Build before sending links"}
                                 </p>
                                 <ul>

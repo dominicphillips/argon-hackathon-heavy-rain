@@ -1,4 +1,5 @@
 import { useState, type FC } from "react";
+import liveCopy from "../copy/live.json";
 import {
   Button,
   Field,
@@ -351,7 +352,10 @@ export const InspectorDrawer: FC<InspectorDrawerProps> = ({
             {activeWorkerSummary && (
               <Panel
                 eyebrow={`Step ${activeWorkerSummary.stepNumber} of 4 · ${activeWorkerSummary.runtimeLabel}`}
-                title={activeWorkerSummary.role}
+                title={
+                  (liveCopy.workers as Record<string, string>)[activeWorkerSummary.role] ??
+                  activeWorkerSummary.role
+                }
                 actions={
                   <Status
                     tone={activeWorkerStatus.tone}
