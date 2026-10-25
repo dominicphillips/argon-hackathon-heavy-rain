@@ -1187,7 +1187,7 @@ export const App: FC = () => {
                   )}
 
                   <div className="hr-chamber-stage">
-                    <ChamberAtmosphere reducedMotion={reducedMotion} />
+                    <ChamberAtmosphere variant={demoStarted && !stageRevealed ? "dark" : "pale"} reducedMotion={reducedMotion} />
                     <div className="hr-chamber-actions">
                       {stageRevealed &&
                       (activeOrgState.appReleaseStatus !== "released" ? (
