@@ -1,0 +1,35 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "jsx": "react-jsx",
+    "strict": true,
+    "skipLibCheck": true,
+    "noEmit": true,
+    "allowImportingTsExtensions": true,
+    "isolatedModules": true,
+    "esModuleInterop": true,
+    "lib": [
+      "ES2022",
+      "DOM",
+      "DOM.Iterable"
+    ],
+    "paths": {
+      "@heavy-rain/organization-ui": [
+        "../../packages/organization-ui/src/index.tsx"
+      ],
+      "@heavy-rain/organization-ui/themes/augi": [
+        "../../packages/organization-ui/src/themes/augi/index.tsx"
+      ],
+      "@heavy-rain/organization-3d": [
+        "../../packages/organization-3d/src/index.ts"
+      ]
+    },
+    "resolveJsonModule": true
+  },
+  "include": [
+    "src",
+    "vite.config.ts"
+  ]
+}

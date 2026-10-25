@@ -20,9 +20,13 @@ dist/
 build/
 coverage/
 *.tsbuildinfo
+*.egg-info/
+*.sqlite3
+*.sqlite3-*
 
 # Local agent state and logs
 .serena/
+.playwright-mcp/
 /output/codex/
 *.log
 

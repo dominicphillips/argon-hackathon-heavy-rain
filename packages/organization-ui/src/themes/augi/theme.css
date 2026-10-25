@@ -1,0 +1,42 @@
+:root,
+[data-org-theme="augi"] {
+  --org-font-display: "Space Grotesk", "Inter", -apple-system, BlinkMacSystemFont, sans-serif;
+  --org-font-sans: "Inter", -apple-system, BlinkMacSystemFont, sans-serif;
+  --org-font-mono: "JetBrains Mono", "SFMono-Regular", Consolas, monospace;
+
+  --org-canvas-bg: #e6e8eb;
+  --org-contour-line: #d6d9e0;
+  --org-surface-primary: #f2f4f7;
+  --org-surface-inset: #dce0e5;
+  --org-border-subtle: #c8ccd4;
+  --org-border-strong: #111317;
+  --org-text-primary: #111317;
+  --org-text-secondary: #4b525c;
+  --org-text-muted: #767e8a;
+
+  --org-accent-primary: #111317;
+  --org-accent-primary-contrast: #f2f4f7;
+  --org-accent-control: #2563eb;
+  --org-accent-stress: #d97706;
+
+  --org-status-positive-text: #0f766e;
+  --org-status-positive-bg: #ccfbf1;
+  --org-status-positive-border: #5eead4;
+
+  --org-status-warning-text: #b45309;
+  --org-status-warning-bg: #fef3c7;
+  --org-status-warning-border: #fcd34d;
+
+  --org-status-critical-text: #b91c1c;
+  --org-status-critical-bg: #fee2e2;
+  --org-status-critical-border: #fca5a5;
+
+  --org-status-estimate-text: #4b525c;
+  --org-status-estimate-bg: #dce0e5;
+  --org-status-estimate-border: #b8bec8;
+
+  --org-radius-sm: 6px;
+  --org-radius-md: 8px;
+  --org-radius-lg: 10px;
+  --org-focus-ring: #2563eb;
+}

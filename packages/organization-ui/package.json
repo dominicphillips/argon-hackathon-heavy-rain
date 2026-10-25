@@ -1,0 +1,27 @@
+{
+  "name": "@heavy-rain/organization-ui",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Organization application UI component library with separate Rookmere Capital and AUGI engineering themes.",
+  "main": "./src/index.tsx",
+  "types": "./src/index.tsx",
+  "exports": {
+    ".": "./src/index.tsx",
+    "./styles.css": "./src/styles.css",
+    "./themes/rookmere": "./src/themes/rookmere/index.tsx",
+    "./themes/rookmere/theme.css": "./src/themes/rookmere/theme.css",
+    "./themes/augi": "./src/themes/augi/index.tsx",
+    "./themes/augi/theme.css": "./src/themes/augi/theme.css"
+  },
+  "sideEffects": [
+    "**/*.css"
+  ],
+  "peerDependencies": {
+    "react": "^18.0.0 || ^19.0.0"
+  },
+  "devDependencies": {
+    "@types/react": "^18.3.0 || ^19.0.0",
+    "typescript": "^5.5.0"
+  }
+}

@@ -1,0 +1,110 @@
+/* CatalogAppHero: code-native low-fidelity illustration for Apps catalog cards.
+   Monochrome graphite/ash line work with a restrained material-blue accent.
+   Tokens fall back to the system palette when the parent card does not set them. */
+
+.hr-catalog-hero {
+  --hero-ink: var(--hr-text-primary, #141517);
+  --hero-ink-soft: var(--hr-text-secondary, #4a4d55);
+  --hero-ash: var(--hr-border-subtle, #c8cad0);
+  --hero-ash-faint: var(--hr-contour-line, #d2d4d9);
+  --hero-paper: var(--hr-surface-elevated, #f4f5f7);
+  --hero-accent: var(--hr-signal-blue, #3f6fd8);
+  --hero-accent-soft: var(--hr-signal-blue-surface, #dbe5fb);
+
+  position: relative;
+  display: block;
+  width: 100%;
+  min-height: 160px;
+  aspect-ratio: 4 / 3;
+  overflow: hidden;
+  border-radius: inherit;
+  background: var(--hero-paper);
+}
+
+.hr-catalog-hero svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.hr-catalog-hero__frame {
+  fill: none;
+  stroke: var(--hero-ash-faint);
+  stroke-width: 1;
+  stroke-dasharray: 2 6;
+}
+
+.hr-catalog-hero__ink {
+  fill: none;
+  stroke: var(--hero-ink);
+  stroke-width: 1.6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.hr-catalog-hero__ink-soft {
+  fill: none;
+  stroke: var(--hero-ink-soft);
+  stroke-width: 1.1;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.hr-catalog-hero__ash {
+  fill: none;
+  stroke: var(--hero-ash);
+  stroke-width: 1;
+  stroke-linecap: round;
+}
+
+.hr-catalog-hero__dim {
+  fill: none;
+  stroke: var(--hero-ink-soft);
+  stroke-width: 0.8;
+  stroke-dasharray: 3 3;
+}
+
+.hr-catalog-hero__wash {
+  fill: var(--hero-ash-faint);
+  fill-opacity: 0.55;
+  stroke: none;
+}
+
+.hr-catalog-hero__accent {
+  fill: none;
+  stroke: var(--hero-accent);
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.hr-catalog-hero__accent-fill {
+  fill: var(--hero-accent);
+  stroke: none;
+}
+
+.hr-catalog-hero__accent-wash {
+  fill: var(--hero-accent-soft);
+  stroke: none;
+}
+
+/* Dark surfaces: lift the line work and mute the paper. */
+[data-theme="dark"] .hr-catalog-hero,
+.hr-theme-dark .hr-catalog-hero {
+  --hero-ink: #e6e8ec;
+  --hero-ink-soft: #a7abb4;
+  --hero-ash: #3a3e46;
+  --hero-ash-faint: #2a2d33;
+  --hero-paper: #1a1d22;
+  --hero-accent: #7da2f0;
+  --hero-accent-soft: #223252;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .hr-catalog-hero__accent {
+    transition: stroke-width 160ms ease;
+  }
+  .hr-catalog-hero:hover .hr-catalog-hero__accent {
+    stroke-width: 2.2;
+  }
+}

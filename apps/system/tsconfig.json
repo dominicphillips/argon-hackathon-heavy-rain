@@ -1,0 +1,30 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "jsx": "react-jsx",
+    "strict": true,
+    "skipLibCheck": true,
+    "noEmit": true,
+    "isolatedModules": true,
+    "esModuleInterop": true,
+    "resolveJsonModule": true,
+    "lib": [
+      "ES2022",
+      "DOM",
+      "DOM.Iterable"
+    ],
+    "paths": {
+      "@heavy-rain/system-ui": [
+        "../../packages/heavy-rain-ui/src/index.tsx"
+      ],
+      "@heavy-rain/organization-ui": [
+        "../../packages/organization-ui/src/index.tsx"
+      ]
+    }
+  },
+  "include": [
+    "src"
+  ]
+}

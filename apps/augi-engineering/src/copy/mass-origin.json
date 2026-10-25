@@ -1,0 +1,7 @@
+{
+  "name": "Lukas Lindner",
+  "role": "Lead Chassis & BIW Architect, AUGI",
+  "quote": "What happens if we stretch wheelbase to 3120 mm?",
+  "need": "Checking how pack or drive-unit shifts changed axle load share and CG height meant editing flat 2D tables.",
+  "proposal": "Sable Balance adjusts part masses and positions in 3D X-ray view to compute static axle load and CG height."
+}

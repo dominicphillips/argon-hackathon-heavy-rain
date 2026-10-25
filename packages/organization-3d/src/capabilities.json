@@ -1,0 +1,17 @@
+{
+  "package": "@heavy-rain/organization-3d",
+  "version": "0.1.0",
+  "units": "meters, Y-up, right-handed",
+  "scope": "Generic browser 3D viewport runtime. No domain geometry or engineering formulas.",
+  "capabilities": [
+    { "id": "renderer", "export": "createViewportRuntime", "summary": "WebGL renderer with pixel-ratio cap (2), soft shadow maps, ACES tone mapping, render-on-demand idle loop, resize observer, and full disposal." },
+    { "id": "camera.fit", "export": "fitBoundsToView", "summary": "Aspect-aware perspective fit of axis-aligned bounds with margin; pure math, unit tested." },
+    { "id": "camera.presets", "export": "CAMERA_DIRECTIONS", "summary": "Named view directions (isometric, front, side, top, underbody, rear) applied through fitBounds." },
+    { "id": "camera.navigation", "export": "runtime.orbitBy/zoomBy/panBy/handleKeyDown", "summary": "Pointer orbit, pan, zoom, tilt via OrbitControls plus keyboard equivalents (arrows, +/-, WASD, R, F)." },
+    { "id": "animation", "export": "runtime.setContinuous/invalidate", "summary": "Continuous frames only while an adapter animates; honors reduced motion by snapping camera transitions." },
+    { "id": "selection", "export": "runtime.pick", "summary": "Raycaster picking from client coordinates; climbs to the nearest ancestor with userData.partId." },
+    { "id": "measurement", "export": "measureDistance", "summary": "Straight-line distance between two points with unit conversion (m, mm, cm, in, ft)." },
+    { "id": "resources", "export": "disposeObjectTree", "summary": "Disposes geometries, materials, and textures reachable from an object." },
+    { "id": "react", "export": "useViewportRuntime", "summary": "React hook that owns runtime lifecycle for a canvas inside a sized container and reports WebGL failure." }
+  ]
+}

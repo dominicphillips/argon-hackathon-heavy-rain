@@ -1,0 +1,57 @@
+{
+  "scope": {
+    "label": "",
+    "rookmere": "",
+    "augi": ""
+  },
+  "account": {
+    "badge": "",
+    "dialogLabel": "",
+    "identityEyebrow": "",
+    "scopePrefix": "",
+    "switchLabel": "",
+    "statusEyebrow": "",
+    "sampleReplay": "",
+    "reducedMotion": {
+      "label": "",
+      "on": "",
+      "off": ""
+    },
+    "weeklySchedule": {
+      "label": "",
+      "active": "",
+      "paused": ""
+    },
+    "openOrgApp": "",
+    "entryScreen": "",
+    "linksEyebrow": "",
+    "links": {
+      "heavyRain": "",
+      "rookmere": "",
+      "augi": ""
+    }
+  },
+  "entry": {
+    "demoBadge": "",
+    "operatorLabel": "",
+    "operatorHint": "",
+    "scopeLabel": "",
+    "enterAction": "",
+    "switchLabel": "",
+    "links": {
+      "heavyRain": "",
+      "rookmere": "",
+      "augi": ""
+    }
+  },
+  "backend": {
+    "connected": "",
+    "offlineFallback": "",
+    "demoMode": "",
+    "approvedInDemo": "",
+    "notDeployed": "",
+    "noNotifications": "",
+    "submitSample": "",
+    "outgoingPayload": ""
+  }
+}

@@ -1,0 +1,17 @@
+{
+  "activity": {
+    "title": "Activity timeline",
+    "emptyState": "No queued, running, or completed events yet.",
+    "detailLabels": {
+      "toolName": "Tool executed",
+      "inputEvidence": "Input evidence",
+      "toolOutput": "Verified tool output"
+    },
+    "details": "Technical details"
+  },
+  "ingestIntro": {
+    "title": "Weekly AI work excerpts",
+    "body": "Approved weekly AI work excerpts from fictional employees show recurring tasks and app proposals—not silent chat monitoring.",
+    "demoLabel": "Synthetic demo personas"
+  }
+}

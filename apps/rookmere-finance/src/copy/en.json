@@ -1,0 +1,51 @@
+{
+  "entry": {
+    "org": "ROOKMERE CAPITAL",
+    "entity": "Rookmere Capital Partners LLP · London & Frankfurt",
+    "demoBadge": "Demo workspace",
+    "title": "Rookmere Close",
+    "subtitle": "Monthly ERP trial-balance bridge (SAP, Monitor, Exact, Visma), constant-currency FX split (SEK, NOK, GBP), and maintenance covenant headroom for RIG-III (EUR 480m) and RIG-IV (EUR 720m).",
+    "employeeLabel": "Rookmere fixture employee (demo identity)",
+    "employeeHint": "Stored in local browser storage for 127.0.0.1:43173 only. Password authentication is not implemented in the local demo.",
+    "departmentLabel": "Department",
+    "scopeLabel": "Permitted data scope",
+    "enterAction": "Enter demo workspace",
+    "switchLabel": "Switch workspace entry screen",
+    "links": {
+      "heavyRain": "Heavy Rain console (43170)",
+      "rookmere": "Rookmere Capital (43173)",
+      "augi": "AUGI Engineering (43171)"
+    }
+  },
+  "account": {
+    "badge": "Demo",
+    "dialogLabel": "Rookmere demo account and workspace switcher",
+    "identityEyebrow": "Rookmere demo identity (127.0.0.1:43173)",
+    "scopePrefix": "Scope:",
+    "switchLabel": "Switch fixture employee",
+    "statusEyebrow": "Demo status & preferences",
+    "statusNote": "Local browser storage only; real authentication belongs to the backend service. Read-only sample data (0 ERP writes).",
+    "reducedMotion": {
+      "label": "Reduced motion",
+      "on": "On",
+      "off": "Off"
+    },
+    "entryScreen": "Entry screen",
+    "linksEyebrow": "Workspace entry screens",
+    "links": {
+      "heavyRain": "Heavy Rain operator console",
+      "rookmere": "Rookmere Capital",
+      "augi": "AUGI Engineering"
+    }
+  },
+  "app": {
+    "name": "Rookmere Close"
+  },
+  "intro": {
+    "name": "Lukas Weber",
+    "role": "Principal, DACH Investments, Rookmere Capital",
+    "quote": "Map it to the RIG-III board P&L lines and explain why EBITDA missed budget by EUR 190k.",
+    "proposal": "Rookmere Close maps monthly trial balances to P&L lines, isolates FX variance, and checks covenant headroom.",
+    "need": "Each monthly close required re-uploading HGB account mappings, FX rates, and covenant caps into fresh chats."
+  }
+}

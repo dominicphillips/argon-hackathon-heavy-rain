@@ -1,0 +1,18 @@
+{
+  "app": { "org": "", "vehicle": "", "model": "" },
+  "nav": { "chassis": "", "torsion": "", "materials": "", "compare": "" },
+  "view": { "solid": "", "cutaway": "", "xray": "", "cutawayPlane": "" },
+  "camera": { "isometric": "", "side": "", "top": "", "front": "", "rear": "", "underbody": "", "reset": "", "fit": "", "viewLabel": "", "more": "" },
+  "layers": { "loadVectors": "", "baselineGhost": "", "blueprint": "" },
+  "transport": { "play": "", "pause": "", "deformation": "", "exploded": "", "flight": "", "amplification": "", "flightNote": "", "staticPose": "" },
+  "params": { "heading": "", "preset": "", "wheelbase": "", "trackWidth": "", "wallGauge": "", "crossMembers": "", "material": "", "peakTorque": "", "verticalLoad": "", "loadTorsion": "", "loadBending": "", "resetParameter": "", "custom": "", "more": "" },
+  "results": { "torsionalStiffness": "", "bendingStiffness": "", "peakTwist": "", "sag": "", "conceptEstimate": "", "limitation": "", "structuralMass": "", "stiffnessPerMass": "", "vsBaseline": "", "baselineReference": "" },
+  "sections": { "chassisTitle": "", "chassisSubtitle": "", "torsionTitle": "", "torsionSubtitle": "", "materialsSubtitle": "", "compareTitle": "", "compareSubtitle": "", "wheelbase": "", "track": "", "gauge": "", "crossMembers": "", "stiffnessDelta": "", "massDelta": "", "twistDelta": "", "sagDelta": "", "youngs": "", "shear": "", "density": "", "yield": "", "railsMass": "", "trayMass": "", "subframesMass": "", "peakStress": "", "midSag": "", "bendingStiffness": "", "snapshots": "" },
+  "status": { "baselineLoaded": "", "unsaved": "", "saved": "", "restored": "", "loaded": "" },
+  "actions": { "save": "", "resetBaseline": "", "snapshotPlaceholder": "", "deleteSnapshot": "", "saveShort": "" },
+  "units": { "metric": "", "imperial": "", "reducedMotionOn": "", "reducedMotionOff": "" },
+  "account": { "demoBadge": "", "identityEyebrow": "", "switchEngineer": "", "preferencesEyebrow": "", "entryScreen": "", "workspacesEyebrow": "", "heavyRain": "", "rookmere": "", "augi": "", "note": "", "dialogLabel": "" },
+  "entry": { "badge": "", "title": "", "subtitle": "", "identityLabel": "", "identityHint": "", "enter": "", "switchLabel": "" },
+  "errors": { "webgl": "", "numberRequired": "" },
+  "selection": { "eyebrow": "", "bodyShell": "", "greenhouse": "", "seat": "", "dashboard": "", "wheel": "" }
+}

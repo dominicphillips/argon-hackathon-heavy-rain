@@ -1,0 +1,21 @@
+[build-system]
+requires = ["setuptools>=68.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "heavy-rain-relay"
+version = "0.1.0"
+description = "Heavy Rain Relay MCP intake, policy enforcement, managed builder orchestration, and SSE observability service"
+requires-python = ">=3.11"
+dependencies = [
+    "fastapi>=0.115.0",
+    "uvicorn>=0.32.0",
+    "pydantic>=2.9.0",
+    "google-genai>=1.0.0",
+    "google-antigravity==0.1.22",
+    "httpx>=0.27.0",
+]
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["relay*"]

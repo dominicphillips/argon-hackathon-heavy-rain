@@ -1,3 +1,7 @@
+> Reserve the agy key for the actual builder backend demonstration later. Use the other Gemini key only for Argon copy.
+
+> **Deadline: 1pm PDT today, October 25, 2026. Get to a working, demoable version, including the backend. Use Astra to finish the stalled backend; use Claude CLI with Fable for frontend development and Argon for copy.**
+
 Just getting started
 
 # Heavy Rain repository instructions
@@ -10,8 +14,12 @@ Just getting started
 4. **Selected visual anchors:**
    - Spatial layout anchor: `__grounding/inspiration/references/dribbble/09-tactical-gear-landing-page-anorent.png`.
    - First system build design: `__grounding/inspiration/mockups/03-system-c.png`—pale ash and rain-dark surfaces, softly faded inactive left vertical navigation with an active dark tick and crisp click feedback, dominant central artifact stage, smoky blurred build preview with sharp checkpoint/pause controls, and a worker dock beneath the central stage.
-   - Final brand wordmark: `__grounding/inspiration/logos/02-wordmark.png` (and `__grounding/design/brand/heavy-rain-mark.svg`), not `04`.
+   - Final brand wordmark: `__grounding/inspiration/logos/02-wordmark.png` (and `__grounding/design/brand/heavy-rain-wordmark.svg`), not `04`.
 5. **Keep research in `__grounding/`:** Store references and renders in `__grounding/inspiration/`, brand/design specs in `__grounding/design/`, UX flows in `__grounding/ux/`, and synthetic organization fixtures in `__grounding/demo/`. Do not rename `__grounding/` or link to ignored scratch paths in checked-in documentation.
+
+- **Navigation and editorial UX:** Place navigation at the top left with no active-state marker. Keep the interface editorial with minimal labels: pair person avatars and verbatim quotes with a first-person story explaining why the app was built from their weekly tasks and a concise code/formula illustration. Keep package names, API jargon, `skateboard` slang, and internal IDs out of the UI; label synthetic personas once in section context rather than repeating caveats in every sentence.
+
+Naming: [`naming.md`](./naming.md).
 
 ## 2. Frontend stack, package separation, and persistent local ports
 
@@ -24,11 +32,13 @@ Just getting started
 3. **Keep local previews running on fixed high ports:**
    - `apps/system`: `http://127.0.0.1:43170` (`npm run dev:system`, `--host 127.0.0.1 --port 43170 --strictPort`)
    - `apps/augi-engineering`: `http://127.0.0.1:43171` (`npm run dev:augi`, `--host 127.0.0.1 --port 43171 --strictPort`)
+   - `apps/rookmere-finance`: `http://127.0.0.1:43173` (`npm run dev:rookmere`)
+   - Backend: `http://127.0.0.1:43180` (`.venv/bin/python -m relay`)
    - Preserve running preview processes throughout development unless the owner explicitly asks to stop them.
 
 ## 3. Model routing, production builders vs dev workforce, and rate limits
 
-1. **Development workforce (`agy` Argon high):** Run all development subagents, project writing, copy drafting, documentation updates, and commit message authoring through `agy` using `--model gemini-4-argon-high --effort high` with the environment-injected `GEMINI_API_KEY`, following [`copy.md`](./copy.md). Strip `GOOGLE_GEMINI_BASE_URL`, `AGY_ADC_AUTH`, and `GOOGLE_GENAI_USE_VERTEXAI` when spawning workers. Never read, print, or log `.env` files, tokens, or shell history.
+1. Route frontend development to Claude CLI (`Fable`) via the `ask_claude` subscription guard (never API-key fallback), and route backend work to `Astra` when requested by the user. Route all UI copy, documentation, product names, agent prompts, and commit messages to Gemini 4 Argon (`--thinking high`) via `ask_gemini --provider google` using the separate copy-only Gemini key in `~/.env` strictly for writing tasks. Reserve `agy` and the new key exclusively for the hosted builder backend later—never use them for repository development, copy drafting, or review, never expose secrets in code or logs, and leave the product's hosted-builder architecture untouched.
 2. **Production system architecture:**
    - **Cairn (Orchestrator):** Targets `google-antigravity==0.1.22` on the coordinator runtime with `gemini-4-argon` (`high` thinking, `1,048,576` shared token ceiling, `GeminiModelOptions.max_output_tokens`).
    - **Builders (Production Sandbox Agents):** Target the Google-hosted managed Antigravity agent on the Gemini Interactions API (`agent="antigravity-preview-09-2026"`, `environment="remote"`, `agent_config={"type": "antigravity", "model": "gemini-4-argon"}`, `background=True`, `store=True`), exporting verified workspace files via `environments.files.download` (`GET /v1beta/environments/{env_id}/files?alt=media`). Do not conflate the hosted managed builder with the local `agy` CLI or expose unsupported `thinking_level`/`max_output_tokens` fields in `AntigravityAgentConfig`.

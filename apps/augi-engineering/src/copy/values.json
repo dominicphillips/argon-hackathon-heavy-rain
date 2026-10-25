@@ -1,0 +1,156 @@
+{
+  "app": {
+    "org": "AUGI",
+    "vehicle": "Sable Studio",
+    "model": "Sable Studio"
+  },
+  "nav": {
+    "chassis": "Chassis",
+    "torsion": "Torsion",
+    "materials": "Materials",
+    "compare": "Compare"
+  },
+  "view": {
+    "solid": "Solid",
+    "cutaway": "Cutaway",
+    "xray": "X-ray",
+    "cutawayPlane": "Cutaway plane"
+  },
+  "camera": {
+    "isometric": "Isometric",
+    "side": "Side",
+    "top": "Top",
+    "front": "Front",
+    "rear": "Rear",
+    "underbody": "Underbody",
+    "reset": "Reset view",
+    "fit": "Fit view",
+    "viewLabel": "Camera view",
+    "more": "More views"
+  },
+  "layers": {
+    "loadVectors": "Load vectors",
+    "baselineGhost": "Baseline A ghost",
+    "blueprint": "2D blueprint"
+  },
+  "transport": {
+    "play": "Play",
+    "pause": "Pause",
+    "deformation": "Deformation",
+    "exploded": "Exploded view",
+    "flight": "Flight",
+    "amplification": "Scale",
+    "flightNote": "Concept animation only",
+    "staticPose": "Static pose"
+  },
+  "params": {
+    "heading": "Parameters",
+    "preset": "Preset",
+    "wheelbase": "Wheelbase",
+    "trackWidth": "Track width",
+    "wallGauge": "Wall gauge",
+    "crossMembers": "Cross-members",
+    "material": "Material",
+    "peakTorque": "Peak torque",
+    "verticalLoad": "Vertical load",
+    "loadTorsion": "Torsion",
+    "loadBending": "Bending",
+    "resetParameter": "Reset parameter",
+    "custom": "Custom candidate",
+    "more": "More parameters"
+  },
+  "results": {
+    "torsionalStiffness": "Torsional stiffness",
+    "bendingStiffness": "Bending stiffness",
+    "peakTwist": "Peak twist",
+    "sag": "Sag",
+    "conceptEstimate": "Concept estimate",
+    "limitation": "Simplified beam and torsion estimates for early chassis trade-offs, not validated FEA or crash results.",
+    "structuralMass": "Structural mass",
+    "stiffnessPerMass": "Stiffness / mass",
+    "vsBaseline": "vs Baseline A",
+    "baselineReference": "Baseline A"
+  },
+  "sections": {
+    "chassisTitle": "Chassis dimensions",
+    "chassisSubtitle": "Envelope and sub-assemblies",
+    "torsionTitle": "Load response",
+    "torsionSubtitle": "Simplified beam and torsion model",
+    "materialsSubtitle": "Alloy properties and mass breakdown",
+    "compareTitle": "Compare vs Baseline A",
+    "compareSubtitle": "2980 mm · 1680 mm · 2.4 mm 6061-T6",
+    "wheelbase": "Wheelbase",
+    "track": "Track width",
+    "gauge": "Rocker wall gauge",
+    "crossMembers": "Cross-members",
+    "stiffnessDelta": "Stiffness change",
+    "massDelta": "Mass change",
+    "twistDelta": "Peak twist change",
+    "sagDelta": "Sag change",
+    "youngs": "Young's modulus",
+    "shear": "Shear modulus",
+    "density": "Density",
+    "yield": "Yield strength",
+    "railsMass": "Side rails",
+    "trayMass": "Battery tray",
+    "subframesMass": "Subframes",
+    "peakStress": "Peak stress",
+    "midSag": "Mid-span sag",
+    "bendingStiffness": "Bending stiffness",
+    "snapshots": "Saved snapshots"
+  },
+  "status": {
+    "baselineLoaded": "Baseline A loaded",
+    "unsaved": "Unsaved edits",
+    "saved": "Saved",
+    "restored": "Baseline A restored",
+    "loaded": "Loaded"
+  },
+  "actions": {
+    "save": "Save snapshot",
+    "resetBaseline": "Reset to Baseline A",
+    "snapshotPlaceholder": "Snapshot name",
+    "deleteSnapshot": "Delete snapshot",
+    "saveShort": "Save"
+  },
+  "units": {
+    "metric": "Metric (mm · kN)",
+    "imperial": "Imperial (in · lbf)",
+    "reducedMotionOn": "Reduced motion: On",
+    "reducedMotionOff": "Reduced motion: Off"
+  },
+  "account": {
+    "demoBadge": "Demo",
+    "identityEyebrow": "Demo identity",
+    "switchEngineer": "Switch engineer",
+    "preferencesEyebrow": "Preferences",
+    "entryScreen": "Entry screen",
+    "workspacesEyebrow": "Workspaces",
+    "heavyRain": "Heavy Rain",
+    "rookmere": "Rookmere Capital",
+    "augi": "AUGI",
+    "note": "Demo identity stored in this browser, not a production login.",
+    "dialogLabel": "Account and workspaces"
+  },
+  "entry": {
+    "badge": "Demo",
+    "title": "AUGI Sable",
+    "subtitle": "Compare chassis dimensions, materials, and estimated load response in 3D.",
+    "identityLabel": "Engineer",
+    "identityHint": "Demo profile stored in this browser, not a production login.",
+    "enter": "Open Sable",
+    "switchLabel": "Switch workspace"
+  },
+  "errors": {
+    "webgl": "3D view requires WebGL. Enable hardware acceleration and reload.",
+    "numberRequired": "Enter a valid number within the parameter range."
+  },
+  "selection": {
+    "eyebrow": "Selected part",
+    "bodyShell": "Body shell",
+    "greenhouse": "Greenhouse",
+    "seat": "Seat",
+    "dashboard": "Dashboard",
+    "wheel": "Wheel assembly"
+  }
+}

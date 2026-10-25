@@ -1,0 +1,7 @@
+{
+  "name": "Lukas Lindner",
+  "role": "Lead Chassis & BIW Architect, AUGI",
+  "quote": "What happens if we stretch wheelbase to 3120 mm?",
+  "need": "Every wheelbase or track change meant re-pasting section JSON into chat and reading flat stiffness tables.",
+  "proposal": "Sable Studio sweeps wheelbase, track, and wall gauge across SABLE-A/B/C in an interactive 3D cutaway view."
+}

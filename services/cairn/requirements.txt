@@ -1,0 +1,2 @@
+google-antigravity==0.1.22
+pydantic>=2.9.0

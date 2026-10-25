@@ -1,0 +1,46 @@
+{
+  "labels": {
+    "details": "View details",
+    "openBuild": "Open build",
+    "viewApp": "View app",
+    "requestEvidence": "Ask for more information",
+    "openWork": "Open build",
+    "reports": "Submitted employee reports",
+    "inspectReport": "Inspect report",
+    "apps": "Apps",
+    "sourceExcerpts": "Source excerpts"
+  },
+  "cards": {
+    "wf_augi_01": {
+      "title": "Sable Studio",
+      "summary": "Every wheelbase or track change meant re-pasting section JSON into chat and reading flat stiffness tables.",
+      "details": "Existing catalog tools list component mass tables but cannot compare chassis options side by side in 3D. Sable gives the team one shared workspace to test structural trade-offs.",
+      "primaryAction": "Open build",
+      "illustration": "chassis",
+      "persona": {
+        "name": "Lukas Lindner",
+        "role": "Lead Chassis & BIW Architect, AUGI",
+        "quote": "What happens if we stretch wheelbase to 3120 mm?",
+        "avatarAtlasUrl": "/people/employee-portraits.png",
+        "avatarAtlasPosition": "0% 0%"
+      },
+      "observed": "Every wheelbase or track change meant re-pasting section JSON into chat and reading flat stiffness tables.",
+      "proposed": "Sable Studio sweeps wheelbase, track, and wall gauge across SABLE-A/B/C in an interactive 3D cutaway view."
+    },
+    "pat_rm_01": {
+      "title": "Rookmere Close",
+      "primaryAction": "Open build",
+      "illustration": "ledger",
+      "persona": {
+        "name": "Lukas Weber",
+        "role": "Principal, DACH Investments, Rookmere Capital",
+        "quote": "Map it to the RIG-III board P&L lines and explain why EBITDA missed budget by EUR 190k.",
+        "avatarAtlasUrl": "/people/employee-portraits.png",
+        "avatarAtlasPosition": "100% 0%"
+      },
+      "observed": "Each monthly close required re-uploading HGB account mappings, FX rates, and covenant caps into fresh chats.",
+      "summary": "Each monthly close required re-uploading HGB account mappings, FX rates, and covenant caps into fresh chats.",
+      "proposed": "Rookmere Close maps monthly trial balances to P&L lines, isolates FX variance, and checks covenant headroom."
+    }
+  }
+}

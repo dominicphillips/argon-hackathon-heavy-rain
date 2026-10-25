@@ -1,0 +1,22 @@
+{
+  "Researcher": {
+    "queued": "Queued to review recurring employee requests against the app catalog.",
+    "working": "Comparing recurring work excerpts with existing catalog capabilities.",
+    "completed": "Matched recurring engineering asks to a catalog gap and app proposal."
+  },
+  "Connector": {
+    "queued": "Queued to inspect approved report schemas and submitted attachments.",
+    "working": "Checking submitted schema fields and approved attachment formats.",
+    "completed": "Confirmed submitted schema fields and sample attachment structure."
+  },
+  "Builder": {
+    "queued": "Queued to assemble the app workspace and run local fixture checks.",
+    "working": "Assembling the app view and running type and hash checks on the fixture.",
+    "completed": "Built the interactive view and passed local fixture hash and type checks."
+  },
+  "Notifier": {
+    "queued": "Queued for demo review; external message delivery is disabled.",
+    "working": "Preparing the release preview for approval with external delivery off.",
+    "completed": "Recorded demo approval preview; no external notifications are sent."
+  }
+}

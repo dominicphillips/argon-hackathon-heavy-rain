@@ -1,0 +1,51 @@
+{
+  "entry": {
+    "org": "",
+    "entity": "",
+    "demoBadge": "",
+    "title": "",
+    "subtitle": "",
+    "employeeLabel": "",
+    "employeeHint": "",
+    "departmentLabel": "",
+    "scopeLabel": "",
+    "enterAction": "",
+    "switchLabel": "",
+    "links": {
+      "heavyRain": "",
+      "rookmere": "",
+      "augi": ""
+    }
+  },
+  "account": {
+    "badge": "",
+    "dialogLabel": "",
+    "identityEyebrow": "",
+    "scopePrefix": "",
+    "switchLabel": "",
+    "statusEyebrow": "",
+    "statusNote": "",
+    "reducedMotion": {
+      "label": "",
+      "on": "",
+      "off": ""
+    },
+    "entryScreen": "",
+    "linksEyebrow": "",
+    "links": {
+      "heavyRain": "",
+      "rookmere": "",
+      "augi": ""
+    }
+  },
+  "app": {
+    "name": ""
+  },
+  "intro": {
+    "name": "",
+    "role": "",
+    "quote": "",
+    "proposal": "",
+    "need": ""
+  }
+}

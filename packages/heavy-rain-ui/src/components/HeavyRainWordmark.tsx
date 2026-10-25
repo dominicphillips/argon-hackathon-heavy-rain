@@ -1,0 +1,44 @@
+import * as React from "react";
+
+export interface HeavyRainWordmarkProps extends React.SVGProps<SVGSVGElement> {
+  height?: number;
+  title?: string;
+}
+
+const WORDMARK_PATH =
+  "M1 2H3.8V10.5H6.6V2H9.4V22H6.6V13.3H3.8V22H1V2ZM11.4 2H18.8V4.8H14.2V10.5H18.1V13.3H14.2V19.2H18.8V22H11.4V2ZM23.3 2H26.7L29.6 22H26.8L26.3 17.2H23.7L23.2 22H20.4L23.3 2ZM24.8 5.6L23.8 14.5H26.2L25.2 5.6H24.8ZM30.8 2H33.6L35.2 17.8H35.6L37.2 2H40.0L37.1 22H33.7L30.8 2ZM41.2 2H44.0L45.8 10.2L47.6 2H50.4L47.2 13.4V22H44.4V13.4L41.2 2ZM55.6 2H58.4V22H55.6V2ZM59.5 2H61.4C63.6 2 64.8 3.3 64.8 5.8V8.4C64.8 10.4 63.9 11.7 62.5 12.3L64.9 22H62.1L60.1 13.1H59.5V10.3H61.0C61.7 10.3 62.1 9.8 62.1 8.8V5.6C62.1 4.9 61.7 4.7 61.0 4.7H59.5V2ZM69.1 2H72.5L75.4 22H72.6L72.1 17.2H69.5L69.0 22H66.2L69.1 2ZM70.6 5.6L69.6 14.5H72.0L71.0 5.6H70.6ZM77 2H79.8V22H77V2ZM81.8 2H84.6L88.0 14.2V2H90.6V22H87.8L84.4 9.8V22H81.8V2Z";
+
+/**
+ * Heavy Rain condensed typographic wordmark with custom cut-out R.
+ * Selected visual anchor: __grounding/inspiration/logos/02-wordmark.png
+ * Canonical SVG file: __grounding/design/brand/heavy-rain-wordmark.svg
+ */
+export function HeavyRainWordmark({
+  height = 24,
+  title = "Heavy Rain",
+  width,
+  ...props
+}: HeavyRainWordmarkProps) {
+  const computedWidth = width ?? Math.round((height * 92) / 24);
+
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 92 24"
+      width={computedWidth}
+      height={height}
+      fill="none"
+      role="img"
+      aria-label={title}
+      {...props}
+    >
+      <title>{title}</title>
+      <path
+        fill="currentColor"
+        fillRule="evenodd"
+        clipRule="evenodd"
+        d={WORDMARK_PATH}
+      />
+    </svg>
+  );
+}

@@ -1,0 +1,57 @@
+{
+  "scope": {
+    "label": "Organization",
+    "rookmere": "Rookmere Capital",
+    "augi": "AUGI"
+  },
+  "account": {
+    "badge": "Demo",
+    "dialogLabel": "Account and workspaces",
+    "identityEyebrow": "Demo identity",
+    "scopePrefix": "Scope:",
+    "switchLabel": "Switch operator",
+    "statusEyebrow": "Preferences",
+    "sampleReplay": "Local demo data",
+    "reducedMotion": {
+      "label": "Reduced motion",
+      "on": "On",
+      "off": "Off"
+    },
+    "weeklySchedule": {
+      "label": "Weekly schedule",
+      "active": "Active",
+      "paused": "Paused"
+    },
+    "openOrgApp": "Open app",
+    "entryScreen": "Entry screen",
+    "linksEyebrow": "Workspaces",
+    "links": {
+      "heavyRain": "Heavy Rain",
+      "rookmere": "Rookmere Capital",
+      "augi": "AUGI"
+    }
+  },
+  "entry": {
+    "demoBadge": "Demo",
+    "operatorLabel": "Operator",
+    "operatorHint": "Demo profile stored in this browser, not a production login.",
+    "scopeLabel": "Organization",
+    "enterAction": "Open Heavy Rain",
+    "switchLabel": "Switch workspace",
+    "links": {
+      "heavyRain": "Heavy Rain",
+      "rookmere": "Rookmere Capital",
+      "augi": "AUGI"
+    }
+  },
+  "backend": {
+    "connected": "Connected to local backend",
+    "offlineFallback": "Using offline demo data",
+    "demoMode": "Local demo",
+    "approvedInDemo": "Approved in local demo",
+    "notDeployed": "Not deployed",
+    "noNotifications": "No notifications sent",
+    "submitSample": "Submit sample work report",
+    "outgoingPayload": "Outgoing payload"
+  }
+}

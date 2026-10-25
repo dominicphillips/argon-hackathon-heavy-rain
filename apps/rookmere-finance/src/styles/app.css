@@ -1,0 +1,634 @@
+/* Rookmere Close (`apps/rookmere-finance`)
+ * Uses @heavy-rain/organization-ui Rookmere theme tokens exclusively.
+ */
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  background-color: var(--org-surface-canvas, #f4f2ec);
+  color: var(--org-text-primary, #16202a);
+  font-family: var(--org-font-sans, "Inter", system-ui, sans-serif);
+  -webkit-font-smoothing: antialiased;
+}
+
+.rm-variance-app {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.rm-variance-app__topbar {
+  padding: 10px 18px;
+  border-bottom: 1px solid var(--org-border-subtle);
+  background-color: var(--org-surface-primary);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.rm-variance-app__brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.rm-variance-app__org-name {
+  font-family: var(--org-font-display);
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+}
+
+.rm-variance-app__dot {
+  color: var(--org-text-muted);
+}
+
+.rm-variance-app__app-title {
+  font-family: var(--org-font-display);
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.rm-variance-app__top-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.rm-variance-app__section-tabs {
+  display: inline-flex;
+  gap: 4px;
+}
+
+/* Accessible Rookmere Account Menu */
+.rm-account-menu {
+  position: relative;
+}
+
+.rm-account-menu__trigger {
+  appearance: none;
+  height: 30px;
+  padding: 0 10px;
+  border-radius: 5px;
+  border: 1px solid var(--org-border-strong, #b8b5ab);
+  background-color: var(--org-surface-inset, #ebe8df);
+  color: var(--org-text-primary);
+  font-family: var(--org-font-sans);
+  font-size: 12px;
+  font-weight: 500;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  cursor: pointer;
+}
+
+.rm-account-menu__trigger:hover {
+  border-color: var(--org-text-primary);
+}
+
+.rm-account-menu__trigger--active {
+  background-color: var(--org-text-primary);
+  border-color: var(--org-text-primary);
+  color: var(--org-surface-primary);
+}
+
+.rm-account-menu__trigger:focus-visible,
+.rm-account-popover__link:focus-visible {
+  outline: 2px solid var(--org-accent-primary, #1e3a5f);
+  outline-offset: 2px;
+}
+
+.rm-account-menu__badge {
+  font-family: var(--org-font-mono);
+  font-size: 10.5px;
+  padding: 1px 6px;
+  border-radius: 9999px;
+  background-color: rgba(22, 32, 42, 0.1);
+}
+
+.rm-account-menu__trigger--active .rm-account-menu__badge {
+  background-color: rgba(255, 255, 255, 0.2);
+}
+
+.rm-account-popover {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  width: 320px;
+  padding: 14px;
+  border-radius: 6px;
+  background-color: var(--org-surface-primary, #faf9f5);
+  border: 1px solid var(--org-text-primary, #16202a);
+  box-shadow: 0 14px 32px rgba(22, 32, 42, 0.16);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  z-index: 40;
+}
+
+.rm-account-popover__section {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--org-border-subtle);
+}
+
+.rm-account-popover__section--last {
+  padding-bottom: 0;
+  border-bottom: none;
+}
+
+.rm-account-popover__eyebrow {
+  font-family: var(--org-font-mono);
+  font-size: 10.5px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--org-text-muted);
+}
+
+.rm-account-popover__identity {
+  font-size: 14px;
+  color: var(--org-text-primary);
+}
+
+.rm-account-popover__role {
+  font-size: 12px;
+  color: var(--org-text-secondary);
+}
+
+.rm-account-popover__scope {
+  font-family: var(--org-font-mono);
+  font-size: 11px;
+  color: var(--org-text-muted);
+  margin-bottom: 4px;
+}
+
+.rm-account-popover__label {
+  font-size: 11.5px;
+  font-weight: 500;
+  color: var(--org-text-secondary);
+  margin-top: 4px;
+}
+
+.rm-account-popover__note {
+  margin: 0 0 6px 0;
+  font-size: 11.5px;
+  line-height: 1.4;
+  color: var(--org-text-secondary);
+}
+
+.rm-account-popover__row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.rm-account-popover__links {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-top: 2px;
+}
+
+.rm-account-popover__link {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 6px 8px;
+  border-radius: 4px;
+  border: 1px solid var(--org-border-subtle);
+  background-color: var(--org-surface-inset);
+  color: var(--org-text-primary);
+  text-decoration: none;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.rm-account-popover__link:hover {
+  border-color: var(--org-text-primary);
+}
+
+.rm-account-popover__link code {
+  font-family: var(--org-font-mono);
+  font-size: 10.5px;
+  color: var(--org-text-secondary);
+}
+
+/* Main Rookmere Workbench Body */
+.rm-variance-app__body {
+  display: flex;
+  flex: 1;
+  gap: 16px;
+  padding: 12px 16px;
+}
+
+.rm-variance-app__rail {
+  padding-top: 8px;
+}
+
+.rm-variance-app__content {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.rm-intro {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  padding: 12px 14px;
+  border: 1px solid var(--org-border-subtle);
+  background-color: var(--org-surface-primary);
+}
+
+.rm-intro__portrait {
+  flex: 0 0 52px;
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  border: 1px solid var(--org-border-subtle);
+  background-image: url("/people/employee-portraits.png");
+  background-size: 200% 200%;
+  background-position: 100% 0%;
+  background-repeat: no-repeat;
+}
+
+.rm-intro__text {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.rm-intro__quote {
+  margin: 0;
+}
+
+.rm-intro__quote p {
+  margin: 0;
+  font-family: var(--org-font-display);
+  font-size: 16px;
+  line-height: 1.35;
+  color: var(--org-text-primary);
+}
+
+.rm-intro__quote p::before {
+  content: "\201C";
+}
+
+.rm-intro__quote p::after {
+  content: "\201D";
+}
+
+.rm-intro__person {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 6px;
+  margin-top: 4px;
+  font-size: 12px;
+  color: var(--org-text-muted);
+}
+
+.rm-intro__name {
+  font-weight: 600;
+  color: var(--org-text-secondary);
+}
+
+.rm-intro__proposal {
+  margin: 4px 0 0;
+  font-size: 13px;
+  line-height: 1.45;
+  color: var(--org-text-primary);
+}
+
+.rm-intro__need {
+  margin: 0;
+  font-size: 12px;
+  line-height: 1.4;
+  color: var(--org-text-muted);
+}
+
+.rm-variance-app__controls-panel {
+  padding: 10px 12px;
+}
+
+.rm-variance-app__controls-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(175px, 1fr));
+  gap: 10px;
+  align-items: end;
+}
+
+.rm-variance-app__metrics-row {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.rm-variance-app__main-grid {
+  display: grid;
+  grid-template-columns: 310px minmax(0, 1fr);
+  gap: 10px;
+  align-items: stretch;
+}
+
+.rm-variance-app__waterfall-svg {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.rm-variance-app__selected-driver {
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px solid var(--org-border-subtle);
+  font-size: 11.5px;
+}
+
+.rm-variance-app__selected-header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+
+.rm-variance-app__selected-header span {
+  font-family: var(--org-font-mono);
+  font-size: 10.5px;
+  color: var(--org-text-secondary);
+}
+
+.rm-variance-app__selected-text {
+  margin: 0 0 6px 0;
+  color: var(--org-text-secondary);
+  line-height: 1.38;
+}
+
+.rm-variance-app__selected-meta {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  font-family: var(--org-font-mono);
+  font-size: 10.5px;
+  color: var(--org-text-muted);
+}
+
+.rm-variance-app__table-wrap {
+  overflow-x: auto;
+}
+
+.rm-variance-app__table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+}
+
+.rm-variance-app__table th {
+  text-align: left;
+  font-family: var(--org-font-mono);
+  font-size: 10.5px;
+  text-transform: uppercase;
+  color: var(--org-text-secondary);
+  padding: 6px 8px;
+  border-bottom: 1px solid var(--org-border-subtle);
+  white-space: nowrap;
+}
+
+.rm-variance-app__table td {
+  padding: 7px 8px;
+  border-bottom: 1px solid var(--org-border-subtle);
+  vertical-align: middle;
+}
+
+.rm-variance-app__table tbody tr {
+  cursor: pointer;
+}
+
+.rm-variance-app__table tbody tr:hover {
+  background-color: var(--org-surface-inset);
+}
+
+.rm-variance-app__row--selected {
+  background-color: var(--org-surface-inset);
+}
+
+.rm-variance-app__row-btn {
+  appearance: none;
+  background: transparent;
+  border: none;
+  padding: 0;
+  text-align: left;
+  cursor: pointer;
+  color: var(--org-text-primary);
+  font-family: var(--org-font-sans);
+  display: flex;
+  flex-direction: column;
+}
+
+.rm-variance-app__co-name {
+  font-weight: 600;
+  font-size: 12px;
+}
+
+.rm-variance-app__co-erp {
+  font-size: 10.5px;
+  color: var(--org-text-muted);
+}
+
+.rm-variance-app__mono {
+  font-family: var(--org-font-mono);
+  font-size: 11.5px;
+}
+
+.rm-variance-app__delta--pos {
+  color: var(--org-status-positive-text);
+  font-weight: 600;
+}
+
+.rm-variance-app__delta--neg {
+  color: var(--org-status-critical-text);
+  font-weight: 600;
+}
+
+.rm-variance-app__feedback-form {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.rm-variance-app__feedback-input {
+  flex: 1;
+  min-width: 240px;
+}
+
+.rm-variance-app__feedback-notice {
+  font-size: 12px;
+  color: var(--org-status-positive-text);
+}
+
+.rm-variance-app__feedback-list {
+  list-style: none;
+  margin: 10px 0 0 0;
+  padding: 10px 0 0 0;
+  border-top: 1px solid var(--org-border-subtle);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.rm-variance-app__feedback-item {
+  font-size: 12px;
+}
+
+.rm-variance-app__feedback-item-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 2px;
+}
+
+.rm-variance-app__feedback-item p {
+  margin: 0;
+  color: var(--org-text-secondary);
+}
+
+/* Rookmere Entry Screen (/login or ?login=1) */
+.rm-entry-shell {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  background-color: var(--org-surface-canvas);
+}
+
+.rm-entry-stage {
+  width: 100%;
+  max-width: 520px;
+}
+
+.rm-entry-card {
+  padding: 24px;
+}
+
+.rm-entry-card__brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 16px;
+}
+
+.rm-entry-card__org {
+  display: block;
+  font-family: var(--org-font-display);
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+}
+
+.rm-entry-card__entity {
+  margin: 2px 0 0 0;
+  font-size: 11.5px;
+  color: var(--org-text-muted);
+}
+
+.rm-entry-card__title {
+  font-family: var(--org-font-display);
+  font-size: 22px;
+  font-weight: 600;
+  margin: 0 0 8px 0;
+}
+
+.rm-entry-card__subtitle {
+  margin: 0 0 18px 0;
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--org-text-secondary);
+}
+
+.rm-entry-card__form {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.rm-entry-card__identity-summary {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: 5px;
+  background-color: var(--org-surface-inset);
+  border: 1px solid var(--org-border-subtle);
+  font-size: 12px;
+}
+
+.rm-entry-card__identity-summary span {
+  display: block;
+  font-family: var(--org-font-mono);
+  font-size: 10.5px;
+  text-transform: uppercase;
+  color: var(--org-text-muted);
+  margin-bottom: 2px;
+}
+
+.rm-entry-card__actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.rm-entry-card__footer {
+  margin-top: 20px;
+  padding-top: 14px;
+  border-top: 1px solid var(--org-border-subtle);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.rm-entry-card__footer-label {
+  font-family: var(--org-font-mono);
+  font-size: 10.5px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--org-text-muted);
+}
+
+.rm-entry-card__links {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  font-size: 12px;
+}
+
+.rm-entry-card__links a {
+  color: var(--org-text-primary);
+  font-weight: 500;
+}
+
+@media (max-width: 1024px) {
+  .rm-variance-app__body {
+    flex-direction: column;
+  }
+  .rm-variance-app__main-grid,
+  .rm-variance-app__metrics-row,
+  .rm-entry-card__identity-summary {
+    grid-template-columns: 1fr;
+  }
+}
