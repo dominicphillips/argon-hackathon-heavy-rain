@@ -40,6 +40,7 @@ import { ChamberAtmosphere } from "./components/ChamberAtmosphere";
 import { LiveBuildStage } from "./components/LiveBuildStage";
 import liveCopy from "./copy/live.json";
 import { DEMO_STEPS } from "./demo/playbackController";
+import { marcusVanceRequest } from "./data/liveSample";
 import { RookmereEmbeddedFrame } from "./components/RookmereEmbeddedFrame";
 import { AugiEmbeddedFrame } from "./components/AugiEmbeddedFrame";
 import { InspectorDrawer } from "./components/InspectorDrawer";
@@ -55,6 +56,7 @@ import {
 } from "./demo/DemoPlayback";
 import type { OrganizationFixture } from "./types";
 import type { WorkspaceWithStatuses } from "./backend/client";
+import { startLiveBuild } from "./backend/client";
 import {
   controlBuild,
   getHealth,
@@ -407,6 +409,23 @@ export const App: FC = () => {
       size="lg"
     />
   );
+  // Start: launch a real build with the Marcus Vance request so the pipeline can be tested from here.
+  const [liveStartNote, setLiveStartNote] = useState<string | null>(null);
+  const [liveStarting, setLiveStarting] = useState<boolean>(false);
+  const handleStartLiveBuild = async () => {
+    if (liveStarting) return;
+    setLiveStarting(true);
+    setLiveStartNote(null);
+    try {
+      await startLiveBuild("meridian", marcusVanceRequest());
+      setLiveResetToken(0);
+      if (moreMenuRef.current) moreMenuRef.current.open = false;
+    } catch (error) {
+      setLiveStartNote(error instanceof Error ? error.message : String(error));
+    } finally {
+      setLiveStarting(false);
+    }
+  };
   // Reset: clear the shown live run, or rewind the scripted cycle, back to the empty stage.
   const [liveResetToken, setLiveResetToken] = useState<number>(0);
   const moreMenuRef = useRef<HTMLDetailsElement | null>(null);
@@ -1122,9 +1141,22 @@ export const App: FC = () => {
                   <option value="augi">{liveCopy.org.augi}</option>
                 </select>
               </div>
-              <button type="button" className="hr-topbar-more__action" onClick={handleReset}>
-                {liveCopy.reset}
-              </button>
+              <div className="hr-topbar-more__actions">
+                {activeOrgId === "meridian" && (
+                  <button
+                    type="button"
+                    className="hr-topbar-more__action hr-topbar-more__action--primary"
+                    onClick={() => void handleStartLiveBuild()}
+                    disabled={liveStarting}
+                  >
+                    {liveCopy.start}
+                  </button>
+                )}
+                <button type="button" className="hr-topbar-more__action" onClick={handleReset}>
+                  {liveCopy.reset}
+                </button>
+              </div>
+              {liveStartNote && <p className="hr-topbar-more__note">{liveStartNote}</p>}
             </div>
           </details>
         </div>

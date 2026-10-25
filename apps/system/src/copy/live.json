@@ -48,5 +48,6 @@
     "Cairn": "Weekly coordinator",
     "Relay": "Report intake"
   },
-  "reset": "Reset"
+  "reset": "Reset",
+  "start": "Start"
 }

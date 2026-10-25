@@ -3169,3 +3169,35 @@ button.hr-status-chip:active {
     animation: none;
   }
 }
+
+
+.hr-topbar-more__actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.hr-topbar-more__actions .hr-topbar-more__action {
+  margin-top: 0;
+}
+
+.hr-topbar-more__action--primary {
+  background: var(--hr-ink);
+  color: #f3f5f7;
+  border-color: var(--hr-ink);
+}
+
+.hr-topbar-more__action--primary:hover {
+  background: #2a2f37;
+}
+
+.hr-topbar-more__action:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+.hr-topbar-more__note {
+  margin: 8px 0 0;
+  font-size: 12px;
+  color: #953c29;
+}

@@ -176,3 +176,27 @@ Also add `services/relay/scripts/live_build_smoke.py`: a CLI that posts the Marc
 - Do not run `git commit --author="Dominic Phillips <dom@dominicphillips.de>"`, do not touch `apps/`, `packages/`, `HeavyRain_BDMD/`, or running processes.
 - Keep every existing endpoint and test passing.
 - Report back: files changed, how to enable (env), test command and output summary, anything unverified (the live call is unverified until the coordinator runs the smoke script).
+
+## Addendum A (2026-10-25, after the first live run): stream the agent's events instead of polling snapshots
+
+Observed on the first real run (interaction `in_progress` for several minutes): `client.interactions.get(id)` returns `steps: []` and `usage: None` until the agent finishes, so the poller recorded nothing but "Started working". `client.interactions.get(id, stream=True)` returns a live event stream immediately. Verified event shapes (SDK objects with `event_type`):
+
+- `interaction.created` (`interaction.status`), `interaction.status_update` (`status`, optional `usage`), `interaction.completed` (final interaction with steps and usage), error events.
+- `step.start` with `index` and `step` (a typed step with empty content: `ThoughtStep`, `ModelOutputStep`, `FunctionCallStep`, `CodeExecutionCallStep`, ...).
+- `step.delta` with `index` and `delta`: `ThoughtSummaryDelta(content=TextContent(text=...))`, `TextDelta(text=...)`, `ArgumentsDelta` for function arguments, result deltas for tool results.
+- `step.stop` with `index`, optional `step_usage` and `usage`.
+
+Also: `client.environments.files.list(environment=env_id, path="workspace/app")` requires `path`.
+
+Required change to `relay/live_builder.py` (keep the HTTP contract, tables, and event shapes unchanged):
+
+1. Replace the snapshot poll loop with a stream consumer. Run the blocking iteration in a worker thread (`asyncio.to_thread` or a dedicated thread) and hand events to the event loop with `loop.call_soon_threadsafe` or an `asyncio.Queue`. Keep one consumer per run, registered like the current task.
+2. Maintain a per-index step buffer: on `step.start` record the step type (and name/id for function calls); on `step.delta` append text (thought summaries, model output text, function arguments); on `step.stop` emit one progress event using the existing mapping in `_step` (thought → `thought` "Thinking" with the accumulated summary; model_output → `message` "Note from the builder" with the text; function_call → `tool_call` plus `file` events for workspace paths parsed from the accumulated arguments; function_result → `tool_result` or `error`; code_execution_call → `tool_call` "Running code"). Thought summaries arrive as several bold-titled paragraphs; keep them as one event per step, trimmed to 600 chars, with the bold markers removed.
+3. Additionally emit a `thought` or `message` event early for long steps: if a step has been open for more than 20 seconds with accumulated text, emit the text so far as an event and continue (mark the final event normally). This keeps the feed moving on slow steps.
+4. On `interaction.status_update` apply the status rules already in `_apply_snapshot`. On `interaction.completed` take the final interaction object and run the existing completion path (download, extract, artifact). If the stream ends without a terminal status, reconnect with `last_event_id` when the SDK provides event ids, otherwise fall back to one `interactions.get` snapshot every poll interval until terminal, as today.
+5. Every 15 seconds while the run is active, call `environments.files.list(environment=env_id, path="workspace/app")` in a thread (tolerate errors), and emit a `file` event for each new path under `workspace/app/` not yet in `filesWritten`. Add the path to `filesWritten`. This is the fidelity signal the console uses.
+6. Usage: take `usage` from `step.stop`, `interaction.status_update`, or the completed interaction whenever present and keep the run's `usage` current.
+7. Phase rules stay: `reading` once any thought or message arrives; `building` once any function call, code execution, or file event exists; `checking` on completion; `ready` when the artifact is served.
+8. Tests: extend `services/relay/tests/test_live_builder.py` with a fake client whose `interactions.get(id, stream=True)` yields a scripted sequence (created, step.start thought, two thought deltas, step.stop, step.start model_output, text deltas, step.stop, step.start function_call with an arguments delta naming `workspace/app/index.html`, step.stop, status_update completed / interaction.completed) and whose `files.list` returns two paths; assert the resulting progress events, `filesWritten`, phases, and that the artifact path still works. Keep all existing tests green.
+
+Nothing else changes: endpoints, shapes, redaction, CSP, idempotency, cancellation, expiry, origins.

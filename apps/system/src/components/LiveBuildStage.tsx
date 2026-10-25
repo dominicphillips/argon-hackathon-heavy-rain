@@ -125,7 +125,7 @@ export const LiveBuildStage: FC<LiveBuildStageProps> = ({ orgId, orgName, enable
           <ChamberAtmosphere variant={run && !ready ? "dark" : "pale"} reducedMotion={reducedMotion} />
 
           {!run && (
-            <ChamberEmptyState title={liveCopy.empty.liveTitle} body={liveCopy.empty.liveBody} />
+            <ChamberEmptyState title={liveCopy.empty.liveTitle} />
           )}
 
           {run && !ready && (

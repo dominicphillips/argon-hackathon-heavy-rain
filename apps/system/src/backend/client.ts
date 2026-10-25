@@ -853,3 +853,26 @@ export async function getLiveBuildCurrent(
     artifact: body.artifact ?? null,
   };
 }
+
+export interface LiveBuildRequest {
+  idempotency_key: string;
+  requested_by: { persona_id: string; name: string; role: string };
+  workflow: { title: string; summary: string; tools: string[]; weekly_hours_saved: number | null };
+  app: { name: string; purpose: string; features: string[]; assumptions: string[] };
+}
+
+export interface LiveBuildAccepted {
+  runId: string;
+  orgId: OrganizationId;
+  status: string;
+  interactionId: string | null;
+  environmentId: string | null;
+  model: string;
+  createdAt: string;
+}
+
+/** Starts a real build. 409 means one is already running; 503 means the live builder is off. */
+export async function startLiveBuild(org: OrganizationId, payload: LiveBuildRequest): Promise<LiveBuildAccepted> {
+  const url = orgPath(org, "/builds/live");
+  return request<LiveBuildAccepted>(url, { org, method: "POST", body: payload });
+}
