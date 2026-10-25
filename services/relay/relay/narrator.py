@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import logging
 import os
 from pathlib import Path
 import re
@@ -9,7 +10,9 @@ from typing import Any
 PROMPT_PATH = Path(__file__).parent / "prompts" / "live_narrator.md"
 PLACEHOLDER_PATTERN = re.compile(r"{{\s*([^{}]+?)\s*}}")
 DEFAULT_MODEL = "gemini-3.8-flash"
-TIMEOUT_SECONDS = 6.0
+log = logging.getLogger(__name__)
+# The Gemini API rejects request deadlines under 10 seconds.
+TIMEOUT_SECONDS = 12.0
 
 
 def parse_rewrite(value: Any) -> dict[str, str] | None:
@@ -53,9 +56,14 @@ def rewrite_feed_line(kind: str, title: str, detail: str, context: dict[str, Any
         response = client.models.generate_content(
             model=context.get("model") or os.environ.get("HEAVY_RAIN_NARRATOR_MODEL", DEFAULT_MODEL),
             contents=prompt,
-            config={"response_mime_type": "application/json", "automatic_continuation": False,
+            config={"response_mime_type": "application/json", "max_output_tokens": 300,
+                    "thinking_config": {"thinking_budget": 0},
                     "http_options": {"timeout": int(TIMEOUT_SECONDS * 1000), "retry_options": {"attempts": 1}}},
         )
-        return parse_rewrite(response.text) or original
-    except Exception:
+        parsed = parse_rewrite(response.text)
+        if parsed is None:
+            log.warning("narrator returned no usable rewrite for a %s line", kind)
+        return parsed or original
+    except Exception as exc:  # noqa: BLE001 - the feed must never stall on narration
+        log.warning("narrator failed for a %s line: %s", kind, str(exc)[:200])
         return original

@@ -42,7 +42,7 @@ def test_narrator_wires_template_model_and_timeout_without_expanding_input():
     assert all(value in call["contents"] for value in ("Marcus", "VP", "DealPulse", "Weekly work", "thought"))
     assert all(token not in call["contents"] for token in ("{{requested_by_name}}", "{{requested_by_role}}", "{{workflow_title}}", "{{kind}}", "{{raw_text}}"))
     assert "{{app_name}} original" in call["contents"]
-    assert call["config"]["http_options"] == {"timeout": 6000, "retry_options": {"attempts": 1}}
+    assert call["config"]["http_options"] == {"timeout": 12000, "retry_options": {"attempts": 1}}
 
 
 @pytest.mark.parametrize("response", [SimpleNamespace(text="invalid"), RuntimeError("unavailable")])
