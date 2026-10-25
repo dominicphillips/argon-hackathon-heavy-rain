@@ -3,7 +3,6 @@ import type { LiveBuildProgressEvent } from "../backend/client";
 
 export interface BuilderFeedProps {
   events: LiveBuildProgressEvent[];
-  label: string;
   tokensLabel: string | null;
   filesLabel: string | null;
   /** How many bubbles stay on screen; older ones leave. */
@@ -14,7 +13,6 @@ export interface BuilderFeedProps {
 /** The builder's own steps as small bubbles, newest at the bottom, over the smoky stage. */
 export const BuilderFeed: FC<BuilderFeedProps> = ({
   events,
-  label,
   tokensLabel,
   filesLabel,
   visible = 6,
@@ -24,7 +22,6 @@ export const BuilderFeed: FC<BuilderFeedProps> = ({
   return (
     <div className={`hr-feed${reducedMotion ? " hr-feed--static" : ""}`} aria-live="polite">
       <div className="hr-feed__head">
-        <span className="hr-feed__label">{label}</span>
         <span className="hr-feed__meta hr-tabular">
           {filesLabel && <span>{filesLabel}</span>}
           {tokensLabel && <span>{tokensLabel}</span>}

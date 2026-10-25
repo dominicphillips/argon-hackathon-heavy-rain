@@ -6,7 +6,6 @@ import { BuildProgressPanel, type BuildProgressRow } from "./BuildProgressPanel"
 import { BuilderFeed } from "./BuilderFeed";
 import { AppCard } from "./AppCard";
 import liveCopy from "../copy/live.json";
-import playbackCopy from "../copy/playback.json";
 import { useLiveBuild } from "../demo/useLiveBuild";
 import type { OrganizationId } from "../types";
 
@@ -26,7 +25,7 @@ function fill(template: string, tokens: Record<string, string>): string {
 
 /** Real builds for one organization: empty until work arrives, then the panel, the builder's feed, and the app card. */
 export const LiveBuildStage: FC<LiveBuildStageProps> = ({ orgId, orgName, enabled, reducedMotion = false }) => {
-  const { run, progress, artifact, offline } = useLiveBuild(orgId, enabled);
+  const { run, progress, artifact } = useLiveBuild(orgId, enabled);
   const active = run && run.phase !== "ready" && run.phase !== "failed";
   const ready = Boolean(run && run.phase === "ready" && artifact);
   const failed = Boolean(run && run.phase === "failed");
@@ -87,26 +86,12 @@ export const LiveBuildStage: FC<LiveBuildStageProps> = ({ orgId, orgName, enable
 
   return (
     <div className="hr-workbench-c hr-workbench-c--live">
-      <header className="hr-workbench-c__header">
-        <div className="hr-workbench-c__title-group">
-          {run && <span className="hr-workbench-c__eyebrow">{orgName}</span>}
-          {run && <span className="hr-workbench-c__divider" aria-hidden="true" />}
-          <h1 className="hr-workbench-c__title">{run ? run.app.name : orgName}</h1>
-        </div>
-        <div className="hr-workbench-c__controls">
-          {offline && <span className="hr-workbench-c__offline">{playbackCopy.unavailable}</span>}
-        </div>
-      </header>
-
-      <section className={`hr-workbench-c__chamber hr-workbench-c__chamber--${ready ? "ready" : veilStage}`} aria-label={run ? run.app.name : orgName}>
+      <section className={`hr-workbench-c__chamber hr-workbench-c__chamber--${ready ? "ready" : veilStage}${run ? "" : " hr-workbench-c__chamber--clear"}`} aria-label={run ? run.app.name : orgName}>
         <div className="hr-chamber-stage">
           <ChamberAtmosphere reducedMotion={reducedMotion} />
 
           {!run && (
-            <>
-              <div className="hr-chamber-smoke-veil hr-chamber-smoke-veil--stage2" aria-hidden="true" />
-              <ChamberEmptyState title={liveCopy.empty.liveTitle} body={liveCopy.empty.liveBody} />
-            </>
+            <ChamberEmptyState title={liveCopy.empty.liveTitle} body={liveCopy.empty.liveBody} />
           )}
 
           {run && !ready && (
@@ -117,17 +102,14 @@ export const LiveBuildStage: FC<LiveBuildStageProps> = ({ orgId, orgName, enable
               <div className={`hr-chamber-smoke-veil hr-chamber-smoke-veil--${veilStage}`} aria-hidden="true" />
               <BuilderFeed
                 events={progress}
-                label={liveCopy.feed.label}
                 tokensLabel={tokensLabel}
                 filesLabel={filesLabel}
                 reducedMotion={reducedMotion}
               />
               <BuildProgressPanel
-                eyebrow={liveCopy.panel.eyebrow}
                 title={title}
                 subtitle={subtitle}
                 rows={rows}
-                footer={active ? liveCopy.panel.footer : null}
                 notice={notice}
                 reducedMotion={reducedMotion}
               />

@@ -9,7 +9,7 @@ export interface BuildProgressRow {
 }
 
 export interface BuildProgressPanelProps {
-  eyebrow: string;
+  eyebrow?: string | null;
   title: string;
   subtitle?: string | null;
   progressLabel?: string | null;
@@ -40,7 +40,7 @@ export const BuildProgressPanel: FC<BuildProgressPanelProps> = ({
     aria-live="polite"
   >
     <header className="hr-build-panel__head">
-      <span className="hr-build-panel__eyebrow">{eyebrow}</span>
+      {eyebrow && <span className="hr-build-panel__eyebrow">{eyebrow}</span>}
       <h2 className="hr-build-panel__title" key={title}>
         {title}
       </h2>

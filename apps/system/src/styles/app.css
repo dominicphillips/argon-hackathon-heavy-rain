@@ -442,8 +442,8 @@ body {
   position: relative;
   display: flex;
   flex-direction: column;
-  justify-content: center;
-  padding: 14px 32px;
+  justify-content: flex-start;
+  padding: 18px 32px 14px;
 }
 
 .hr-topo-backdrop {
@@ -2242,7 +2242,7 @@ button.hr-status-chip:active {
   margin-top: 14px;
 }
 
-.hr-chamber-empty .hr-button--primary {
+.hr-workbench-c__chamber:not(.hr-workbench-c__chamber--clear) .hr-chamber-empty .hr-button--primary {
   background-color: #f3f5f7;
   border-color: #f3f5f7;
   color: #14171c;
@@ -3064,4 +3064,45 @@ button.hr-status-chip:active {
   .hr-app-card {
     animation: none;
   }
+}
+
+
+/* Idle chamber: no dark box. The generated loop sits directly on the page and fades at its edges. */
+.hr-workbench-c__chamber--clear {
+  background-color: transparent;
+  border-color: transparent;
+  box-shadow: none;
+}
+
+.hr-workbench-c__chamber--clear .hr-chamber-atmosphere {
+  opacity: 1;
+  -webkit-mask-image: radial-gradient(ellipse 72% 78% at 50% 50%, #000 52%, transparent 100%);
+  mask-image: radial-gradient(ellipse 72% 78% at 50% 50%, #000 52%, transparent 100%);
+}
+
+.hr-workbench-c__chamber--clear .hr-chamber-empty {
+  color: var(--hr-ink);
+}
+
+.hr-workbench-c__chamber--clear .hr-chamber-empty__body {
+  color: var(--hr-slate);
+}
+
+.hr-workbench-c__chamber--clear .hr-chamber-empty .hr-demo-playback__notice {
+  color: #953c29;
+}
+
+
+/* Floating action inside the chamber once the preview is revealed */
+.hr-chamber-actions {
+  position: absolute;
+  z-index: 9;
+  top: 14px;
+  right: 16px;
+  display: flex;
+  gap: 8px;
+}
+
+.hr-chamber-actions:empty {
+  display: none;
 }

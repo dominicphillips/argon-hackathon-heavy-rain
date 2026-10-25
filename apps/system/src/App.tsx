@@ -1148,48 +1148,10 @@ export const App: FC = () => {
             {activeNav === "System" && activeOrgId !== "meridian" && (
               <div className="hr-workbench-c">
                 {/* BAND 1: Slim Top Workbench Header / Control Bar (03-system-c.png) */}
-                <header className="hr-workbench-c__header">
-                  <div className="hr-workbench-c__title-group">
-                    {demoStarted && (
-                      <span className="hr-workbench-c__eyebrow">
-                        {ORG_NAMES[activeOrgId]}
-                      </span>
-                    )}
-                    {demoStarted && (
-                      <span
-                        className="hr-workbench-c__divider"
-                        aria-hidden="true"
-                      />
-                    )}
-                    <h1 className="hr-workbench-c__title">
-                      {demoStarted ? heroDisplayName : ORG_NAMES[activeOrgId]}
-                    </h1>
-                  </div>
-
-                  <div className="hr-workbench-c__controls">
-                    {stageRevealed &&
-                      (activeOrgState.appReleaseStatus !== "released" ? (
-                        <Button
-                          variant="primary"
-                          disabled={manualLocked}
-                          onClick={handleApproveForRelease}
-                        >
-                          Approve for release
-                        </Button>
-                      ) : (
-                        <Button
-                          variant="primary"
-                          onClick={() => handleOpenStandaloneOrgApp(activeOrgId)}
-                        >
-                          {copy.account.openOrgApp}
-                        </Button>
-                      ))}
-                  </div>
-                </header>
 
                 {/* BAND 2: Framed Dark Build Glass / Artifact Chamber (03-system-c.png) */}
                 <section
-                  className={`hr-workbench-c__chamber hr-workbench-c__chamber--${activeOrgState.buildStage}`}
+                  className={`hr-workbench-c__chamber hr-workbench-c__chamber--${activeOrgState.buildStage}${demoStarted ? "" : " hr-workbench-c__chamber--clear"}`}
                   aria-label={`${heroDisplayName} artifact chamber`}
                 >
                   {/* Always-sharp inline failure recovery banner when in failed state */}
@@ -1226,12 +1188,27 @@ export const App: FC = () => {
 
                   <div className="hr-chamber-stage">
                     <ChamberAtmosphere reducedMotion={reducedMotion} />
+                    <div className="hr-chamber-actions">
+                      {stageRevealed &&
+                      (activeOrgState.appReleaseStatus !== "released" ? (
+                        <Button
+                          variant="primary"
+                          disabled={manualLocked}
+                          onClick={handleApproveForRelease}
+                        >
+                          Approve for release
+                        </Button>
+                      ) : (
+                        <Button
+                          variant="primary"
+                          onClick={() => handleOpenStandaloneOrgApp(activeOrgId)}
+                        >
+                          {copy.account.openOrgApp}
+                        </Button>
+                      ))}
+                    </div>
                     {!demoStarted ? (
                       <>
-                        <div
-                          className="hr-chamber-smoke-veil hr-chamber-smoke-veil--stage2"
-                          aria-hidden="true"
-                        />
                         <ChamberEmptyState
                           title={liveCopy.empty.demoTitle}
                           body={liveCopy.empty.demoBody}
@@ -1299,7 +1276,6 @@ export const App: FC = () => {
                               />
                             )}
                             <BuildProgressPanel
-                              eyebrow={playbackCopy.panel.eyebrow}
                               title={
                                 demoSteps < 2
                                   ? playbackCopy.panel.reviewTitle
@@ -1317,7 +1293,6 @@ export const App: FC = () => {
                                         : "paused"
                                       : "queued",
                               }))}
-                              footer={playbackCopy.panel.footer}
                               reducedMotion={reducedMotion}
                             />
                           </>
