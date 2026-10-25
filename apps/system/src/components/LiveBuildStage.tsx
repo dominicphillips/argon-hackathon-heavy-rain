@@ -76,9 +76,16 @@ export const LiveBuildStage: FC<LiveBuildStageProps> = ({ orgId, orgName, enable
           : "stage2";
 
   const phaseIndex = run ? PHASES.indexOf(run.phase as Phase) : -1;
+  const written = new Set((run?.filesWritten ?? []).map((path) => path.split("/").pop() ?? path));
+  const deliverables = ["scaffold.css", "index.html", "NOTES.md", "preview.svg", "card.json"].map((file) => ({
+    key: file,
+    label: file,
+    done: written.has(file),
+  }));
   const rows: BuildProgressRow[] = PHASES.map((phase, index) => ({
     key: phase,
     label: liveCopy.panel.phases[phase],
+    items: phase === "building" ? deliverables : undefined,
     state: failed
       ? index === 0
         ? "done"

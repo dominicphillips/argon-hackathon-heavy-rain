@@ -38,6 +38,7 @@ import { ChamberIntake } from "./components/ChamberIntake";
 import { ChamberEmptyState } from "./components/ChamberEmptyState";
 import { ChamberAtmosphere } from "./components/ChamberAtmosphere";
 import { LiveBuildStage } from "./components/LiveBuildStage";
+import { LiveAppsView } from "./components/LiveAppsView";
 import liveCopy from "./copy/live.json";
 import { DEMO_STEPS } from "./demo/playbackController";
 import { marcusVanceRequest } from "./data/liveSample";
@@ -1355,7 +1356,14 @@ export const App: FC = () => {
             {/* ============================================================
                 DESTINATION 3: APPS (Organization Catalog & Release State)
                 ============================================================ */}
-            {activeNav === "Apps" && (
+            {activeNav === "Apps" && activeOrgId === "meridian" && (
+              <LiveAppsView
+                orgId={activeOrgId}
+                enabled={backendConnected}
+                emptyTitle={liveCopy.empty.liveTitle}
+              />
+            )}
+            {activeNav === "Apps" && activeOrgId !== "meridian" && (
               <div className="hr-apps-view">
                 <header className="hr-section-header">
                   <div>

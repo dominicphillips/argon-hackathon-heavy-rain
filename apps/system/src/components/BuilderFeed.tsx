@@ -5,10 +5,14 @@ export interface BuilderFeedProps {
   events: LiveBuildProgressEvent[];
   tokensLabel: string | null;
   filesLabel: string | null;
-  /** How many bubbles stay on screen; older ones leave. */
+  /** How many editorial bubbles stay on screen; older ones leave. */
   visible?: number;
   reducedMotion?: boolean;
 }
+
+/** Narration, reasoning, and status lead the feed; raw tool activity stays in a quiet ticker line. */
+const EDITORIAL_KINDS = new Set(["message", "thought", "status", "error"]);
+const ACTIVITY_KINDS = new Set(["tool_call", "tool_result", "file"]);
 
 /**
  * Thought summaries arrive as short titled paragraphs. Use the first short line
@@ -25,15 +29,33 @@ function splitThought(event: LiveBuildProgressEvent): { title: string; detail: s
   return { title: event.title, detail };
 }
 
-/** The builder's own steps as bubbles, newest at the bottom, over the smoky stage. */
+/** A streamed message may arrive twice: a partial early emission and the full sentence. Keep the fuller one. */
+function dedupe(events: LiveBuildProgressEvent[]): LiveBuildProgressEvent[] {
+  const out: LiveBuildProgressEvent[] = [];
+  for (const event of events) {
+    const prev = out[out.length - 1];
+    if (prev && prev.kind === event.kind && event.kind === "message" && prev.detail && event.detail) {
+      const a = prev.detail.trim();
+      const b = event.detail.trim();
+      if (b.startsWith(a) || a.startsWith(b)) {
+        out[out.length - 1] = b.length >= a.length ? event : prev;
+        continue;
+      }
+    }
+    out.push(event);
+  }
+  return out;
+}
+
 export const BuilderFeed: FC<BuilderFeedProps> = ({
   events,
   tokensLabel,
   filesLabel,
-  visible = 7,
+  visible = 5,
   reducedMotion = false,
 }) => {
-  const shown = events.slice(-visible);
+  const editorial = dedupe(events.filter((event) => EDITORIAL_KINDS.has(event.kind))).slice(-visible);
+  const activity = [...events].reverse().find((event) => ACTIVITY_KINDS.has(event.kind)) ?? null;
   return (
     <div className={`hr-feed${reducedMotion ? " hr-feed--static" : ""}`} aria-live="polite">
       <div className="hr-feed__head">
@@ -43,9 +65,10 @@ export const BuilderFeed: FC<BuilderFeedProps> = ({
         </span>
       </div>
       <ol className="hr-feed__list">
-        {shown.map((event, index) => {
+        {editorial.map((event, index) => {
           const { title, detail } = splitThought(event);
-          const latest = index === shown.length - 1;
+          const latest = index === editorial.length - 1;
+          const narration = event.kind === "message";
           return (
             <li
               key={event.seq}
@@ -53,14 +76,27 @@ export const BuilderFeed: FC<BuilderFeedProps> = ({
             >
               <span className="hr-bubble__dot" aria-hidden="true" />
               <span className="hr-bubble__body">
-                <span className="hr-bubble__title">{title}</span>
-                {event.path && <span className="hr-bubble__path">{event.path}</span>}
-                {detail && <span className="hr-bubble__detail">{detail}</span>}
+                {narration && detail ? (
+                  <span className="hr-bubble__narration">{detail}</span>
+                ) : (
+                  <>
+                    <span className="hr-bubble__title">{title}</span>
+                    {detail && <span className="hr-bubble__detail">{detail}</span>}
+                  </>
+                )}
               </span>
             </li>
           );
         })}
       </ol>
+      {activity && (
+        <div className="hr-feed__ticker hr-tabular" key={activity.seq}>
+          <span className={`hr-feed__ticker-dot hr-feed__ticker-dot--${activity.kind}`} aria-hidden="true" />
+          <span>{activity.title}</span>
+          {activity.path && <span className="hr-feed__ticker-path">{activity.path}</span>}
+          {!activity.path && activity.detail && <span className="hr-feed__ticker-path">{activity.detail}</span>}
+        </div>
+      )}
     </div>
   );
 };

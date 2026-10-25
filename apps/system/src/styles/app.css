@@ -3201,3 +3201,130 @@ button.hr-status-chip:active {
   font-size: 12px;
   color: #953c29;
 }
+
+
+/* Apps for the live organization: built apps as cards in the flow of the page */
+.hr-live-apps {
+  position: relative;
+  min-height: 420px;
+}
+
+.hr-live-apps .hr-app-card {
+  position: relative;
+  left: auto;
+  top: auto;
+  transform: none;
+  width: min(1040px, 100%);
+  margin: 0 auto;
+  animation: hr-fade-up 700ms ease-out both;
+  border: 1px solid #d6d9df;
+  box-shadow: 0 18px 50px rgba(18, 22, 26, 0.14);
+}
+
+.hr-apps-empty {
+  padding: 48px 24px;
+  text-align: center;
+}
+
+.hr-apps-empty__title {
+  margin: 0;
+  font-family: var(--hr-font-display);
+  font-size: 24px;
+  font-weight: 600;
+  color: var(--hr-slate);
+}
+
+
+/* Editorial feed: narration reads as a sentence, tool activity as one quiet ticker line */
+.hr-bubble__narration {
+  font-size: 16px;
+  line-height: 1.45;
+  color: rgba(243, 245, 247, 0.9);
+}
+
+.hr-bubble--latest .hr-bubble__narration {
+  font-size: 18px;
+  font-weight: 500;
+  color: #f3f5f7;
+}
+
+.hr-bubble--message {
+  border-color: rgba(16, 185, 129, 0.22);
+}
+
+.hr-feed__ticker {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 4px;
+  padding: 6px 2px;
+  font-family: var(--hr-font-mono);
+  font-size: 12px;
+  color: rgba(243, 245, 247, 0.6);
+  animation: hr-fade-up 500ms ease-out both;
+  min-width: 0;
+}
+
+.hr-feed__ticker-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: rgba(243, 245, 247, 0.5);
+  flex-shrink: 0;
+}
+
+.hr-feed__ticker-dot--tool_call,
+.hr-feed__ticker-dot--file {
+  background: var(--hr-mint);
+}
+
+.hr-feed__ticker-path {
+  color: #9fe8d2;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+
+/* Sub-items under the active step */
+.hr-build-step {
+  flex-wrap: wrap;
+}
+
+.hr-build-step__items {
+  list-style: none;
+  margin: 6px 0 2px 40px;
+  padding: 0;
+  flex-basis: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.hr-build-step__item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-family: var(--hr-font-mono);
+  font-size: 12.5px;
+  color: rgba(243, 245, 247, 0.55);
+  animation: hr-fade-up 500ms ease-out both;
+}
+
+.hr-build-step__item-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  border: 1.5px solid rgba(243, 245, 247, 0.4);
+  flex-shrink: 0;
+  transition: background-color 500ms ease, border-color 500ms ease;
+}
+
+.hr-build-step__item--done {
+  color: rgba(243, 245, 247, 0.9);
+}
+
+.hr-build-step__item--done .hr-build-step__item-dot {
+  background: var(--hr-mint);
+  border-color: var(--hr-mint);
+}

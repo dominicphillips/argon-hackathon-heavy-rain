@@ -2,10 +2,18 @@ import type { FC } from "react";
 
 export type BuildProgressRowState = "done" | "active" | "paused" | "queued";
 
+export interface BuildProgressSubItem {
+  key: string;
+  label: string;
+  done: boolean;
+}
+
 export interface BuildProgressRow {
   key: string;
   label: string;
   state: BuildProgressRowState;
+  /** Shown under the row while it is active; items animate in and tick off. */
+  items?: BuildProgressSubItem[];
 }
 
 export interface BuildProgressPanelProps {
@@ -67,6 +75,20 @@ export const BuildProgressPanel: FC<BuildProgressPanelProps> = ({
               )}
             </span>
             <span className="hr-build-step__label">{row.label}</span>
+            {row.state === "active" && row.items && row.items.length > 0 && (
+              <ul className="hr-build-step__items">
+                {row.items.map((item, index) => (
+                  <li
+                    key={item.key}
+                    className={`hr-build-step__item${item.done ? " hr-build-step__item--done" : ""}`}
+                    style={{ animationDelay: `${index * 90}ms` }}
+                  >
+                    <span className="hr-build-step__item-dot" aria-hidden="true" />
+                    {item.label}
+                  </li>
+                ))}
+              </ul>
+            )}
           </li>
         ))}
       </ol>
