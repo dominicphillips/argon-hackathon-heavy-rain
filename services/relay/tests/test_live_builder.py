@@ -141,10 +141,11 @@ def app_factory(tmp_path, monkeypatch):
     monkeypatch.setenv("HEAVY_RAIN_ARTIFACT_ROOT", str(tmp_path / "artifacts"))
     monkeypatch.setenv("HEAVY_RAIN_PUBLIC_BASE_URL", "http://127.0.0.1:43180")
     apps = []
-    def make(fake=None, db_path=None):
+    def make(fake=None, db_path=None, narrator=None):
         fake = fake or FakeClient()
         app = create_app(db_path=db_path or tmp_path / f"test-{len(apps)}.sqlite3",
-                         operating_mode="demo_fixture_replay", live_builder_client_factory=lambda: fake)
+                         operating_mode="demo_fixture_replay", live_builder_client_factory=lambda: fake,
+                         live_builder_narrator=narrator or (lambda kind, title, detail, context: {"title": title, "detail": detail}))
         apps.append(app)
         return app
     yield make
@@ -1177,3 +1178,222 @@ def test_live_snapshot_rejects_symlinks_before_downloading(app_factory, tmp_path
         asyncio.run(service._snapshot_files("meridian", run.runId, "env-test", [{"path": "workspace/app/index.html"}]))
     assert not fake.downloads and not list(outside.iterdir())
     assert app.state.db.get_live_build("meridian", run.runId).snapshot is None
+
+
+@pytest.mark.parametrize("failure", [False, True])
+def test_narration_rewrites_both_kinds_and_keeps_full_redacted_raw(app_factory, failure):
+    raw = "  **Review** " + "weekly work " * 65 + SECRET + " tail  "
+    thought_raw = raw.strip().replace("**", "")
+    steps = [{"type": "thought", "summary": [{"type": "text", "text": raw}]},
+             {"type": "model_output", "content": [{"type": "text", "text": raw}]}]
+    calls = []
+    def narrator(kind, title, detail, context):
+        calls.append((kind, title, detail, context))
+        if failure:
+            raise RuntimeError("unavailable")
+        return {"title": "Reviewing weekly work", "detail": "I am reviewing the weekly work."}
+    app = app_factory(FakeClient([snapshot("completed", steps)]), narrator=narrator)
+    with TestClient(app) as client:
+        client.post(BASE, json=SAMPLE)
+        value = wait_snapshot(client, lambda s: s["run"]["phase"] == "ready")
+        events = [event for event in value["progress"] if event["kind"] in {"thought", "message"}]
+        assert len(events) == 2
+        assert [event["raw"] for event in events] == [thought_raw.replace(SECRET, "[redacted]"), raw.replace(SECRET, "[redacted]")]
+        assert all(len(event["raw"]) > 600 for event in events)
+        if failure:
+            assert [event["title"] for event in events] == ["Thinking", "Note from the builder"]
+            assert all(event["detail"] == event["raw"][:600] for event in events)
+        else:
+            assert all(event["title"] == "Reviewing weekly work" for event in events)
+            assert all(event["detail"] == "I am reviewing the weekly work." for event in events)
+        assert len(calls) == 2 and {call[0] for call in calls} == {"thought", "message"}
+        assert calls[0][3]["requested_by_name"] == SAMPLE["requested_by"]["name"]
+        assert calls[0][3]["workflow_title"] == SAMPLE["workflow"]["title"]
+        assert SECRET not in json.dumps(value)
+
+
+@pytest.mark.parametrize("failure", [False, True])
+def test_narrator_cache_is_per_run_and_preserves_each_fallback_title(app_factory, failure):
+    steps = [{"type": "thought", "summary": [{"type": "text", "text": "Weekly work"}]},
+             {"type": "model_output", "content": [{"type": "text", "text": "Weekly work"}]}]
+    calls = []
+    def narrator(*args):
+        calls.append(args)
+        if failure:
+            raise RuntimeError("unavailable")
+        return {"title": "Reviewing weekly work", "detail": "I am reviewing the weekly work."}
+    app = app_factory(FakeClient([snapshot("completed", steps)]), narrator=narrator)
+    with TestClient(app) as client:
+        for index in range(2):
+            payload = copy.deepcopy(SAMPLE)
+            payload["idempotency_key"] += str(index)
+            run_id = client.post(BASE, json=payload).json()["runId"]
+            value = wait_snapshot(client, lambda s: s["run"]["phase"] == "ready", run_id)
+            events = [event for event in value["progress"] if event["kind"] in {"thought", "message"}]
+            assert len(events) == 2
+            if failure:
+                assert [event["title"] for event in events] == ["Thinking", "Note from the builder"]
+            assert len(calls) == index + 1
+
+
+def test_narrator_timeout_does_not_overwrite_fallback(app_factory, monkeypatch):
+    import relay.live_builder as live
+    monkeypatch.setattr(live, "TIMEOUT_SECONDS", 0.02)
+    release, finished = threading.Event(), threading.Event()
+    calls = []
+    def narrator(*args):
+        calls.append(args)
+        release.wait(2)
+        finished.set()
+        return {"title": "Late rewrite", "detail": "Late rewrite."}
+    steps = [{"type": "thought", "summary": [{"type": "text", "text": "Weekly work"}]}] * 2
+    app = app_factory(FakeClient([snapshot("completed", steps)]), narrator=narrator)
+    with TestClient(app) as client:
+        try:
+            client.post(BASE, json=SAMPLE)
+            value = wait_snapshot(client, lambda s: s["run"]["phase"] == "ready")
+            events = [event for event in value["progress"] if event["kind"] == "thought"]
+            assert len(calls) == 1 and len(events) == 2
+            assert all(event["title"] == "Thinking" and event["raw"] == "Weekly work" for event in events)
+        finally:
+            release.set()
+        assert finished.wait(1)
+        assert client.get(BASE + "/current").json()["progress"] == value["progress"]
+
+
+def test_cancellation_and_reads_continue_while_narrator_waits(app_factory):
+    entered, release = threading.Event(), threading.Event()
+    def narrator(*args):
+        entered.set()
+        release.wait(2)
+        return {"title": "Late rewrite", "detail": "Late rewrite."}
+    steps = [{"type": "thought", "summary": [{"type": "text", "text": "Weekly work"}]}]
+    app = app_factory(FakeClient([snapshot("in_progress", steps)]), narrator=narrator)
+    with TestClient(app) as client:
+        try:
+            run_id = client.post(BASE, json=SAMPLE).json()["runId"]
+            assert entered.wait(1)
+            started = time.monotonic()
+            assert client.get(BASE + "/current").status_code == 200
+            cancelled = client.post(f"{BASE}/{run_id}/cancel")
+            assert cancelled.status_code == 200 and cancelled.json()["status"] == "cancelled"
+            assert time.monotonic() - started < 1
+        finally:
+            release.set()
+        value = client.get(f"{BASE}/{run_id}").json()
+        assert not any(event["title"] == "Late rewrite" for event in value["progress"])
+
+
+def test_live_build_list_ready_newest_first_all_limit_and_tenant(app_factory):
+    from relay.models import LiveBuildArtifact
+    app = app_factory()
+    with TestClient(app) as client:
+        db = app.state.db
+        for index, (org, phase) in enumerate([("meridian", "ready"), ("meridian", "ready"),
+                                             ("meridian", "failed"), ("rookmere", "ready")]):
+            request = LiveBuildRequest.model_validate({**SAMPLE, "idempotency_key": f"list-key-{index}"})
+            run, _, _ = db.reserve_live_build(org, request, "gemini-3.8-flash", f"list-{index}")
+            run.status, run.phase = ("failed" if phase == "failed" else "completed"), phase
+            db.save_live_build(run)
+            db._conn.execute("UPDATE live_builds SET started_at = ? WHERE run_id = ?", ("2026-10-25T12:00:00+00:00", run.runId))
+            db._conn.commit()
+            if phase == "ready":
+                db.save_live_artifact(run.runId, LiveBuildArtifact(indexUrl=f"/artifacts/{run.runId}/index.html", fileCount=1, bytes=1))
+        value = client.get(BASE).json()
+        assert [entry["run"]["runId"] for entry in value["runs"]] == ["list-1", "list-0"]
+        assert all(entry["artifact"] is not None for entry in value["runs"])
+        assert len(client.get(BASE + "?limit=1").json()["runs"]) == 1
+        all_runs = client.get(BASE + "?all=1").json()["runs"]
+        assert [entry["run"]["runId"] for entry in all_runs] == ["list-2", "list-1", "list-0"]
+        assert all_runs[0]["artifact"] is None
+        assert client.get(BASE, headers={"X-HeavyRain-Org-Id": "augi"}).status_code == 403
+        assert client.get(BASE + "?limit=0").status_code == 422
+        assert client.get(BASE + "?limit=101").status_code == 422
+
+
+def test_live_event_raw_migrates_existing_database(app_factory, tmp_path):
+    path = tmp_path / "old-events.sqlite3"
+    app = app_factory(db_path=path)
+    db = app.state.db
+    db._conn.execute("ALTER TABLE live_build_events DROP COLUMN raw")
+    db._conn.commit()
+    migrated = RelayDatabase(db_path=path, operating_mode="demo_fixture_replay")
+    try:
+        assert "raw" in {row["name"] for row in migrated._conn.execute("PRAGMA table_info(live_build_events)")}
+    finally:
+        migrated.close()
+
+
+@pytest.mark.parametrize("disabled", [False, True])
+def test_stream_narration_caches_partial_emission_and_stop(app_factory, monkeypatch, disabled):
+    if disabled:
+        monkeypatch.setenv("HEAVY_RAIN_NARRATOR", "0")
+    release = threading.Event()
+    script = [
+        stream_event("step.start", index=0, step={"type": "thought", "summary": []}),
+        stream_event("step.delta", index=0, delta={"type": "thought_summary", "content": {"type": "text", "text": "Weekly work"}}),
+        lambda: release.wait(2),
+        stream_event("step.stop", index=0),
+        stream_event("step.start", index=1, step={"type": "model_output", "content": [{"type": "text", "text": "Brief"}]}),
+        stream_event("step.stop", index=1),
+        stream_event("interaction.completed", interaction={"id": "interaction-test", "status": "completed"}),
+    ]
+    calls = []
+    def narrator(*args):
+        calls.append(args)
+        return {"title": "Reviewing weekly work", "detail": "I am reviewing the weekly work."}
+    app = app_factory(StreamingClient([script]), narrator=narrator)
+    app.state.live_builder.early_progress_seconds = 0.01
+    published = []
+    publish = app.state.live_builder.hub.publish
+    def capture(org_id, kind, data):
+        published.append((kind, data))
+        return publish(org_id, kind, data)
+    app.state.live_builder.hub.publish = capture
+    with TestClient(app) as client:
+        try:
+            client.post(BASE, json=SAMPLE)
+            value = wait_snapshot(client, lambda s: any(event["kind"] == "thought" for event in s["progress"]))
+            thought = next(event for event in value["progress"] if event["kind"] == "thought")
+            assert thought["raw"] == "Weekly work"
+            assert thought["title"] == ("Thinking" if disabled else "Reviewing weekly work")
+        finally:
+            release.set()
+        value = wait_snapshot(client, lambda s: s["run"]["phase"] == "ready")
+        assert len(calls) == (0 if disabled else 2)
+        events = [event for event in value["progress"] if event["kind"] in {"thought", "message"}]
+        assert len(events) == 3
+        feed = [data for kind, data in published if kind == "live_build_progress" and data["kind"] in {"thought", "message"}]
+        assert [event["raw"] for event in feed] == ["Weekly work", "Weekly work", "Brief"]
+        assert all(event["runId"] == value["run"]["runId"] for event in feed)
+        if not disabled:
+            assert all(event["title"] == "Reviewing weekly work" for event in events)
+
+
+@pytest.mark.parametrize("provider_status", ["in_progress", "completed"])
+def test_expiry_during_narration_keeps_original_event(app_factory, provider_status):
+    entered, release, finished = threading.Event(), threading.Event(), threading.Event()
+    def narrator(*args):
+        entered.set()
+        release.wait(2)
+        finished.set()
+        return {"title": "Late rewrite", "detail": "Late rewrite."}
+    steps = [{"type": "thought", "summary": [{"type": "text", "text": "Weekly work"}]}]
+    fake = FakeClient([snapshot(provider_status, steps)])
+    app = app_factory(fake, narrator=narrator)
+    app.state.live_builder.max_run_seconds = 0.1
+    with TestClient(app) as client:
+        try:
+            client.post(BASE, json=SAMPLE)
+            assert entered.wait(1)
+            value = wait_snapshot(client, lambda s: s["run"]["status"] == "failed")
+            assert value["run"]["errorReason"] == "Build exceeded 40 minutes"
+            assert fake.cancels == ["interaction-test"]
+            assert value["artifact"] is None
+            assert not any(path in {"workspace/app", "workspace", "/"} for path, _ in fake.downloads)
+            event = next(event for event in value["progress"] if event["kind"] == "thought")
+            assert event["title"] == "Thinking" and event["detail"] == event["raw"] == "Weekly work"
+        finally:
+            release.set()
+        assert finished.wait(1)
+        assert client.get(BASE + "/current").json()["progress"] == value["progress"]

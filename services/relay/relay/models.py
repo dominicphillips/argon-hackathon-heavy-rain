@@ -599,6 +599,7 @@ class LiveBuildProgressEvent(BaseModel):
     title: str = Field(max_length=80)
     detail: str | None = Field(default=None, max_length=600)
     path: str | None = None
+    raw: str | None = None
 
 
 class LiveBuildCard(BaseModel):
@@ -622,3 +623,12 @@ class LiveBuildSnapshot(BaseModel):
     run: LiveBuildRun | None
     progress: list[LiveBuildProgressEvent]
     artifact: LiveBuildArtifact | None
+
+
+class LiveBuildListEntry(BaseModel):
+    run: LiveBuildRun
+    artifact: LiveBuildArtifact | None
+
+
+class LiveBuildList(BaseModel):
+    runs: list[LiveBuildListEntry]

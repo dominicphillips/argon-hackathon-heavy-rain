@@ -240,6 +240,7 @@ class RelayDatabase:
                 title TEXT NOT NULL,
                 detail TEXT,
                 path TEXT,
+                raw TEXT,
                 PRIMARY KEY (run_id, seq)
             );
 
@@ -262,6 +263,9 @@ class RelayDatabase:
         for column in ("progress", "snapshot"):
             if column not in columns:
                 self._conn.execute(f"ALTER TABLE live_builds ADD COLUMN {column} TEXT")
+        event_columns = {row["name"] for row in self._conn.execute("PRAGMA table_info(live_build_events)")}
+        if "raw" not in event_columns:
+            self._conn.execute("ALTER TABLE live_build_events ADD COLUMN raw TEXT")
         self._conn.commit()
 
     def _migrate_organization_ids(self) -> None:
@@ -751,11 +755,20 @@ class RelayDatabase:
         ).fetchone()[0]
         event = LiveBuildProgressEvent(seq=seq, at=datetime.now(timezone.utc).isoformat(), **fields)
         self._conn.execute(
-            "INSERT INTO live_build_events (run_id, seq, at, kind, title, detail, path) VALUES (?, ?, ?, ?, ?, ?, ?)",
-            (run_id, seq, event.at, event.kind, event.title, event.detail, event.path),
+            "INSERT INTO live_build_events (run_id, seq, at, kind, title, detail, path, raw) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+            (run_id, seq, event.at, event.kind, event.title, event.detail, event.path, event.raw),
         )
         self._conn.commit()
         return event
+
+    def list_live_builds(self, org_id: OrganizationId, limit: int = 20, *, all_runs: bool = False) -> dict:
+        rows = self._conn.execute(
+            """SELECT * FROM live_builds WHERE org_id = ? AND (? OR phase = 'ready')
+               ORDER BY started_at DESC, rowid DESC LIMIT ?""", (org_id, all_runs, limit),
+        ).fetchall()
+        return {"runs": [{"run": self._live_run(row),
+                          "artifact": LiveBuildArtifact.model_validate_json(row["artifact"]) if row["artifact"] else None}
+                         for row in rows]}
 
     def live_snapshot(self, org_id: OrganizationId, run_id: str | None = None, since: int = 0) -> LiveBuildSnapshot:
         if run_id is None:
@@ -769,7 +782,7 @@ class RelayDatabase:
         if not row:
             return LiveBuildSnapshot(run=None, progress=[], artifact=None)
         events = self._conn.execute(
-            """SELECT seq, at, kind, title, detail, path FROM live_build_events
+            """SELECT seq, at, kind, title, detail, path, raw FROM live_build_events
                WHERE run_id = ? AND seq > ? ORDER BY seq DESC LIMIT 400""", (row["run_id"], since)
         ).fetchall()
         return LiveBuildSnapshot(

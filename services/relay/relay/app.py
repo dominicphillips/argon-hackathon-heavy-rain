@@ -65,6 +65,7 @@ from relay.models import (  # noqa: E402
     ClusterDecisionActionRequest,
     EmployeeReport,
     LiveBuildAccepted,
+    LiveBuildList,
     LiveBuildRequest,
     LiveBuildRun,
     LiveBuildSnapshot,
@@ -101,6 +102,7 @@ def create_app(
     live_review_runner=None,
     live_review_enabled: bool | None = None,
     live_builder_client_factory=None,
+    live_builder_narrator=None,
 ) -> FastAPI:
     resolved_mode: Literal["demo_fixture_replay", "cached_snapshot", "live_runtime"] = (
         operating_mode
@@ -123,6 +125,7 @@ def create_app(
     request_lock = asyncio.Lock()
     live_builder = LiveBuilderService(
         db, sse_hub, request_lock, LiveBuilderSettings.from_environment(), live_builder_client_factory,
+        narrator=live_builder_narrator,
     )
 
     @asynccontextmanager
@@ -1023,6 +1026,18 @@ def create_app(
             raise HTTPException(status_code=403, detail=LIVE_COPY["actor_mismatch"])
         result, created = await live_builder.accept(get_organization_fixture(tenant), payload)
         return JSONResponse(status_code=202 if created else 200, content=result.model_dump(mode="json"))
+
+    @app.get("/api/v1/orgs/{org_id}/builds/live", response_model=LiveBuildList)
+    async def list_live_builds(
+        org_id: str, limit: int = Query(default=20, ge=1, le=100),
+        all_runs: bool = Query(default=False, alias="all"),
+        x_heavyrain_org_id: str | None = Header(default=None),
+        x_heavyrain_actor_id: str | None = Header(default=None),
+    ):
+        async with request_lock:
+            tenant = _resolve_tenant(org_id, x_heavyrain_org_id, x_heavyrain_actor_id)
+            live_builder.require_enabled()
+            return db.list_live_builds(tenant, limit, all_runs=all_runs)
 
     @app.get("/api/v1/orgs/{org_id}/builds/live/current", response_model=LiveBuildSnapshot)
     async def current_live_build(

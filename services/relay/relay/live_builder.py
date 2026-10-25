@@ -3,6 +3,7 @@ from __future__ import annotations
 import asyncio
 from dataclasses import dataclass
 from datetime import datetime, timezone
+import hashlib
 import json
 import math
 import os
@@ -25,6 +26,7 @@ from relay.models import (
     LiveBuildRequest, LiveBuildRun,
     LiveBuildUsage, OrganizationFixture, OrganizationId,
 )
+from relay.narrator import DEFAULT_MODEL, TIMEOUT_SECONDS, parse_rewrite, rewrite_feed_line
 from relay.sse import SseEventHub
 
 MODULE_ROOT = Path(__file__).parent
@@ -75,6 +77,8 @@ class LiveBuilderSettings:
     poll_seconds: float
     artifact_root: Path
     public_base_url: str
+    narrator_enabled: bool = True
+    narrator_model: str = DEFAULT_MODEL
 
     @classmethod
     def from_environment(cls) -> LiveBuilderSettings:
@@ -86,8 +90,11 @@ class LiveBuilderSettings:
         poll = float(os.environ.get("HEAVY_RAIN_BUILDER_POLL_SECONDS", "3"))
         if not math.isfinite(poll) or poll <= 0:
             raise ValueError("HEAVY_RAIN_BUILDER_POLL_SECONDS must be positive and finite")
+        enabled = os.environ.get("HEAVY_RAIN_LIVE_BUILDER") == "1" and bool(os.environ.get("GEMINI_API_KEY", "").strip())
         return cls(
-            enabled=os.environ.get("HEAVY_RAIN_LIVE_BUILDER") == "1" and bool(os.environ.get("GEMINI_API_KEY", "").strip()),
+            narrator_enabled=os.environ.get("HEAVY_RAIN_NARRATOR", "1" if enabled else "0") == "1",
+            narrator_model=os.environ.get("HEAVY_RAIN_NARRATOR_MODEL", DEFAULT_MODEL),
+            enabled=enabled,
             model=model, max_total_tokens=int(config["max_total_tokens"]), poll_seconds=poll,
             artifact_root=Path(os.environ.get("HEAVY_RAIN_ARTIFACT_ROOT", str(MODULE_ROOT.parent / "data" / "artifacts"))).resolve(),
             public_base_url=os.environ.get("HEAVY_RAIN_PUBLIC_BASE_URL", "http://127.0.0.1:43180").rstrip("/"),
@@ -111,10 +118,13 @@ class LiveBuilderService:
     early_progress_seconds = 20
 
     def __init__(self, db: RelayDatabase, hub: SseEventHub, lock: asyncio.Lock,
-                 settings: LiveBuilderSettings, genai_client_factory: Callable[[], Any] | None = None):
+                 settings: LiveBuilderSettings, genai_client_factory: Callable[[], Any] | None = None,
+                 narrator: Callable[..., dict[str, str]] | None = None):
         validate_live_builder_template()
         self.db, self.hub, self.lock, self.settings = db, hub, lock, settings
         self.tasks: dict[str, asyncio.Task] = {}
+        self._narrator = narrator or rewrite_feed_line
+        self._narration_cache: dict[str, dict[str, dict[str, str] | None]] = {}
         self._factory = genai_client_factory
         self._client = None
         self._client_lock = threading.Lock()
@@ -146,7 +156,7 @@ class LiveBuilderService:
             }, live=True), input=prompt,
         )
 
-    def redact(self, value: Any, limit: int = 600) -> str:
+    def redact(self, value: Any, limit: int | None = 600) -> str:
         value = plain(value)
         text = value if isinstance(value, str) else json.dumps(value, default=str, ensure_ascii=False)
         if self._secret:
@@ -178,11 +188,101 @@ class LiveBuilderService:
             return self.redact(value)
         return value
 
+    def _raw_text(self, detail: Any) -> str:
+        text = detail if isinstance(detail, str) else json.dumps(plain(detail), default=str, ensure_ascii=False)
+        return self.redact(text, None)
+
+    @staticmethod
+    def _narration_key(raw: str) -> str:
+        return hashlib.sha256(raw.encode("utf-8")).hexdigest()
+
+    @staticmethod
+    def _feed_line(step: Any) -> tuple[str, str, str] | None:
+        kind = field(step, "type")
+        if kind == "UNKNOWN":
+            kind = field(field(step, "raw", {}), "type")
+        if kind == "thought":
+            text = "\n".join(field(item, "text", "") or "" for item in field(step, "summary", []) or []).strip().replace("**", "")
+            return ("thought", "Thinking", text) if text else None
+        if kind == "model_output":
+            text = "\n".join(field(item, "text", "") or "" for item in field(step, "content", []) or [])
+            return "message", "Note from the builder", text
+        return None
+
+    async def _prepare_narration(self, run: LiveBuildRun, steps: list[Any], deadline: float):
+        if not self.settings.narrator_enabled:
+            return
+        cache = self._narration_cache.setdefault(run.runId, {})
+        context = {
+            "requested_by_name": self._raw_text(run.requestedBy.name),
+            "requested_by_role": self._raw_text(run.requestedBy.role),
+            "app_name": self._raw_text(run.app.name), "workflow_title": self._raw_text(run.workflow.title),
+            "model": self.settings.narrator_model, "client_factory": self._get_client,
+        }
+        for step in steps:
+            line = self._feed_line(step)
+            if line is None:
+                continue
+            kind, title, detail = line
+            raw = self._raw_text(detail)
+            key = self._narration_key(raw)
+            if key in cache:
+                continue
+            original = {"title": title, "detail": raw}
+            remaining = deadline - asyncio.get_running_loop().time()
+            if remaining <= 0:
+                cache[key] = None
+                continue
+            try:
+                result = await asyncio.wait_for(
+                    asyncio.to_thread(self._narrator, kind, title, raw, context),
+                    timeout=min(TIMEOUT_SECONDS, remaining),
+                )
+                cache[key] = parse_rewrite(result) if result != original else None
+            except Exception:
+                cache[key] = None
+
+    def _snapshot_narration_steps(self, run: LiveBuildRun, snapshot: Any, completed_steps: set[int]) -> list[Any]:
+        steps = field(snapshot, "steps", []) or []
+        count = self.db.live_steps_recorded(run.runId)
+        return [step for index, step in enumerate(steps) if index >= count and index not in completed_steps]
+
+    def _stream_narration_steps(self, run, event, buffers, completed_steps, now):
+        kind = field(event, "event_type")
+        steps = []
+        if kind in {"interaction.created", "interaction.completed", "interaction.status_update"}:
+            snapshot = event if kind == "interaction.status_update" else field(event, "interaction", {})
+            steps.extend(self._snapshot_narration_steps(run, snapshot, completed_steps))
+        # Preview only text changes; the normal stream handler remains the sole buffer writer.
+        candidates = {index: dict(buffer) for index, buffer in buffers.items()}
+        index = field(event, "index")
+        if kind == "step.delta" and index in candidates:
+            delta = field(event, "delta", {})
+            if field(delta, "type") == "thought_summary":
+                candidates[index]["text"] += field(field(delta, "content", {}), "text", "") or ""
+            elif field(delta, "type") == "text":
+                candidates[index]["text"] += field(delta, "text", "") or ""
+        if kind == "step.stop":
+            buffer = candidates.pop(index, None)
+            if buffer is not None and index not in completed_steps:
+                steps.append(self._buffered_step(buffer))
+        for buffer in candidates.values():
+            if (buffer["step"].get("type") in {"thought", "model_output"}
+                    and buffer["text"] and buffer["text"] != buffer["emitted_text"]
+                    and now - buffer["last_emit"] >= self.early_progress_seconds):
+                steps.append(self._buffered_step(buffer))
+        return steps
+
     def _event(self, run: LiveBuildRun, kind: str, title: str, detail: Any = None, path: str | None = None):
+        raw = self._raw_text(detail) if kind in {"thought", "message"} and detail is not None else None
+        if raw is not None and self.settings.narrator_enabled:
+            rewritten = self._narration_cache.get(run.runId, {}).get(self._narration_key(raw))
+            if rewritten is not None:
+                title, detail = rewritten["title"], rewritten["detail"]
         event = self.db.append_live_event(
             run.runId, kind=kind, title=self.redact(title, 80),
             detail=self.redact(detail) if detail is not None else None,
-            path=self.redact(path, 1024) if path else None,
+            path=self.redact(path, 1024) if path else None, raw=raw,
         )
         self.hub.publish(run.orgId, "live_build_progress", {**event.model_dump(), "runId": run.runId})
         return event
@@ -306,9 +406,9 @@ class LiveBuilderService:
         elif kind in {"thought", "model_output"} and run.phase == "received":
             run.phase = "reading"
         if kind == "thought":
-            text = "\n".join(field(item, "text", "") or "" for item in field(step, "summary", []) or []).strip().replace("**", "")
-            if text:
-                self._event(run, "thought", "Thinking", text)
+            line = self._feed_line(step)
+            if line is not None:
+                self._event(run, *line)
         elif kind == "function_call":
             name = field(step, "name", "")
             call_names[field(step, "id", "")] = name
@@ -354,8 +454,7 @@ class LiveBuilderService:
             detail = self.redact(self._safe_value(outcome, shorten=False), 300) if outcome else None
             self._event(run, "tool_result", self._feed("result.code", "Finished running code"), detail)
         elif kind == "model_output":
-            text = "\n".join(field(item, "text", "") or "" for item in field(step, "content", []) or [])
-            self._event(run, "message", "Note from the builder", text)
+            self._event(run, *self._feed_line(step))
         else:
             words = str(kind).replace("_", " ")
             self._event(run, "status", self._feed("status.other", "{kind}", kind=words))
@@ -709,11 +808,16 @@ class LiveBuilderService:
                             snapshot = await asyncio.wait_for(asyncio.to_thread(
                                 self._get_client().interactions.get, initial_run.interactionId,
                             ), timeout=max(0.001, deadline - loop.time()))
+                        await self._prepare_narration(initial_run,
+                            self._snapshot_narration_steps(initial_run, snapshot, completed_steps), deadline)
                         async with self.lock:
                             run = self.db.get_live_build(org_id, run_id)
                             if run is None or run.status in {"failed", "cancelled"}:
                                 return
                             self._apply_snapshot(run, snapshot, call_names, completed_steps)
+                        if loop.time() >= deadline:
+                            await self._expire(org_id, run_id)
+                            return
                         snapshot = None
                     else:
                         stream = self._stream(initial_run.interactionId, last_event_id)
@@ -722,6 +826,12 @@ class LiveBuilderService:
                                 if loop.time() >= deadline:
                                     await self._expire(org_id, run_id)
                                     return
+                                event_id = field(event, "event_id") if event is not None else None
+                                if event_id and event_id in event_ids:
+                                    continue
+                                event_now = loop.time()
+                                await self._prepare_narration(initial_run,
+                                    self._stream_narration_steps(initial_run, event, buffers, completed_steps, event_now), deadline)
                                 async with self.lock:
                                     run = self.db.get_live_build(org_id, run_id)
                                     if run is None or run.status in {"failed", "cancelled"}:
@@ -731,17 +841,20 @@ class LiveBuilderService:
                                         event_id = field(event, "event_id")
                                         if event_id and event_id in event_ids:
                                             continue
-                                        terminal = self._stream_event(run, event, buffers, completed_steps, call_names, loop.time())
+                                        terminal = self._stream_event(run, event, buffers, completed_steps, call_names, event_now)
                                         if event_id:
                                             last_event_id = event_id
                                             event_ids.add(event_id)
                                     for buffer in buffers.values():
                                         if (buffer["step"].get("type") in {"thought", "model_output"}
                                                 and buffer["text"] and buffer["text"] != buffer["emitted_text"]
-                                                and loop.time() - buffer["last_emit"] >= self.early_progress_seconds):
+                                                and event_now - buffer["last_emit"] >= self.early_progress_seconds):
                                             self._step(run, self._buffered_step(buffer), call_names)
-                                            buffer["last_emit"], buffer["emitted_text"] = loop.time(), buffer["text"]
+                                            buffer["last_emit"], buffer["emitted_text"] = event_now, buffer["text"]
                                             self.db.save_live_build(run)
+                                if loop.time() >= deadline:
+                                    await self._expire(org_id, run_id)
+                                    return
                                 if terminal:
                                     break
                         finally:
@@ -752,11 +865,16 @@ class LiveBuilderService:
                         final_snapshot = await asyncio.wait_for(asyncio.to_thread(
                             self._get_client().interactions.get, initial_run.interactionId,
                         ), timeout=max(0.001, deadline - loop.time()))
+                        await self._prepare_narration(initial_run,
+                            self._snapshot_narration_steps(initial_run, final_snapshot, completed_steps), deadline)
                         async with self.lock:
                             run = self.db.get_live_build(org_id, run_id)
                             if run is None or run.status in {"failed", "cancelled"}:
                                 return
                             self._apply_snapshot(run, final_snapshot, call_names, completed_steps)
+                        if loop.time() >= deadline:
+                            await self._expire(org_id, run_id)
+                            return
                     if run.status == "completed":
                         await self._complete(run, deadline)
                         return
@@ -781,6 +899,7 @@ class LiveBuilderService:
                             return
                 await asyncio.sleep(min(self.settings.poll_seconds, max(0, deadline - loop.time())))
         finally:
+            self._narration_cache.pop(run_id, None)
             scanner.cancel()
             progress_poller.cancel()
             await asyncio.gather(scanner, progress_poller, return_exceptions=True)
