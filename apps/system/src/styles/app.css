@@ -2074,8 +2074,7 @@ button.hr-status-chip:active {
     padding-right: 20px;
   }
   .hr-stage-layout {
-    grid-template-columns: 152px minmax(0, 1fr);
-    gap: 20px;
+    grid-template-columns: minmax(0, 1fr);
   }
   .rm-variance-app__main-grid {
     grid-template-columns: 270px minmax(0, 1fr);

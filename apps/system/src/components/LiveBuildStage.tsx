@@ -6,6 +6,7 @@ import { BuildProgressPanel, type BuildProgressRow } from "./BuildProgressPanel"
 import { BuilderFeed } from "./BuilderFeed";
 import { AppCard } from "./AppCard";
 import liveCopy from "../copy/live.json";
+import playbackCopy from "../copy/playback.json";
 import { useLiveBuild } from "../demo/useLiveBuild";
 import type { OrganizationId } from "../types";
 
@@ -93,7 +94,7 @@ export const LiveBuildStage: FC<LiveBuildStageProps> = ({ orgId, orgName, enable
           <h1 className="hr-workbench-c__title">{run ? run.app.name : orgName}</h1>
         </div>
         <div className="hr-workbench-c__controls">
-          {offline && <span className="hr-workbench-c__offline">{liveCopy.empty.liveTitle}</span>}
+          {offline && <span className="hr-workbench-c__offline">{playbackCopy.unavailable}</span>}
         </div>
       </header>
 
