@@ -231,7 +231,7 @@ def test_progress_uses_sdk_snapshots_and_publishes_sse(app_factory):
         assert {"thought", "tool_call", "tool_result", "message", "file", "status"} <= {e["kind"] for e in events}
         assert sum(e["kind"] == "thought" for e in events) == 1
         assert "PRIVATE FILE BODY" not in json.dumps(events)
-        assert "[201 chars]" in json.dumps(events)
+        assert all(len(e.get("detail") or "") <= 600 for e in events)
         assert all(len(e["title"]) <= 80 and len(e["detail"] or "") <= 600 for e in events)
         cursor = reading["progress"][-1]["seq"]
         newer = client.get(BASE + f"/current?since={cursor}").json()
@@ -614,7 +614,7 @@ def test_more_step_types_redact_file_bodies_and_credentials(app_factory):
     serialized = json.dumps(events)
     for private in (SECRET, "PRIVATE READ FILE BODY", "PRIVATE UNKNOWN BODY", "private-signature", "PRIVATE FENCED BODY", "print(4)"):
         assert private not in serialized
-    assert any(event["title"] == "future tool type" for event in events)
+    assert any(event["title"] == "Status: future tool type" for event in events)
     assert any(event["title"] == "Running code" and event["detail"] == "print(1)\nprint(2)\nprint(3)" for event in events)
     assert any(event["kind"] == "error" and len(event["detail"]) == 300 for event in events)
     assert not any(event["kind"] == "thought" for event in events)
@@ -850,8 +850,8 @@ def test_streamed_results_code_and_status_usage_keep_existing_redaction(app_fact
             working = wait_snapshot(client, lambda v: v["run"]["usage"]["totalTokens"] == 12)
             assert working["run"]["phase"] == "building"
             assert any(e["title"] == "Running code" and e["detail"] == "print(1)\nprint(2)" for e in working["progress"])
-            assert any(e["title"] == "Finished read_file" for e in working["progress"])
-            assert any(e["title"] == "Failed check" and e["detail"] == "Failed [redacted]" for e in working["progress"])
+            assert any(e["title"] == "Read file" for e in working["progress"])
+            assert any(e["title"] == "Failed to run check" and e["detail"] == "Failed [redacted]" for e in working["progress"])
             assert "PRIVATE READ BODY" not in json.dumps(working["progress"])
             release.set()
             stopped = wait_terminal(client)

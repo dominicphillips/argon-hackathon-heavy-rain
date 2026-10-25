@@ -261,6 +261,40 @@ class LiveBuilderService:
         visit(arguments)
         return list(dict.fromkeys(paths))
 
+    @staticmethod
+    def _tool_group(name: str) -> str:
+        if name in {"list_dir", "ls", "list_directory"}:
+            return "list_dir"
+        if name in {"read_file", "view_file", "get_file", "cat", "view_file_outline", "grep_search", "find_by_name"}:
+            return "read"
+        if name in {"write_file", "write_to_file", "create_file", "save_file"}:
+            return "write"
+        if name in {"edit_file", "replace_in_file", "replace_file_content", "multi_replace_file_content", "apply_patch"}:
+            return "edit"
+        if name in {"run_command", "bash", "execute", "shell", "run_terminal_cmd", "exec"}:
+            return "command"
+        return "other"
+
+    @staticmethod
+    def _feed(key: str, default: str, **tokens: str) -> str:
+        feed = COPY.get("feed", {})
+        template = feed.get(key) or default
+        try:
+            return template.format(**tokens).strip()
+        except (KeyError, IndexError):
+            return default.format(**tokens).strip()
+
+    def _argument_detail(self, arguments: Any) -> Any:
+        """Prefer the command or path the audience can read, taken from the already redacted arguments."""
+        safe = self._safe_value(arguments)
+        if isinstance(safe, dict):
+            for key in ("command", "cmd", "Command", "CommandLine", "path", "file_path", "filepath", "TargetFile",
+                        "AbsolutePath", "DirectoryPath", "target_file", "filename", "query", "Query"):
+                item = safe.get(key)
+                if isinstance(item, str) and item.strip():
+                    return item
+        return safe
+
     def _step(self, run: LiveBuildRun, step: Any, call_names: dict[str, str]):
         kind = field(step, "type", "status")
         if kind == "UNKNOWN":
@@ -279,35 +313,50 @@ class LiveBuilderService:
             arguments = field(step, "arguments", {}) or {}
             paths = self._paths(arguments)
             path = paths[0] if paths else ""
-            titles = {"write_file": f"Writing {path}".strip(), "write_to_file": f"Writing {path}".strip(), "create_file": f"Writing {path}".strip(), "edit_file": f"Editing {path}".strip(), "replace_in_file": f"Editing {path}".strip(), "read_file": f"Reading {path}".strip(), "view_file": f"Reading {path}".strip(),
-                      "run_command": "Running a command", "bash": "Running a command", "execute": "Running a command",
-                      "list_dir": "Looking around the workspace"}
-            self._event(run, "tool_call", titles.get(name, name.replace("_", " ")), self._safe_value(arguments))
+            group = self._tool_group(name)
+            words = name.replace("_", " ").strip()
+            defaults = {"list_dir": "Looking around the workspace", "read": "Reading {path}", "write": "Writing {path}",
+                        "edit": "Editing {path}", "command": "Running a command", "other": "{tool}"}
+            title = self._feed(f"call.{group}", defaults[group], path=path, tool=words)
+            self._event(run, "tool_call", title, self._argument_detail(arguments))
             for path in paths:
                 path = self.redact(path, 1024)
                 if path not in run.filesWritten:
                     run.filesWritten.append(path)
-                self._event(run, "file", f"Writing {path}" if name in {"write_file", "write_to_file", "create_file"} else path, path=path)
+                self._event(run, "file", self._feed("call.write", "Writing {path}", path=path) if group == "write" else path, path=path)
         elif kind == "function_result":
             name = field(step, "name") or call_names.get(field(step, "call_id", ""), "")
             is_error = field(step, "is_error", False)
             result = field(step, "result", "")
-            if name in {"read_file", "get_file", "cat"}:
+            group = self._tool_group(name)
+            words = name.replace("_", " ").strip()
+            if group == "read":
                 detail = COPY["file_body_omitted"]
             else:
                 detail = self.redact(self._safe_value(result, shorten=False), 300)
-            self._event(run, "error" if is_error else "tool_result", f"{'Failed' if is_error else 'Finished'} {name}".strip(), detail)
+            if is_error:
+                title = self._feed("result.failed", "Failed {tool}", tool=words, path="")
+            else:
+                defaults = {"list_dir": "Looked around the workspace", "read": "Read the file", "write": "Saved the file",
+                            "edit": "Updated the file", "command": "Command finished", "other": "Finished {tool}"}
+                title = self._feed(f"result.{group}", defaults[group], tool=words, path="")
+            self._event(run, "error" if is_error else "tool_result", title, detail)
         elif kind == "code_execution_call":
             code = field(field(step, "arguments", {}), "code", "") or ""
             detail = "\n".join(code.splitlines()[:3])
             if re.search(r"(?i)(write_text|write_bytes|write_file|<<|\.write\(|<html|<svg)", code):
                 detail = COPY["file_body_omitted"]
-            self._event(run, "tool_call", "Running code", detail)
+            self._event(run, "tool_call", self._feed("call.code", "Running code"), detail)
+        elif kind == "code_execution_result":
+            outcome = field(step, "result", None) or field(step, "output", None) or field(step, "stdout", None)
+            detail = self.redact(self._safe_value(outcome, shorten=False), 300) if outcome else None
+            self._event(run, "tool_result", self._feed("result.code", "Finished running code"), detail)
         elif kind == "model_output":
             text = "\n".join(field(item, "text", "") or "" for item in field(step, "content", []) or [])
             self._event(run, "message", "Note from the builder", text)
         else:
-            self._event(run, "status", str(kind).replace("_", " "))
+            words = str(kind).replace("_", " ")
+            self._event(run, "status", self._feed("status.other", "{kind}", kind=words))
 
     def _apply_snapshot(self, run: LiveBuildRun, interaction: Any, call_names: dict[str, str],
                         streamed_steps: set[int] | None = None):

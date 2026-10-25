@@ -21,5 +21,23 @@
   "request_detail": "Queued live sandbox build for {app_name}, requested by {requester}.",
   "file_body_omitted": "[file content omitted]",
   "unsupported_org": "Live sandbox builds are not supported for organization '{org_id}'. Submit live build requests to 'meridian'.",
-  "template_invalid": "Live builder prompt template is missing required placeholders: {placeholders}."
+  "template_invalid": "Live builder prompt template is missing required placeholders: {placeholders}.",
+  "feed": {
+    "call.list_dir": "Checking workspace files",
+    "call.read": "Reading file",
+    "call.write": "Writing file",
+    "call.edit": "Editing file",
+    "call.command": "Running command",
+    "call.code": "Running code",
+    "call.other": "Running {tool}",
+    "result.list_dir": "Checked workspace files",
+    "result.read": "Read file",
+    "result.write": "Wrote file",
+    "result.edit": "Edited file",
+    "result.command": "Ran command",
+    "result.code": "Ran code",
+    "result.other": "Completed {tool}",
+    "result.failed": "Failed to run {tool}",
+    "status.other": "Status: {kind}"
+  }
 }
