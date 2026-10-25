@@ -74,7 +74,7 @@ def verify_tenant_isolation(
     payload_org_id: str | None = None,
     actor_id: str | None = None,
 ) -> OrganizationId:
-    """Enforces strict tenant isolation between Rookmere Capital ('rookmere') and AUGI ('augi')."""
+    """Enforces strict tenant isolation."""
     target_org = normalize_org_id(route_org_id)
 
     if header_org_id:
@@ -99,6 +99,11 @@ def verify_tenant_isolation(
 
     if actor_id:
         cleaned_actor = actor_id.strip().lower()
+        is_meridian_actor = cleaned_actor in {"marcus", "elena", "devon", "priya", "claire"} or cleaned_actor.startswith("emp_mc_")
+        if (target_org == "meridian") != is_meridian_actor:
+            raise TenantIsolationError(
+                f"Cross-tenant actor denied: '{actor_id}' cannot access '{target_org}'."
+            )
         if cleaned_actor.startswith("emp_rm_") and target_org != "rookmere":
             raise TenantIsolationError(
                 f"Cross-tenant actor denied: Rookmere employee '{actor_id}' cannot access AUGI tenant."

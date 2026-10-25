@@ -17,6 +17,7 @@ from typing import Any, Literal
 from fastapi import FastAPI, Header, HTTPException, Query, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse, StreamingResponse
+from fastapi.staticfiles import StaticFiles
 
 # Ensure services/cairn is importable when running from repository root or services/relay
 REPO_ROOT = Path(__file__).resolve().parents[3]
@@ -52,6 +53,7 @@ from relay.builder_driver import (  # noqa: E402
 )
 from relay.db import RelayDatabase  # noqa: E402
 from relay.fixtures_loader import get_organization_fixture  # noqa: E402
+from relay.live_builder import COPY as LIVE_COPY, LiveBuilderService, LiveBuilderSettings  # noqa: E402
 from relay.models import (  # noqa: E402
     ApprovedReleaseSnapshot,
     BuildControlRequest,
@@ -62,6 +64,10 @@ from relay.models import (  # noqa: E402
     CairnReviewRequest,
     ClusterDecisionActionRequest,
     EmployeeReport,
+    LiveBuildAccepted,
+    LiveBuildRequest,
+    LiveBuildRun,
+    LiveBuildSnapshot,
     McpSubmissionReceiptResponse,
     McpSubmitWorkReportRequest,
     OrganizationFixture,
@@ -94,6 +100,7 @@ def create_app(
     builder_client: ManagedBuilderClient | None = None,
     live_review_runner=None,
     live_review_enabled: bool | None = None,
+    live_builder_client_factory=None,
 ) -> FastAPI:
     resolved_mode: Literal["demo_fixture_replay", "cached_snapshot", "live_runtime"] = (
         operating_mode
@@ -113,14 +120,20 @@ def create_app(
     cairn = CairnOrchestrator(config=cairn_cfg)
     builder = builder_client or ManagedBuilderClient(operating_mode=resolved_mode)
     sse_hub = SseEventHub()
+    request_lock = asyncio.Lock()
+    live_builder = LiveBuilderService(
+        db, sse_hub, request_lock, LiveBuilderSettings.from_environment(), live_builder_client_factory,
+    )
 
     @asynccontextmanager
     async def lifespan(application):
+        db.interrupt_live_builds()
         db._conn.execute("UPDATE cairn_reviews SET status = 'failed', error_code = 'server_restarted_outcome_unknown' WHERE status IN ('queued', 'running')")
         db._conn.commit()
         try:
             yield
         finally:
+            await live_builder.shutdown()
             tasks = list(application.state.review_tasks)
             for task in tasks:
                 task.cancel()
@@ -149,13 +162,15 @@ def create_app(
             "http://localhost:43172",
             "http://127.0.0.1:43173",
             "http://localhost:43173",
+            "http://localhost:5173",
+            "http://127.0.0.1:5173",
+            "http://localhost:5174",
+            "http://127.0.0.1:5174",
         ],
         allow_credentials=True,
         allow_methods=["*"],
         allow_headers=["*"],
     )
-
-    request_lock = asyncio.Lock()
 
     @app.middleware("http")
     async def local_demo_boundary(request: Request, call_next):
@@ -165,11 +180,22 @@ def create_app(
         allowed_origins = {"http://127.0.0.1:43170", "http://localhost:43170",
                            "http://127.0.0.1:43171", "http://localhost:43171",
                            "http://127.0.0.1:43172", "http://localhost:43172",
-                           "http://127.0.0.1:43173", "http://localhost:43173"}
+                           "http://127.0.0.1:43173", "http://localhost:43173",
+                           "http://localhost:5173", "http://127.0.0.1:5173",
+                           "http://localhost:5174", "http://127.0.0.1:5174"}
         if origin and origin not in allowed_origins:
             return JSONResponse(status_code=403, content={"detail": "This local demo accepts requests only from its preview apps."})
-        async with request_lock:
+        if "/builds/live" in request.url.path:
             return await call_next(request)
+        async with request_lock:
+            response = await call_next(request)
+        if request.url.path.startswith("/artifacts/"):
+            response.headers["Content-Security-Policy"] = (
+                "default-src 'none'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; "
+                "img-src 'self' data:; connect-src 'none'; form-action 'none'; base-uri 'none'; sandbox allow-scripts"
+            )
+            response.headers["X-Content-Type-Options"] = "nosniff"
+        return response
 
     app.state.db = db
     app.state.cairn = cairn
@@ -180,6 +206,9 @@ def create_app(
         os.environ.get("HEAVY_RAIN_ENABLE_LIVE_REVIEW") == "1" and bool(os.environ.get("GEMINI_API_KEY")))
     app.state.live_review_runner = live_review_runner or run_live_cairn_review
     app.state.review_tasks = set()
+    app.state.live_builder = live_builder
+    app.state.live_builder_tasks = live_builder.tasks
+    app.mount("/artifacts", StaticFiles(directory=live_builder.settings.artifact_root, html=True), name="artifacts")
 
     def _resolve_tenant(
         org_id: str,
@@ -216,6 +245,8 @@ def create_app(
             "externalNotificationsEnabled": False,
             "authenticationMode": "local_demo_only",
             "liveRuntimeEnabled": False,
+            "liveBuilderEnabled": live_builder.settings.enabled,
+            "liveBuilderModel": live_builder.settings.model,
             "liveModelReviewEnabled": app.state.live_review_enabled,
             "coordinatorExecution": "deterministic_fixture_rules",
             "databaseStatus": "ok" if db._conn.execute("SELECT 1").fetchone()[0] == 1 else "error",
@@ -977,6 +1008,56 @@ def create_app(
             "remoteExecution": False,
             "tokensUsed": 0,
         }
+
+    @app.post("/api/v1/orgs/{org_id}/builds/live", status_code=202,
+              response_model=LiveBuildAccepted | LiveBuildRun)
+    async def start_live_build(
+        org_id: str, payload: LiveBuildRequest,
+        x_heavyrain_org_id: str | None = Header(default=None),
+        x_heavyrain_actor_id: str | None = Header(default=None),
+    ):
+        async with request_lock:
+            tenant = _resolve_tenant(org_id, x_heavyrain_org_id, x_heavyrain_actor_id)
+            _resolve_tenant(tenant, x_heavyrain_org_id, payload.requested_by.persona_id)
+        if x_heavyrain_actor_id and x_heavyrain_actor_id != payload.requested_by.persona_id:
+            raise HTTPException(status_code=403, detail=LIVE_COPY["actor_mismatch"])
+        result, created = await live_builder.accept(get_organization_fixture(tenant), payload)
+        return JSONResponse(status_code=202 if created else 200, content=result.model_dump(mode="json"))
+
+    @app.get("/api/v1/orgs/{org_id}/builds/live/current", response_model=LiveBuildSnapshot)
+    async def current_live_build(
+        org_id: str, since: int = Query(default=0, ge=0),
+        x_heavyrain_org_id: str | None = Header(default=None),
+        x_heavyrain_actor_id: str | None = Header(default=None),
+    ):
+        async with request_lock:
+            tenant = _resolve_tenant(org_id, x_heavyrain_org_id, x_heavyrain_actor_id)
+            live_builder.require_enabled()
+            return db.live_snapshot(tenant, since=since)
+
+    @app.get("/api/v1/orgs/{org_id}/builds/live/{run_id}", response_model=LiveBuildSnapshot)
+    async def get_live_build(
+        org_id: str, run_id: str, since: int = Query(default=0, ge=0),
+        x_heavyrain_org_id: str | None = Header(default=None),
+        x_heavyrain_actor_id: str | None = Header(default=None),
+    ):
+        async with request_lock:
+            tenant = _resolve_tenant(org_id, x_heavyrain_org_id, x_heavyrain_actor_id)
+            live_builder.require_enabled()
+            snapshot = db.live_snapshot(tenant, run_id, since)
+            if snapshot.run is None:
+                raise HTTPException(status_code=404, detail=LIVE_COPY["unknown_run"])
+            return snapshot
+
+    @app.post("/api/v1/orgs/{org_id}/builds/live/{run_id}/cancel", response_model=LiveBuildRun)
+    async def cancel_live_build(
+        org_id: str, run_id: str,
+        x_heavyrain_org_id: str | None = Header(default=None),
+        x_heavyrain_actor_id: str | None = Header(default=None),
+    ):
+        async with request_lock:
+            tenant = _resolve_tenant(org_id, x_heavyrain_org_id, x_heavyrain_actor_id)
+        return await live_builder.cancel(tenant, run_id)
 
     @app.get("/api/v1/orgs/{org_id}/builds/{run_id}")
     def get_sandbox_build_status(

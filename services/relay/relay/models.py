@@ -2,10 +2,10 @@
 
 from __future__ import annotations
 
-from typing import Any, Literal
-from pydantic import BaseModel, Field
+from typing import Annotated, Any, Literal
+from pydantic import BaseModel, ConfigDict, Field, StringConstraints
 
-OrganizationId = Literal["rookmere", "augi"]
+OrganizationId = Literal["rookmere", "augi", "meridian"]
 
 BuildStageId = Literal[
     "idle",
@@ -107,7 +107,9 @@ def normalize_org_id(raw_org_id: str) -> OrganizationId:
         return "rookmere"
     if cleaned in {"augi", "org_augi"}:
         return "augi"
-    raise ValueError(f"Unsupported organization identifier: '{raw_org_id}'. Expected 'rookmere' or 'augi'.")
+    if cleaned in {"meridian", "org_meridian"}:
+        return "meridian"
+    raise ValueError(f"Unsupported organization identifier: '{raw_org_id}'.")
 
 
 class EvidenceAttachment(BaseModel):
@@ -488,3 +490,118 @@ class VerificationReport(BaseModel):
 
 class CairnReviewRequest(BaseModel):
     idempotency_key: str = Field(min_length=8, max_length=128)
+
+
+LiveBuildPhase = Literal["received", "reading", "building", "checking", "ready", "failed"]
+TrimmedString = Annotated[str, StringConstraints(strip_whitespace=True)]
+
+
+class LiveBuildInput(BaseModel):
+    model_config = ConfigDict(extra="ignore", str_strip_whitespace=True)
+
+
+class LiveBuildRequester(LiveBuildInput):
+    persona_id: str = Field(min_length=1)
+    name: str = Field(min_length=1)
+    role: str
+
+
+class LiveBuildWorkflow(LiveBuildInput):
+    title: str
+    summary: str
+    tools: list[TrimmedString] = Field(default_factory=list)
+    weekly_hours_saved: float | None = Field(default=None, allow_inf_nan=False)
+
+
+class LiveBuildApp(LiveBuildInput):
+    name: str = Field(min_length=2, max_length=80)
+    purpose: str
+    features: list[TrimmedString] = Field(min_length=1, max_length=8)
+    assumptions: list[TrimmedString] = Field(default_factory=list)
+
+
+class LiveBuildRequest(LiveBuildInput):
+    idempotency_key: str = Field(min_length=6, max_length=128)
+    requested_by: LiveBuildRequester
+    workflow: LiveBuildWorkflow
+    app: LiveBuildApp
+
+
+class LiveBuildAccepted(BaseModel):
+    runId: str
+    orgId: OrganizationId
+    status: Literal["accepted"] = "accepted"
+    interactionId: str | None
+    environmentId: str | None
+    model: str
+    createdAt: str
+
+
+class LiveBuildRequestedBy(BaseModel):
+    personaId: str
+    name: str
+    role: str
+
+
+class LiveBuildWorkflowSnapshot(BaseModel):
+    title: str
+    summary: str
+    tools: list[str]
+    weeklyHoursSaved: float | None
+
+
+class LiveBuildUsage(BaseModel):
+    totalTokens: int = 0
+    totalThoughtTokens: int = 0
+    totalOutputTokens: int = 0
+
+
+class LiveBuildRun(BaseModel):
+    runId: str
+    orgId: OrganizationId
+    status: BuilderInteractionStatus
+    phase: LiveBuildPhase
+    model: str
+    interactionId: str | None = None
+    environmentId: str | None = None
+    requestedBy: LiveBuildRequestedBy
+    workflow: LiveBuildWorkflowSnapshot
+    app: LiveBuildApp
+    startedAt: str
+    updatedAt: str
+    completedAt: str | None = None
+    errorReason: str | None = None
+    usage: LiveBuildUsage = Field(default_factory=LiveBuildUsage)
+    filesWritten: list[str] = Field(default_factory=list)
+
+
+class LiveBuildProgressEvent(BaseModel):
+    seq: int
+    at: str
+    kind: Literal["status", "thought", "tool_call", "tool_result", "file", "message", "error"]
+    title: str = Field(max_length=80)
+    detail: str | None = Field(default=None, max_length=600)
+    path: str | None = None
+
+
+class LiveBuildCard(BaseModel):
+    model_config = ConfigDict(extra="ignore", strict=True)
+    name: str
+    tagline: str = Field(max_length=90)
+    highlights: list[Annotated[str, StringConstraints(max_length=70)]] = Field(min_length=3, max_length=3)
+    screens: list[str]
+
+
+class LiveBuildArtifact(BaseModel):
+    indexUrl: str
+    previewUrl: str | None = None
+    notes: str | None = None
+    card: LiveBuildCard | None = None
+    fileCount: int
+    bytes: int
+
+
+class LiveBuildSnapshot(BaseModel):
+    run: LiveBuildRun | None
+    progress: list[LiveBuildProgressEvent]
+    artifact: LiveBuildArtifact | None

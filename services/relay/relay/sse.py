@@ -17,6 +17,7 @@ class SseEventHub:
         self._subscribers: dict[OrganizationId, list[tuple[asyncio.AbstractEventLoop, asyncio.Queue[dict[str, Any]]]]] = {
             "rookmere": [],
             "augi": [],
+            "meridian": [],
         }
         self._counter = 0
         self._lock = threading.RLock()
@@ -24,7 +25,7 @@ class SseEventHub:
     def _next_id(self, org_id: OrganizationId) -> str:
         with self._lock:
             self._counter += 1
-            prefix = "rm" if org_id == "rookmere" else "augi"
+            prefix = "rm" if org_id == "rookmere" else org_id
             return f"sse_{prefix}_{self._counter:04d}"
 
     @staticmethod

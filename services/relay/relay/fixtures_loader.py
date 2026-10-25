@@ -27,6 +27,8 @@ DEMO_DIR = REPO_ROOT / "__grounding" / "demo"
 
 
 def load_raw_demo_json(org_id: OrganizationId) -> dict[str, Any]:
+    if org_id == "meridian":
+        return {"employees": [], "roles_and_access": {"roles": [], "capture_policy": {}}}
     path = DEMO_DIR / f"{org_id}.json"
     with path.open("r", encoding="utf-8") as f:
         return json.load(f)
@@ -1261,9 +1263,26 @@ def build_augi_fixture() -> OrganizationFixture:
     )
 
 
+def build_meridian_fixture() -> OrganizationFixture:
+    copy = json.loads((Path(__file__).parent / "live_copy.json").read_text(encoding="utf-8"))
+    return OrganizationFixture(
+        orgId="meridian", name="Meridian Crest Capital", shortLabel="Meridian",
+        legalEntity="Meridian Crest Capital", sector="Private equity", headquarters=[],
+        totalStaffCount=0, namedRosterCount=0, weeklyBatchId="batch_meridian_live",
+        weeklyCutoffLabel=copy["meridian_cutoff_label"], capturedThroughLabel=copy["meridian_captured_label"],
+        totalReportsIngested=0, heroTitle=copy["meridian_hero_title"],
+        heroFullName=copy["meridian_hero_full_name"], heroOrchestratorEyebrow=copy["meridian_eyebrow"],
+        heroDecisionSummary=copy["meridian_empty_summary"], heroFailedHeadline=copy["meridian_failed_headline"],
+        heroFailedDetail=copy["meridian_failed_detail"], checkpoints=[], workers=[],
+        clusters=[], reports=[], catalogApps=[], initialEvents=[], rookmereCompanies=[], augiConfigs=[],
+    )
+
+
 def get_organization_fixture(org_id: OrganizationId) -> OrganizationFixture:
     if org_id == "rookmere":
         return build_rookmere_fixture()
+    if org_id == "meridian":
+        return build_meridian_fixture()
     return build_augi_fixture()
 
 
@@ -1272,29 +1291,30 @@ def build_initial_workspace_state(
     data_freshness: str = "demo_fixture_replay",
 ) -> OrganizationWorkspaceState:
     fixture = get_organization_fixture(org_id)
+    empty = org_id == "meridian"
     orthogonal = OrthogonalStatuses(
         orgId=org_id,
         weeklyBatchId=fixture.weeklyBatchId,
         weeklySchedule="active",
         weeklyScheduleActive=True,
-        batchRunStatus="awaiting_operator_decision",
-        weeklyRunStatus="Awaiting operator decision",
-        builderInteractionStatus="in_progress",
-        buildStage="stage2",
-        lastActiveCheckpoint=2,
+        batchRunStatus="collecting" if empty else "awaiting_operator_decision",
+        weeklyRunStatus="Idle" if empty else "Awaiting operator decision",
+        builderInteractionStatus="queued" if empty else "in_progress",
+        buildStage="idle" if empty else "stage2",
+        lastActiveCheckpoint=1 if empty else 2,
         appReleaseState="sandbox_preview",
         appReleaseStatus="in_sandbox_review",
-        notificationState="queued",
+        notificationState="suppressed_in_demo" if empty else "queued",
         dataFreshness="live_runtime" if data_freshness == "live_runtime" else "demo_fixture_replay",
         capturedThroughLabel=fixture.capturedThroughLabel,
     )
     return OrganizationWorkspaceState(
         orgId=org_id,
         weeklyScheduleActive=True,
-        weeklyRunStatus="Awaiting operator decision",
-        buildStage="stage2",
-        lastActiveCheckpoint=2,
-        candidateVersion="1.0.0-rc1",
+        weeklyRunStatus="Idle" if empty else "Awaiting operator decision",
+        buildStage="idle" if empty else "stage2",
+        lastActiveCheckpoint=1 if empty else 2,
+        candidateVersion="" if empty else "1.0.0-rc1",
         appReleaseStatus="in_sandbox_review",
         approvedRelease=None,
         changeRequestNotes=[],

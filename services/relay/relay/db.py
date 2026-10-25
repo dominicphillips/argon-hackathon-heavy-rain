@@ -20,6 +20,11 @@ from relay.models import (
     CanonicalReleaseState,
     CatalogAppItem,
     EmployeeReport,
+    LiveBuildArtifact,
+    LiveBuildProgressEvent,
+    LiveBuildRequest,
+    LiveBuildRun,
+    LiveBuildSnapshot,
     OrganizationFixture,
     OrganizationId,
     OrganizationWorkspaceState,
@@ -60,7 +65,7 @@ class RelayDatabase:
             PRAGMA foreign_keys = ON;
 
             CREATE TABLE IF NOT EXISTS organizations (
-                org_id TEXT PRIMARY KEY CHECK (org_id IN ('rookmere', 'augi')),
+                org_id TEXT PRIMARY KEY CHECK (org_id IN ('rookmere', 'augi', 'meridian')),
                 canonical_org_id TEXT NOT NULL UNIQUE,
                 name TEXT NOT NULL,
                 legal_entity TEXT NOT NULL,
@@ -199,6 +204,43 @@ class RelayDatabase:
                 created_at TEXT NOT NULL
             );
 
+            CREATE TABLE IF NOT EXISTS live_builds (
+                run_id TEXT PRIMARY KEY,
+                org_id TEXT NOT NULL REFERENCES organizations(org_id),
+                idempotency_key TEXT NOT NULL,
+                status TEXT NOT NULL,
+                phase TEXT NOT NULL,
+                model TEXT NOT NULL,
+                interaction_id TEXT,
+                environment_id TEXT,
+                requested_by TEXT NOT NULL,
+                workflow TEXT NOT NULL,
+                app TEXT NOT NULL,
+                usage TEXT NOT NULL,
+                files_written TEXT NOT NULL,
+                artifact TEXT,
+                steps_recorded INTEGER NOT NULL DEFAULT 0,
+                started_at TEXT NOT NULL,
+                updated_at TEXT NOT NULL,
+                completed_at TEXT,
+                error_reason TEXT,
+                UNIQUE (org_id, idempotency_key)
+            );
+
+            CREATE UNIQUE INDEX IF NOT EXISTS live_builds_active_org
+            ON live_builds(org_id) WHERE status IN ('queued', 'in_progress');
+
+            CREATE TABLE IF NOT EXISTS live_build_events (
+                run_id TEXT NOT NULL REFERENCES live_builds(run_id),
+                seq INTEGER NOT NULL,
+                at TEXT NOT NULL,
+                kind TEXT NOT NULL,
+                title TEXT NOT NULL,
+                detail TEXT,
+                path TEXT,
+                PRIMARY KEY (run_id, seq)
+            );
+
             CREATE TRIGGER IF NOT EXISTS prevent_audit_log_update
             BEFORE UPDATE ON audit_logs
             BEGIN
@@ -213,6 +255,32 @@ class RelayDatabase:
             """
         )
         self._conn.commit()
+        self._migrate_organization_ids()
+
+    def _migrate_organization_ids(self) -> None:
+        schema = self._conn.execute(
+            "SELECT sql FROM sqlite_master WHERE type = 'table' AND name = 'organizations'"
+        ).fetchone()[0]
+        if "'meridian'" in schema:
+            return
+        expanded = schema.replace("organizations", "organizations_expanded", 1).replace(
+            "'augi'", "'augi', 'meridian'"
+        )
+        self._conn.execute("PRAGMA foreign_keys = OFF")
+        try:
+            self._conn.execute("BEGIN IMMEDIATE")
+            self._conn.execute(expanded)
+            self._conn.execute("INSERT INTO organizations_expanded SELECT * FROM organizations")
+            self._conn.execute("DROP TABLE organizations")
+            self._conn.execute("ALTER TABLE organizations_expanded RENAME TO organizations")
+            if self._conn.execute("PRAGMA foreign_key_check").fetchone():
+                raise sqlite3.IntegrityError("organizations migration failed foreign_key_check")
+            self._conn.commit()
+        except BaseException:
+            self._conn.rollback()
+            raise
+        finally:
+            self._conn.execute("PRAGMA foreign_keys = ON")
 
     def append_audit_log(
         self,
@@ -293,16 +361,14 @@ class RelayDatabase:
         ]
 
     def seed_fixtures_if_empty(self) -> None:
-        count = self._conn.execute("SELECT COUNT(*) AS cnt FROM organizations").fetchone()["cnt"]
-        if count > 0:
-            return
-
         now_iso = "2026-10-25T18:00:00Z"
-        for org_id in ("rookmere", "augi"):
+        for org_id in ("rookmere", "augi", "meridian"):
+            if self._conn.execute("SELECT 1 FROM organizations WHERE org_id = ?", (org_id,)).fetchone():
+                continue
             fixture: OrganizationFixture = get_organization_fixture(org_id)
             canonical_id = f"org_{org_id}"
-            tz = "Europe/London" if org_id == "rookmere" else "Europe/Berlin"
-            theme_id = "rookmere-ash-ledger" if org_id == "rookmere" else "augi-graphite-atelier"
+            tz = {"rookmere": "Europe/London", "augi": "Europe/Berlin", "meridian": "UTC"}[org_id]
+            theme_id = "augi-graphite-atelier" if org_id == "augi" else "rookmere-ash-ledger"
 
             self._conn.execute(
                 """
@@ -329,9 +395,11 @@ class RelayDatabase:
                     batch_id, org_id, cutoff_version, org_timezone,
                     window_start, window_cutoff, cutoff_locked,
                     batch_run_status, weekly_run_status_label, evaluated_at
-                ) VALUES (?, ?, 1, ?, '2026-10-18T18:00:00Z', '2026-10-25T18:00:00Z', 0, 'awaiting_operator_decision', 'Awaiting operator decision', ?)
+                ) VALUES (?, ?, 1, ?, '2026-10-18T18:00:00Z', '2026-10-25T18:00:00Z', 0, ?, ?, ?)
                 """,
-                (fixture.weeklyBatchId, org_id, tz, now_iso),
+                (fixture.weeklyBatchId, org_id, tz,
+                 "collecting" if org_id == "meridian" else "awaiting_operator_decision",
+                 "Idle" if org_id == "meridian" else "Awaiting operator decision", now_iso),
             )
 
             for rep in fixture.reports:
@@ -402,6 +470,8 @@ class RelayDatabase:
                     (org_id, ev.eventId, ev.model_dump_json()),
                 )
 
+            if org_id == "meridian":
+                continue
             run_id = "run_rm_var_01" if org_id == "rookmere" else "run_augi_sable_3d_01"
             cluster_id = "pat_rm_01" if org_id == "rookmere" else "wf_augi_01"
             target_app_id = "app_rm_variance_workbench" if org_id == "rookmere" else "app_augi_sable_chassis_3d"
@@ -481,9 +551,9 @@ class RelayDatabase:
         weekly_run_status = batch_row["weekly_run_status_label"] if batch_row else "Awaiting operator decision"
         batch_run_status = batch_row["batch_run_status"] if batch_row else "awaiting_operator_decision"
 
-        build_stage: BuildStageId = run_row["build_stage"] if run_row else "stage2"
-        last_checkpoint = int(run_row["last_active_checkpoint"]) if run_row else 2
-        interaction_status: BuilderInteractionStatus = run_row["interaction_status"] if run_row else "in_progress"
+        build_stage: BuildStageId = run_row["build_stage"] if run_row else "idle"
+        last_checkpoint = int(run_row["last_active_checkpoint"]) if run_row else 1
+        interaction_status: BuilderInteractionStatus = run_row["interaction_status"] if run_row else "queued"
         app_release_state: CanonicalReleaseState = run_row["app_release_state"] if run_row else "sandbox_preview"
         app_release_status = run_row["app_release_status"] if run_row else "in_sandbox_review"
 
@@ -571,3 +641,128 @@ class RelayDatabase:
             (org_id, event.eventId, event.model_dump_json()),
         )
         self._conn.commit()
+
+    def interrupt_live_builds(self) -> None:
+        self._conn.execute(
+            """UPDATE live_builds SET status = 'incomplete', error_reason = ?, updated_at = ?
+               WHERE status IN ('queued', 'in_progress')""",
+            ("Server restarted while the build was running.", datetime.now(timezone.utc).isoformat()),
+        )
+        self._conn.commit()
+
+    @staticmethod
+    def _live_run(row: sqlite3.Row) -> LiveBuildRun:
+        return LiveBuildRun(
+            runId=row["run_id"], orgId=row["org_id"], status=row["status"], phase=row["phase"],
+            model=row["model"], interactionId=row["interaction_id"], environmentId=row["environment_id"],
+            requestedBy=json.loads(row["requested_by"]), workflow=json.loads(row["workflow"]),
+            app=json.loads(row["app"]), usage=json.loads(row["usage"]),
+            filesWritten=json.loads(row["files_written"]), startedAt=row["started_at"],
+            updatedAt=row["updated_at"], completedAt=row["completed_at"], errorReason=row["error_reason"],
+        )
+
+    def get_live_build(self, org_id: OrganizationId, run_id: str) -> LiveBuildRun | None:
+        row = self._conn.execute(
+            "SELECT * FROM live_builds WHERE org_id = ? AND run_id = ?", (org_id, run_id)
+        ).fetchone()
+        return self._live_run(row) if row else None
+
+    def reserve_live_build(
+        self, org_id: OrganizationId, request: LiveBuildRequest, model: str, run_id: str,
+    ) -> tuple[LiveBuildRun | None, bool, str | None]:
+        self._conn.execute("BEGIN IMMEDIATE")
+        try:
+            existing = self._conn.execute(
+                "SELECT * FROM live_builds WHERE org_id = ? AND idempotency_key = ?",
+                (org_id, request.idempotency_key),
+            ).fetchone()
+            if existing:
+                self._conn.commit()
+                return self._live_run(existing), False, None
+            active = self._conn.execute(
+                "SELECT run_id FROM live_builds WHERE org_id = ? AND status IN ('queued', 'in_progress')",
+                (org_id,),
+            ).fetchone()
+            if active:
+                self._conn.commit()
+                return None, False, active["run_id"]
+            now = datetime.now(timezone.utc).isoformat()
+            run = LiveBuildRun(
+                runId=run_id, orgId=org_id, status="queued", phase="received", model=model,
+                requestedBy={"personaId": request.requested_by.persona_id,
+                             "name": request.requested_by.name, "role": request.requested_by.role},
+                workflow={"title": request.workflow.title, "summary": request.workflow.summary,
+                          "tools": request.workflow.tools, "weeklyHoursSaved": request.workflow.weekly_hours_saved},
+                app=request.app, startedAt=now, updatedAt=now,
+            )
+            self._conn.execute(
+                """INSERT INTO live_builds
+                   (run_id, org_id, idempotency_key, status, phase, model, requested_by, workflow,
+                    app, usage, files_written, started_at, updated_at)
+                   VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
+                (run_id, org_id, request.idempotency_key, run.status, run.phase, model,
+                 run.requestedBy.model_dump_json(), run.workflow.model_dump_json(), run.app.model_dump_json(),
+                 run.usage.model_dump_json(), "[]", now, now),
+            )
+            self._conn.commit()
+            return run, True, None
+        except BaseException:
+            self._conn.rollback()
+            raise
+
+    def save_live_build(self, run: LiveBuildRun) -> None:
+        run.updatedAt = datetime.now(timezone.utc).isoformat()
+        self._conn.execute(
+            """UPDATE live_builds SET status = ?, phase = ?, interaction_id = ?, environment_id = ?,
+               usage = ?, files_written = ?, updated_at = ?, completed_at = ?, error_reason = ?
+               WHERE org_id = ? AND run_id = ?""",
+            (run.status, run.phase, run.interactionId, run.environmentId, run.usage.model_dump_json(),
+             json.dumps(run.filesWritten), run.updatedAt, run.completedAt, run.errorReason, run.orgId, run.runId),
+        )
+        self._conn.commit()
+
+    def live_steps_recorded(self, run_id: str) -> int:
+        return self._conn.execute(
+            "SELECT steps_recorded FROM live_builds WHERE run_id = ?", (run_id,)
+        ).fetchone()[0]
+
+    def record_live_steps(self, run_id: str, count: int) -> None:
+        self._conn.execute("UPDATE live_builds SET steps_recorded = ? WHERE run_id = ?", (count, run_id))
+        self._conn.commit()
+
+    def save_live_artifact(self, run_id: str, artifact: LiveBuildArtifact) -> None:
+        self._conn.execute("UPDATE live_builds SET artifact = ? WHERE run_id = ?", (artifact.model_dump_json(), run_id))
+        self._conn.commit()
+
+    def append_live_event(self, run_id: str, **fields: Any) -> LiveBuildProgressEvent:
+        seq = self._conn.execute(
+            "SELECT COALESCE(MAX(seq), 0) + 1 FROM live_build_events WHERE run_id = ?", (run_id,)
+        ).fetchone()[0]
+        event = LiveBuildProgressEvent(seq=seq, at=datetime.now(timezone.utc).isoformat(), **fields)
+        self._conn.execute(
+            "INSERT INTO live_build_events (run_id, seq, at, kind, title, detail, path) VALUES (?, ?, ?, ?, ?, ?, ?)",
+            (run_id, seq, event.at, event.kind, event.title, event.detail, event.path),
+        )
+        self._conn.commit()
+        return event
+
+    def live_snapshot(self, org_id: OrganizationId, run_id: str | None = None, since: int = 0) -> LiveBuildSnapshot:
+        if run_id is None:
+            row = self._conn.execute(
+                "SELECT * FROM live_builds WHERE org_id = ? ORDER BY started_at DESC, rowid DESC LIMIT 1", (org_id,)
+            ).fetchone()
+        else:
+            row = self._conn.execute(
+                "SELECT * FROM live_builds WHERE org_id = ? AND run_id = ?", (org_id, run_id)
+            ).fetchone()
+        if not row:
+            return LiveBuildSnapshot(run=None, progress=[], artifact=None)
+        events = self._conn.execute(
+            """SELECT seq, at, kind, title, detail, path FROM live_build_events
+               WHERE run_id = ? AND seq > ? ORDER BY seq DESC LIMIT 400""", (row["run_id"], since)
+        ).fetchall()
+        return LiveBuildSnapshot(
+            run=self._live_run(row),
+            progress=[LiveBuildProgressEvent(**dict(event)) for event in reversed(events)],
+            artifact=LiveBuildArtifact.model_validate_json(row["artifact"]) if row["artifact"] else None,
+        )

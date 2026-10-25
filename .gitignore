@@ -40,3 +40,6 @@ coverage/
 
 # Agent working outputs (copy briefs, generated media receipts)
 output/
+
+# Extracted live-build artifacts served by the relay
+services/relay/data/artifacts/

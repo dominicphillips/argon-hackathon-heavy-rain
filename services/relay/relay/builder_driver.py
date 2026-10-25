@@ -58,15 +58,9 @@ def validate_antigravity_agent_config(
     agent_config: dict[str, Any] | None = None,
     *,
     default_max_total_tokens: str = DEFAULT_BUILDER_MAX_TOTAL_TOKENS,
-) -> dict[str, str]:
-    """Validates and normalizes AntigravityAgentConfig for antigravity-preview-09-2026.
-
-    Per official Gemini Interactions API documentation and antigravityagentconfig.py:
-    - Only `type`, `model`, and `max_total_tokens` (int64 string) are supported.
-    - Passing `thinking_level`, `max_output_tokens`, `temperature`, etc. returns HTTP 400.
-    - `model` must be explicitly set to `"gemini-4-argon"` so the builder never falls back
-      to the default `gemini-3.8-flash`.
-    """
+    live: bool = False,
+) -> dict[str, str | int]:
+    """Validates and normalizes AntigravityAgentConfig for antigravity-preview-09-2026."""
     cfg = dict(agent_config) if agent_config is not None else {
         "type": "antigravity",
         "model": MANAGED_BUILDER_MODEL,
@@ -86,13 +80,15 @@ def validate_antigravity_agent_config(
         )
 
     model = cfg.get("model")
-    if model != MANAGED_BUILDER_MODEL:
+    if model not in ({MANAGED_BUILDER_MODEL, "gemini-3.8-flash"} if live else {MANAGED_BUILDER_MODEL}):
         raise InvalidAgentConfigError(
             f"AntigravityAgentConfig.model must explicitly override default Flash with "
             f"'{MANAGED_BUILDER_MODEL}', got {model!r}."
         )
 
     raw_max = cfg.get("max_total_tokens", default_max_total_tokens)
+    if live and type(raw_max) is int:
+        raw_max = str(raw_max)
     if not isinstance(raw_max, str) or not raw_max.isdigit() or int(raw_max) <= 0:
         raise InvalidAgentConfigError(
             f"AntigravityAgentConfig.max_total_tokens must be a positive int64 string, got {raw_max!r}."
@@ -104,8 +100,8 @@ def validate_antigravity_agent_config(
 
     return {
         "type": "antigravity",
-        "model": MANAGED_BUILDER_MODEL,
-        "max_total_tokens": raw_max,
+        "model": model,
+        "max_total_tokens": int(raw_max) if live else raw_max,
     }
 
 
