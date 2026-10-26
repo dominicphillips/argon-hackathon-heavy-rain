@@ -4,6 +4,7 @@ import {
   useMemo,
   useRef,
   useState,
+  useSyncExternalStore,
   type FC,
   type KeyboardEvent,
 } from "react";
@@ -42,6 +43,7 @@ import { LiveAppsView } from "./components/LiveAppsView";
 import liveCopy from "./copy/live.json";
 import { DEMO_STEPS } from "./demo/playbackController";
 import { marcusVanceRequest } from "./data/liveSample";
+import { BuildStartController, buildStartLabel } from "./demo/buildStartController";
 import { RookmereEmbeddedFrame } from "./components/RookmereEmbeddedFrame";
 import { AugiEmbeddedFrame } from "./components/AugiEmbeddedFrame";
 import { InspectorDrawer } from "./components/InspectorDrawer";
@@ -57,7 +59,7 @@ import {
 } from "./demo/DemoPlayback";
 import type { OrganizationFixture } from "./types";
 import type { WorkspaceWithStatuses } from "./backend/client";
-import { startLiveBuild } from "./backend/client";
+import { startLiveBuild, type LiveBuildMode } from "./backend/client";
 import {
   controlBuild,
   getHealth,
@@ -410,22 +412,21 @@ export const App: FC = () => {
       size="lg"
     />
   );
-  // Start: launch a real build with the Marcus Vance request so the pipeline can be tested from here.
-  const [liveStartNote, setLiveStartNote] = useState<string | null>(null);
-  const [liveStarting, setLiveStarting] = useState<boolean>(false);
+  // Start: launch a real build with the Marcus Vance request and the chosen build mode.
+  const liveStart = useMemo(
+    () =>
+      new BuildStartController({
+        request: marcusVanceRequest,
+        start: (payload) => startLiveBuild("meridian", payload),
+      }),
+    [],
+  );
+  const liveStartState = useSyncExternalStore(liveStart.subscribe, liveStart.getState, liveStart.getState);
   const handleStartLiveBuild = async () => {
-    if (liveStarting) return;
-    setLiveStarting(true);
-    setLiveStartNote(null);
-    try {
-      await startLiveBuild("meridian", marcusVanceRequest());
-      setLiveResetToken(0);
-      if (moreMenuRef.current) moreMenuRef.current.open = false;
-    } catch (error) {
-      setLiveStartNote(error instanceof Error ? error.message : String(error));
-    } finally {
-      setLiveStarting(false);
-    }
+    const accepted = await liveStart.start();
+    if (!accepted) return;
+    setLiveResetToken(0);
+    if (moreMenuRef.current) moreMenuRef.current.open = false;
   };
   // Reset: clear the shown live run, or rewind the scripted cycle, back to the empty stage.
   const [liveResetToken, setLiveResetToken] = useState<number>(0);
@@ -1142,22 +1143,34 @@ export const App: FC = () => {
                   <option value="augi">{liveCopy.org.augi}</option>
                 </select>
               </div>
+              {activeOrgId === "meridian" && (
+                <select
+                  className="hr-select hr-topbar-more__mode"
+                  aria-label={liveCopy.buildMode.label}
+                  value={liveStartState.mode}
+                  onChange={(e) => liveStart.selectMode(e.target.value as LiveBuildMode)}
+                  disabled={liveStartState.starting}
+                >
+                  <option value="flash">{liveCopy.buildMode.flash}</option>
+                  <option value="argon">{liveCopy.buildMode.argon}</option>
+                </select>
+              )}
               <div className="hr-topbar-more__actions">
                 {activeOrgId === "meridian" && (
                   <button
                     type="button"
                     className="hr-topbar-more__action hr-topbar-more__action--primary"
                     onClick={() => void handleStartLiveBuild()}
-                    disabled={liveStarting}
+                    disabled={liveStartState.starting}
                   >
-                    {liveCopy.start}
+                    {buildStartLabel(liveStartState.mode, liveCopy.buildMode)}
                   </button>
                 )}
                 <button type="button" className="hr-topbar-more__action" onClick={handleReset}>
                   {liveCopy.reset}
                 </button>
               </div>
-              {liveStartNote && <p className="hr-topbar-more__note">{liveStartNote}</p>}
+              {liveStartState.error && <p className="hr-topbar-more__note">{liveStartState.error}</p>}
             </div>
           </details>
         </div>

@@ -1,7 +1,11 @@
 # Heavy Rain system and frontend architecture
 
 **Updated:** 2026-10-25
-**Scope:** End-to-end architecture for Heavy Rain, covering explicit MCP evidence capture, organizational access and consent policies, **Relay** coordination, **Cairn** weekly orchestration (`google-antigravity 0.1.22`), managed production **Builders** (`antigravity-preview-09-2026` on the Gemini Interactions API), local `agy` development workforce, three-way UI/3D package separation, bounded jobs, and rollout for **Rookmere Capital** and **AUGI**.
+**Scope:** End-to-end architecture for Heavy Rain, covering explicit MCP evidence capture, organizational access and consent policies, **Relay** coordination, **Talos** planned weekly decision orchestration (**work in progress**, replacing `Cairn` as the product name; see [`./talos/README.md`](./talos/README.md)), managed **Builders** (`antigravity-preview-09-2026` on the Gemini Interactions API), development model routing, three-way UI/3D package separation, bounded jobs, and rollout for **Rookmere Capital** and **AUGI**.
+
+**Current implementation vs planned architecture (2026-10-25):**
+- **Talos decision system (work in progress):** Sections 1–3 and 6 describe the planned target topology where **Talos** runs autonomous workflow discovery and weekly routing on `google-antigravity==0.1.22`. Draft system design, contracts, and prompts are saved at [`./talos/system-design.md`](./talos/system-design.md), [`./talos/contracts.md`](./talos/contracts.md), and `./talos/prompts/`. In the running server today, weekly batch evaluation executes deterministic fixture rules in `services/cairn` (`coordinatorExecution: "deterministic_fixture_rules"`), and optional bounded read-only model review (`services/cairn/cairn/live_review.py`) is disabled (`liveModelReviewEnabled: false`). Code packages, classes, health fields, and `/review-with-cairn` routes retain `cairn`/`Cairn` identifiers for compatibility.
+- **Implemented direct live sandbox builder (`services/relay/relay/live_builder.py`):** Enabled in the observed local server (`liveBuilderEnabled: true`, `liveBuilderModel: "gemini-4-argon"` in `/health`; `LiveBuilderSettings` defaults to `gemini-3.8-flash` in code). `POST /api/v1/orgs/{org_id}/builds/live` accepts an optional `build_mode` (`"flash" | "argon"`): `"flash"` routes to `gemini-3.8-flash` with `live_builder.md` (requesting a low-fidelity wireframe scaffold capped at 150,000 bytes), `"argon"` routes to `gemini-4-argon` with `live_builder_argon.md` (requesting a high-fidelity interactive application capped at 1,048,576 bytes), and omitting `build_mode` uses `HEAVY_RAIN_BUILDER_MODEL` and its matching prompt while keeping the original run immutable on idempotent retries. Relay calls `client.interactions.create` (`agent="antigravity-preview-09-2026"`, `environment="remote"`, `background=True`, `store=True`), polls `interactions.get`, supports cancellation, lists/downloads remote workspace files, persists SQLite run/event state (with one earlier completed `gemini-4-argon` run and two completed `gemini-3.8-flash` runs with artifacts in the observed snapshot; no new paid Argon build has been run yet under `live_builder_argon.md`), and serves the self-contained static HTML/CSS/JS bundle (`workspace/app/`) with synthetic sample data locally for human review. Optional progress narration (`services/relay/relay/narrator.py`) calls `models.generate_content` (default `gemini-3.8-flash`) with fallback to raw text.
 
 ---
 
@@ -23,7 +27,7 @@ flowchart LR
 
   subgraph Core["Heavy Rain Coordinator & Central Service"]
     Relay["Relay Service\n(Intake, Policy, Polling, Artifact Persist, Audit)"]
-    Cairn["Cairn Coordinator\n(google-antigravity 0.1.22, gemini-4-argon high)"]
+    Cairn["Talos Coordinator (WIP / services/cairn)\n(google-antigravity 0.1.22, gemini-4-argon high)"]
     Catalog[("Approved App Catalog\n& Role Matrix")]
   end
 
@@ -55,9 +59,10 @@ flowchart LR
   Relay --> Notifier
 ```
 
-### Intended backend vs local prototype workspaces
-- **Intended multiagent backend:** **Relay** ingests live MCP reports, triggers **Cairn** (`google-antigravity 0.1.22`) at the weekly cutoff, and dispatches production **Builders** to the Google-hosted managed Antigravity agent (`antigravity-preview-09-2026`, `environment="remote"`), downloading and persisting verified workspace bundles before human release promotion.
-- **Local prototype workspaces in this repository:** `apps/system` (`http://127.0.0.1:43170`) and `apps/augi-engineering` (`http://127.0.0.1:43171`) run locally against the deterministic fixtures in [`demo/rookmere.json`](./demo/rookmere.json) and [`demo/augi.json`](./demo/augi.json). All repository development subagents run via local `agy` (`--model gemini-4-argon-high --effort high`).
+### Planned multiagent topology vs implemented runtime paths
+- **Planned multiagent topology (work in progress):** **Relay** ingests authenticated MCP reports, triggers **Talos** (`google-antigravity 0.1.22`, [`./talos/system-design.md`](./talos/system-design.md)) at the weekly cutoff, and dispatches production **Builders** to the Google-hosted managed Antigravity agent (`antigravity-preview-09-2026`, `environment="remote"`), downloading and persisting verified workspace bundles before human release promotion.
+- **Implemented direct live sandbox builder (`services/relay`):** `POST /api/v1/orgs/{org_id}/builds/live` dispatches `antigravity-preview-09-2026` (`environment="remote"`, `background=True`, `store=True`) directly from Relay using `build_mode: "flash" | "argon"` (`services/relay/relay/prompts/live_builder.md` on `gemini-3.8-flash` for a 150,000-byte scaffold, or `services/relay/relay/prompts/live_builder_argon.md` on `gemini-4-argon` for a 1,048,576-byte interactive application; the console Start selector defaults to `"flash"`), downloads `workspace/app/`, and serves the self-contained static HTML/CSS/JS bundle with synthetic sample data locally for human review.
+- **Local fixture workspaces and development routing:** `apps/system` (`http://127.0.0.1:43170`), `apps/augi-engineering` (`http://127.0.0.1:43171`), and `apps/rookmere-finance` (`http://127.0.0.1:43173`) run locally against the deterministic fixtures in [`demo/rookmere.json`](./demo/rookmere.json) and [`demo/augi.json`](./demo/augi.json). Per `ADR-07`, frontend engineering routes to Claude CLI (`Fable`), backend work to `Astra`, and copy/docs/prompts to Gemini 4 Argon (`ask_gemini --provider google`), while `agy` remains reserved for the hosted builder backend.
 
 ---
 
@@ -73,9 +78,9 @@ Per the Model Context Protocol specification (`2026-07-28`, <https://modelcontex
 
 ---
 
-## 3. Weekly evaluation and reuse-first gating (Cairn on `google-antigravity 0.1.22`)
+## 3. Planned weekly evaluation and reuse-first gating (Talos on `google-antigravity 0.1.22`, work in progress)
 
-At the weekly cutoff, **Cairn** (running on the local/server coordinator runtime via `google-antigravity==0.1.22`, <https://pypi.org/project/google-antigravity/>, <https://antigravity.google/docs/changelog>) clusters reports and applies a three-way gate:
+In the planned **Talos** architecture ([`./talos/system-design.md`](./talos/system-design.md); represented today by deterministic fixture rules in `services/cairn` with optional live review disabled), the coordinator runs at the weekly cutoff on `google-antigravity==0.1.22` (<https://pypi.org/project/google-antigravity/>, <https://antigravity.google/docs/changelog>) to cluster reports and apply a reuse-first gate (current runtime dispositions are `reuse_existing_app`, `build_in_sandbox`, `request_missing_evidence`, and `queued_next_cycle`; draft Talos contracts in [`./talos/contracts.md`](./talos/contracts.md) also propose `do_not_build` for future migration):
 
 1. **Direct reuse (`reuse_existing_app`):** Checks `approved_app_catalog` first. When an approved app fits (`app_rm_diligence_tracker` for Rookmere diligence lists; `app_augi_fastener_weld_matrix` for AUGI mixed-material joining) and employees hold the required role permission, Relay routes them directly without an extra approval gate.
 2. **Missing-evidence hold (`request_missing_evidence`):** When required schemas or restricted scope sign-offs are absent (`pat_rm_03` LP side letters; `wf_augi_03` megacasting runner porosity), Cairn halts before sandbox allocation and dispatches a targeted evidence request to the domain owner.
@@ -119,6 +124,6 @@ All frontend workspaces use **Vite (`^8.3.5`) + React (`^19.0.0`) + TypeScript (
 
 ## 6. Bounded jobs, token budgets, auditability, and four-step rollout
 
-- **Coordinator vs Builder token ceilings:** **Cairn** (`google-antigravity 0.1.22`) operates within Gemini 4 Argon's `1,048,576` shared token ceiling (`input + thinking + output`, `65,536` sync output cap, Long Decode via `GeminiModelOptions.max_output_tokens`, handling thinking-only hops without premature stream termination). Production **Builders** (`antigravity-preview-09-2026`) bound total interaction spend via `AntigravityAgentConfig.max_total_tokens`. Unchanged failing calls are never blindly retried.
+- **Coordinator vs Builder token ceilings:** In the planned coordinator design, **Talos** (`services/cairn`, `google-antigravity 0.1.22`) targets Gemini 4 Argon's `1,048,576` shared token ceiling (`input + thinking + output`, `65,536` sync output cap, Long Decode via `GeminiModelOptions.max_output_tokens`, handling thinking-only hops without premature stream termination), while the optional read-only review in `services/cairn/cairn/live_review.py` bounds calls to `16,384` total tokens and `4,096` output tokens. **Builders** (`antigravity-preview-09-2026`) bound total interaction spend via `AntigravityAgentConfig.max_total_tokens` (`"262144"` default). Unchanged failing calls are never blindly retried.
 - **Audit and notifications:** Relay logs every receipt, cluster decision, interaction ID, environment ID, artifact SHA-256 digest, and release sign-off, dispatching **Notifiers** only on direct reuse links, missing-evidence requests, and verified releases.
 - **Four-step rollout:** `1. Register MCP connector & roles -> 2. Seed approved app catalog -> 3. Run weekly cutoff in review mode -> 4. Enable managed sandbox Builders & portal promotion`.

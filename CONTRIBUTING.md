@@ -23,7 +23,7 @@ python3 -m venv .venv
 Start the backend and frontend dev servers in separate terminals (keep already-running preview servers active unless the owner asks to stop them):
 
 ```sh
-# Relay + Cairn SQLite backend -> http://127.0.0.1:43180
+# Relay + Talos (WIP; services/cairn runtime package) SQLite backend -> http://127.0.0.1:43180
 .venv/bin/python -m relay
 
 # Heavy Rain operator console -> http://127.0.0.1:43170

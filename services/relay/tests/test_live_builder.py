@@ -16,6 +16,7 @@ import zipfile
 
 from fastapi.testclient import TestClient
 from google.genai.interactions import Interaction, AntigravityAgentConfig
+from pydantic import ValidationError
 import pytest
 
 from relay.app import create_app
@@ -213,6 +214,70 @@ def test_accept_persists_first_and_replays_without_second_build(app_factory):
         assert client.get(f"{BASE}/{accepted['runId']}").json()["run"]["interactionId"] == "interaction-test"
         assert client.get(BASE + "/unknown").status_code == 404
     assert len(fake.creates) == 1
+
+
+@pytest.mark.parametrize("configured_model", ["gemini-3.8-flash", "gemini-4-argon"])
+@pytest.mark.parametrize("mode_fields", [{}, {"build_mode": None}, {"build_mode": "flash"}, {"build_mode": "argon"}])
+def test_build_mode_routes_prompt_and_persists_model(app_factory, monkeypatch, configured_model, mode_fields):
+    import relay.live_builder as live
+    monkeypatch.setenv("HEAVY_RAIN_BUILDER_MODEL", configured_model)
+    expected_model = {"flash": "gemini-3.8-flash", "argon": "gemini-4-argon"}.get(
+        mode_fields.get("build_mode"), configured_model,
+    )
+    expected_path = live.ARGON_PROMPT_PATH if expected_model == "gemini-4-argon" else live.PROMPT_PATH
+    request = {**SAMPLE, **mode_fields}
+    fake = FakeClient()
+    app = app_factory(fake)
+    with TestClient(app) as client:
+        response = client.post(BASE, json=request)
+        assert response.status_code == 202
+        accepted = response.json()
+        assert accepted["model"] == expected_model
+        run = client.get(f"{BASE}/{accepted['runId']}").json()["run"]
+        assert run["model"] == expected_model
+        persisted = app.state.db.get_live_build("meridian", accepted["runId"])
+        assert persisted.model == expected_model
+        assert app.state.live_builder.settings.model == configured_model
+    assert len(fake.creates) == 1
+    assert fake.creates[0]["agent_config"]["model"] == expected_model
+    assert fake.creates[0]["input"] == live.compose_live_builder_prompt(
+        LiveBuildRequest.model_validate(request), get_organization_fixture("meridian"), expected_path,
+    )
+    heading = "# Build a high-fidelity interactive web application" if expected_model == "gemini-4-argon" else "# Build a low-fidelity web app scaffold"
+    assert fake.creates[0]["input"].startswith(heading)
+
+
+@pytest.mark.parametrize("build_mode", ["ultra", "", "Flash", " argon ", 1, False, [], {}])
+def test_invalid_build_mode_is_rejected_before_provider_call(app_factory, build_mode):
+    request = {**SAMPLE, "build_mode": build_mode}
+    with pytest.raises(ValidationError):
+        LiveBuildRequest.model_validate(request)
+    fake = FakeClient()
+    app = app_factory(fake)
+    with TestClient(app) as client:
+        response = client.post(BASE, json=request)
+        assert response.status_code == 422
+        assert response.json()["detail"][0]["loc"] == ["body", "build_mode"]
+        assert app.state.db._conn.execute("SELECT COUNT(*) FROM live_builds").fetchone()[0] == 0
+    assert not fake.creates
+
+
+@pytest.mark.parametrize("first_mode,retry_mode", [("flash", "argon"), ("argon", "flash")])
+def test_idempotent_retry_preserves_original_build_mode(app_factory, first_mode, retry_mode):
+    fake = FakeClient()
+    app = app_factory(fake)
+    settings = app.state.live_builder.settings
+    with TestClient(app) as client:
+        accepted = client.post(BASE, json={**SAMPLE, "build_mode": first_mode}).json()
+        replay = client.post(BASE, json={**SAMPLE, "build_mode": retry_mode})
+        assert replay.status_code == 200
+        assert replay.json()["runId"] == accepted["runId"]
+        assert replay.json()["model"] == accepted["model"]
+        assert app.state.db.get_live_build("meridian", accepted["runId"]).model == accepted["model"]
+        assert app.state.live_builder.settings is settings
+        assert settings.model == "gemini-3.8-flash"
+    assert len(fake.creates) == 1
+    assert fake.creates[0]["agent_config"]["model"] == accepted["model"]
 
 
 def test_progress_uses_sdk_snapshots_and_publishes_sse(app_factory):
@@ -429,13 +494,41 @@ def test_request_trimming_validation_and_prompt_wiring(app_factory):
     assert fake.creates[0]["input"] == prompt
 
 
-def test_template_checked_at_startup_without_changing_owned_prompt(app_factory, monkeypatch, tmp_path):
+@pytest.mark.parametrize("path_name", ["PROMPT_PATH", "ARGON_PROMPT_PATH"])
+def test_template_checked_at_startup_without_changing_owned_prompt(app_factory, monkeypatch, tmp_path, path_name):
     import relay.live_builder as live
     template = tmp_path / "bad-prompt.md"
     template.write_text("{{org_name}}")
-    monkeypatch.setattr(live, "PROMPT_PATH", template)
+    monkeypatch.setattr(live, path_name, template)
     with pytest.raises(ValueError, match="placeholders"):
         app_factory()
+
+
+@pytest.mark.parametrize("path_name", ["PROMPT_PATH", "ARGON_PROMPT_PATH"])
+def test_both_templates_validate_and_substitute_submitted_tokens_once(path_name):
+    import relay.live_builder as live
+    path = getattr(live, path_name)
+    template = live.validate_live_builder_template(path)
+    assert set(live.PLACEHOLDER_PATTERN.findall(template)) == live.PLACEHOLDERS
+    request = LiveBuildRequest.model_validate({
+        **SAMPLE, "app": {**SAMPLE["app"], "name": "{{scaffold_css}}", "purpose": "{{org_name}}"},
+    })
+    prompt = live.compose_live_builder_prompt(request, get_organization_fixture("meridian"), path)
+    assert "Name: {{scaffold_css}}" in prompt
+    assert "Purpose: {{org_name}}" in prompt
+    assert "--sf-bg: #f3f2ee" in prompt
+
+
+@pytest.mark.parametrize("path_name", ["PROMPT_PATH", "ARGON_PROMPT_PATH"])
+@pytest.mark.parametrize("mutation", ["missing", "extra"])
+def test_selected_template_is_validated_when_composed(tmp_path, path_name, mutation):
+    import relay.live_builder as live
+    template = getattr(live, path_name).read_text(encoding="utf-8")
+    template = template.replace("{{app_name}}", "") if mutation == "missing" else template + "{{unknown}}"
+    path = tmp_path / "invalid.md"
+    path.write_text(template, encoding="utf-8")
+    with pytest.raises(ValueError, match="placeholders"):
+        live.compose_live_builder_prompt(LiveBuildRequest.model_validate(SAMPLE), get_organization_fixture("meridian"), path)
 
 
 def test_live_sdk_config_keeps_fixture_rules():
@@ -579,7 +672,8 @@ def test_existing_database_migrates_without_losing_fixture_state(app_factory, tm
         app.state.db._conn.rollback()
 
 
-def test_inflight_create_can_be_read_and_cancelled(app_factory):
+@pytest.mark.parametrize("build_mode", ["flash", "argon"])
+def test_inflight_create_can_be_read_and_cancelled(app_factory, build_mode):
     entered, release = threading.Event(), threading.Event()
     fake = FakeClient()
     def hold_create():
@@ -588,13 +682,15 @@ def test_inflight_create_can_be_read_and_cancelled(app_factory):
     fake.on_create = hold_create
     app = app_factory(fake)
     with TestClient(app) as client, ThreadPoolExecutor(max_workers=1) as executor:
-        future = executor.submit(client.post, BASE, json=SAMPLE)
+        request = {**SAMPLE, "build_mode": build_mode}
+        future = executor.submit(client.post, BASE, json=request)
         try:
             assert entered.wait(2)
             pending = client.get(BASE + "/current").json()["run"]
             assert pending["status"] == "queued" and pending["interactionId"] is None
-            replay = client.post(BASE, json=SAMPLE)
+            replay = client.post(BASE, json={**request, "build_mode": "argon" if build_mode == "flash" else "flash"})
             assert replay.status_code == 200 and replay.json()["runId"] == pending["runId"]
+            assert replay.json()["model"] == pending["model"]
             assert client.get("/health").status_code == 200
             cancelled = client.post(f"{BASE}/{pending['runId']}/cancel").json()
             assert cancelled["status"] == "cancelled"
@@ -604,6 +700,8 @@ def test_inflight_create_can_be_read_and_cancelled(app_factory):
         final = client.get(BASE + "/current").json()["run"]
         assert final["status"] == "cancelled" and final["interactionId"] == "interaction-test"
     assert fake.cancels == ["interaction-test"] and not fake.gets
+    assert len(fake.creates) == 1
+    assert fake.creates[0]["agent_config"]["model"] == final["model"]
 
 
 def test_more_step_types_redact_file_bodies_and_credentials(app_factory):

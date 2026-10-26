@@ -20,10 +20,12 @@ import {
   runId,
   setWeeklySchedule,
   startBuild,
+  startLiveBuild,
   submitReleaseReview,
   subscribeWorkspaceEvents,
   workspaceEventStreamUrl,
 } from "./client.js";
+import { marcusVanceRequest } from "../data/liveSample.js";
 
 // ---------------------------------------------------------------------------
 // Fixtures and mocks
@@ -252,6 +254,19 @@ test("startBuild fills in the org's cluster and authorizer by default", async ()
   const result = await startBuild("augi");
   assert.deepEqual(calls[0].body, { cluster_id: "wf_augi_01", authorized_by_employee_id: "emp_augi_01" });
   assert.equal(result.data.runId, "run_augi_sable_3d_01");
+});
+
+test("startLiveBuild posts the Marcus request with the chosen build mode", async () => {
+  const accepted = { runId: "run_live_01", status: "queued", model: "gemini-4-argon" };
+  responder = () => ({ status: 202, body: accepted });
+  const result = await startLiveBuild("meridian", { ...marcusVanceRequest(), build_mode: "argon" });
+  assert.equal(calls[0].url, "http://127.0.0.1:43180/api/v1/orgs/meridian/builds/live");
+  assert.equal(calls[0].method, "POST");
+  assert.equal(calls[0].headers["X-HeavyRain-Org-Id"], "meridian");
+  const body = calls[0].body as { build_mode?: string; requested_by?: { persona_id?: string } };
+  assert.equal(body.build_mode, "argon");
+  assert.equal(body.requested_by?.persona_id, "marcus");
+  assert.deepEqual(result, accepted);
 });
 
 test("controlBuild targets the org's run id and posts the action", async () => {

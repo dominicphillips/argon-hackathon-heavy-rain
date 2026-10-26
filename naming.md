@@ -6,7 +6,8 @@ Use this guide when naming platform components, customer organizations, and gene
 
 Keep platform infrastructure distinct from customer organizations and their programs:
 
-- **Platform infrastructure:** **Heavy Rain** (platform), **Cairn** (build orchestrator), and **Relay** (work-report intake). Never prefix customer apps with platform names.
+- **Platform infrastructure:** **Heavy Rain** (platform), **Talos** (planned workflow discovery and decision system, **work in progress**), and **Relay** (work-report intake and live builder coordination). Never prefix customer apps with platform names.
+- **Legacy `Cairn` runtime compatibility:** **Talos** replaces `Cairn` as the canonical product name for the planned decision layer ([`__grounding/talos/README.md`](./__grounding/talos/README.md)). Existing Python packages and import paths (`services/cairn`, `cairn.*`), classes (`CairnOrchestrator`, `CairnReviewOutput`), `/health` payload fields (`service: "heavy-rain-relay-cairn"`, `cairn`), SSE event types (`cairn_review`), demo fixtures, and the `/api/v1/orgs/{org_id}/batches/review-with-cairn` route retain `cairn`/`Cairn` identifiers for compatibility.
 - **Customer organizations and programs:** **AUGI** (automotive organization), **Sable** (AUGI vehicle program), and **Rookmere Capital** (investment firm).
 
 ## Rules for app names

@@ -3181,6 +3181,17 @@ button.hr-status-chip:active {
   margin-top: 0;
 }
 
+/* Build-mode choice sits directly above Start in the overflow menu */
+.hr-topbar-more__mode {
+  width: 100%;
+  margin-top: 10px;
+}
+
+.hr-topbar-more__mode:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
 .hr-topbar-more__action--primary {
   background: var(--hr-ink);
   color: #f3f5f7;

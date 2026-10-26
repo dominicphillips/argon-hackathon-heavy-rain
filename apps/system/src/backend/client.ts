@@ -858,11 +858,16 @@ export async function getLiveBuildCurrent(
   };
 }
 
+/** Builder model the operator picks for one live run; the server maps it to a concrete Gemini model. */
+export type LiveBuildMode = "flash" | "argon";
+
 export interface LiveBuildRequest {
   idempotency_key: string;
   requested_by: { persona_id: string; name: string; role: string };
   workflow: { title: string; summary: string; tools: string[]; weekly_hours_saved: number | null };
   app: { name: string; purpose: string; features: string[]; assumptions: string[] };
+  /** Omitted means the server's configured default model. */
+  build_mode?: LiveBuildMode;
 }
 
 export interface LiveBuildAccepted {

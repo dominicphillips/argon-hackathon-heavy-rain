@@ -32,6 +32,9 @@ from relay.sse import SseEventHub
 MODULE_ROOT = Path(__file__).parent
 COPY = json.loads((MODULE_ROOT / "live_copy.json").read_text(encoding="utf-8"))
 PROMPT_PATH = MODULE_ROOT / "prompts" / "live_builder.md"
+ARGON_PROMPT_PATH = MODULE_ROOT / "prompts" / "live_builder_argon.md"
+FLASH_MODEL = "gemini-3.8-flash"
+ARGON_MODEL = "gemini-4-argon"
 CSS_PATH = MODULE_ROOT / "assets" / "scaffold.css"
 PLACEHOLDERS = {
     "org_name", "requested_by_name", "requested_by_role", "workflow_title", "workflow_summary",
@@ -45,8 +48,8 @@ STATUS_TITLES = {
 }
 
 
-def validate_live_builder_template() -> str:
-    template = PROMPT_PATH.read_text(encoding="utf-8")
+def validate_live_builder_template(prompt_path: Path | None = None) -> str:
+    template = (prompt_path if prompt_path is not None else PROMPT_PATH).read_text(encoding="utf-8")
     found = set(PLACEHOLDER_PATTERN.findall(template))
     if found != PLACEHOLDERS:
         raise ValueError(COPY["template_invalid"].format(placeholders=", ".join(sorted(found ^ PLACEHOLDERS))))
@@ -54,8 +57,10 @@ def validate_live_builder_template() -> str:
     return template
 
 
-def compose_live_builder_prompt(request: LiveBuildRequest, org_fixture: OrganizationFixture) -> str:
-    template = validate_live_builder_template()
+def compose_live_builder_prompt(
+    request: LiveBuildRequest, org_fixture: OrganizationFixture, prompt_path: Path | None = None,
+) -> str:
+    template = validate_live_builder_template(prompt_path)
     values = {
         "org_name": org_fixture.name, "requested_by_name": request.requested_by.name,
         "requested_by_role": request.requested_by.role, "workflow_title": request.workflow.title,
@@ -121,6 +126,8 @@ class LiveBuilderService:
                  settings: LiveBuilderSettings, genai_client_factory: Callable[[], Any] | None = None,
                  narrator: Callable[..., dict[str, str]] | None = None):
         validate_live_builder_template()
+        if ARGON_PROMPT_PATH.exists():
+            validate_live_builder_template(ARGON_PROMPT_PATH)
         self.db, self.hub, self.lock, self.settings = db, hub, lock, settings
         self.tasks: dict[str, asyncio.Task] = {}
         self._narrator = narrator or rewrite_feed_line
@@ -147,11 +154,11 @@ class LiveBuilderService:
                     )
             return self._client
 
-    def _create(self, prompt: str):
+    def _create(self, prompt: str, model: str | None = None):
         return self._get_client().interactions.create(
             agent=MANAGED_BUILDER_AGENT, environment="remote", background=True, store=True,
             agent_config=validate_antigravity_agent_config({
-                "type": "antigravity", "model": self.settings.model,
+                "type": "antigravity", "model": model if model is not None else self.settings.model,
                 "max_total_tokens": self.settings.max_total_tokens,
             }, live=True), input=prompt,
         )
@@ -289,10 +296,12 @@ class LiveBuilderService:
 
     async def accept(self, org: OrganizationFixture, request: LiveBuildRequest):
         self.require_enabled()
-        prompt = compose_live_builder_prompt(request, org)
+        effective_model = {"flash": FLASH_MODEL, "argon": ARGON_MODEL}.get(request.build_mode, self.settings.model)
+        prompt_path = ARGON_PROMPT_PATH if effective_model == ARGON_MODEL else PROMPT_PATH
+        prompt = compose_live_builder_prompt(request, org, prompt_path)
         async with self.lock:
             run, created, active_id = self.db.reserve_live_build(
-                org.orgId, request, self.settings.model, f"live_{uuid.uuid4().hex}",
+                org.orgId, request, effective_model, f"live_{uuid.uuid4().hex}",
             )
         if active_id:
             raise HTTPException(status_code=409, detail=COPY["conflict"].format(run_id=active_id))
@@ -300,7 +309,7 @@ class LiveBuilderService:
         if not created:
             return run, False
         try:
-            interaction = await asyncio.to_thread(self._create, prompt)
+            interaction = await asyncio.to_thread(self._create, prompt, run.model)
             async with self.lock:
                 run = self.db.get_live_build(org.orgId, run.runId)
                 assert run is not None

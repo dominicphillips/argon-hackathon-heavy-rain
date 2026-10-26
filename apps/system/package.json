@@ -9,7 +9,7 @@
     "build": "tsc --noEmit && vite build",
     "typecheck": "tsc --noEmit",
     "preview": "vite preview --host 127.0.0.1 --port 43170 --strictPort",
-    "test": "sh src/backend/run-tests.sh && node --test src/demo/playbackController.test.mjs"
+    "test": "sh src/backend/run-tests.sh && node --test src/demo/playbackController.test.mjs src/demo/buildStartController.test.mjs"
   },
   "dependencies": {
     "@heavy-rain/organization-ui": "0.1.0",

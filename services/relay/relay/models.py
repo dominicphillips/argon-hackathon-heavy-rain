@@ -493,6 +493,7 @@ class CairnReviewRequest(BaseModel):
 
 
 LiveBuildPhase = Literal["received", "reading", "building", "checking", "ready", "failed"]
+LiveBuildMode = Literal["flash", "argon"]
 TrimmedString = Annotated[str, StringConstraints(strip_whitespace=True)]
 
 
@@ -525,6 +526,7 @@ class LiveBuildRequest(LiveBuildInput):
     requested_by: LiveBuildRequester
     workflow: LiveBuildWorkflow
     app: LiveBuildApp
+    build_mode: LiveBuildMode | None = None
 
 
 class LiveBuildAccepted(BaseModel):
